@@ -59,7 +59,7 @@ class Individu:
                         tamp = L[i] + random.normalvariate(0,sigma*L[i+3])
                         L[i] = max(Rot_data[XY][i]-Rot_data[XY][i+3],min(tamp,Rot_data[XY][i]+Rot_data[XY][i+3]))
                 Table[XY] = L
-            self.Rot_table =  RotTable.RotTable(Table)
+            self.Rot_table = RotTable.RotTable(Table)
             self.score = self.fit()
 
     def fit(self) -> float: #Renvoie le score de l'individu
