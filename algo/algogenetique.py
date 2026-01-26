@@ -4,6 +4,7 @@ import numpy as np
 import random
 import fitness
 import select
+import copy
 from json import load as json_load
 
 str_data = 'AACTGTCAGCTACCGATCATCTAGCTCTATATCGCGCATTAGCAGC'
@@ -28,7 +29,7 @@ Rot_data = {
 
 class Individu:
     def __init__(self, Table_rot):
-        self.Rot_table = RotTable(Table_rot)
+        self.Rot_table = RotTable.RotTable(Table_rot)
         self.score = self.fit()
 
 
@@ -37,8 +38,8 @@ class Individu:
         s_score,o_score = self.score,other.score
         Table ={}
         for XY in self.Rot_table:
-            Ls = self.Rot_table[XY]
-            Lo = other.Rot_table[XY]
+            Ls = self.Rot_table[XY].copy()
+            Lo = other.Rot_table[XY].copy()
             for i in range(3):
                 alpha = 0.5  # implementer alpha en fct des scores
                 Ls[i] = alpha*Ls[i] +(1-alpha)*Lo[i]
@@ -48,7 +49,7 @@ class Individu:
     def mutation(self,mutrate,sigma):
         global Rot_data
         if 0<=mutrate <=1:
-            Table = self.Rot_table
+            Table =copy.deepcopy(self.Rot_table)
             for XY in Table:
                 L = Table[XY]
                 for i in range(3):
@@ -57,6 +58,7 @@ class Individu:
                         L[i] = max(Rot_data[XY][i]-Rot_data[XY][i+3],min(tamp,Rot_data[XY][i]+Rot_data[XY][i+3]))
                 Table[XY] = L
             self.Rot_table = Table
+            self.score = self.fit()
 
     def fit(self) -> float: #Renvoie le score de l'individu
         return fitness.fitness(self.Rot_table,str_data)
@@ -67,20 +69,20 @@ class Individu:
 class Population :
     def __init__(self,filename : str,dna_seq: str, nb_individus, nb_generations,taux_selec,selection_type : str):
         self.rot_table = json_load(open(filename))
-        self.Individus = self.New_pop()
         self.dna = dna_seq
         self.taux_selec = taux_selec
         self.nb_individus = nb_individus
         self.nb_generations = nb_generations
         self.selection_type = selection_type
-        self.best_table = self.Start_Algo_gene()
         global str_data,Rot_data
         str_data = dna_seq
         Rot_data = self.rot_table
-    
+        self.Individus = self.New_pop()
+        self.best_table = self.Start_Algo_gene()
+        
     def New_pop(self):
         def New_individu():
-            Table_rot = self.rot_table
+            Table_rot =  copy.deepcopy(self.rot_table)
             for XY in Table_rot:
                 L = Table_rot[XY]
                 for i in range(3):
@@ -89,13 +91,13 @@ class Population :
             return Individu(Table_rot)
             
         L = [New_individu() for _ in range (self.nb_individus)]
-        self.Individus = L
+        return L
 
 
     def Start_Algo_gene(self):
         for i in range(self.nb_generations):
             if self.selection_type == "elitiste" :
-                self.Individus = select.selection_elitiste(self.individus,self.taux_selec)
+                self.Individus = select.selection_elitiste(self.Individus,self.taux_selec)
             ### bla bla fct diff
             
             L = []
