@@ -41,7 +41,9 @@ class Individu:
             Ls = self.Rot_table[XY].copy()
             Lo = other.Rot_table[XY].copy()
             for i in range(3):
-                alpha = 0.5  # implementer alpha en fct des scores
+                alpha = 0.5
+                if s_score >0 or o_score >0 :
+                    alpha = (s_score)/(s_score+o_score)  #### implementer alpha en fct des scores
                 Ls[i] = alpha*Ls[i] +(1-alpha)*Lo[i]
             Table[XY] = Ls
         return Individu(Table)
@@ -88,6 +90,7 @@ def AlgoGenetique(Population, filename : str,dna_seq: str, nb_generations,taux_s
 
 
     for i in range(nb_generations):
+        print("generation :",i,"/",nb_generations )
         Geniteurs = selection.selection(Population,taux_selec,selection_type)
         Population = []
         for _ in range(nb_individus):
