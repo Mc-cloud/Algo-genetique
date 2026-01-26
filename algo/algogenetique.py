@@ -66,44 +66,34 @@ class Individu:
     def __lt__(self,other):
         return self.score<other.score
     
-class Population :
-    def __init__(self,filename : str,dna_seq: str, nb_individus, nb_generations,taux_selec,selection_type : str):
-        self.rot_table = json_load(open(filename))
-        self.dna = dna_seq
-        self.taux_selec = taux_selec
-        self.nb_individus = nb_individus
-        self.nb_generations = nb_generations
-        self.selection_type = selection_type
-        global str_data,Rot_data
-        str_data = dna_seq
-        Rot_data = self.rot_table
-        self.Individus = self.New_pop()
-        self.best_table = self.Start_Algo_gene()
-        
-    def New_pop(self):
+def AlgoGenetique(Population, filename : str,dna_seq: str, nb_generations,taux_selec,selection_type : str) :
+    rot_table = json_load(open(filename))
+    nb_individus = len (Population)
+    global str_data,Rot_data
+    str_data = dna_seq
+    Rot_data = rot_table
+    Population = New_pop()
+
+    def New_pop():
         def New_individu():
-            Table_rot =  copy.deepcopy(self.rot_table)
+            Table_rot =  copy.deepcopy(rot_table)
             for XY in Table_rot:
                 L = Table_rot[XY]
                 for i in range(3):
                         L[i] = random.uniform(-Rot_data[XY][i+3],Rot_data[XY][i+3])
                 Table_rot[XY] = L
             return Individu(Table_rot)
-            
-        L = [New_individu() for _ in range (self.nb_individus)]
+        L = [New_individu() for _ in range (nb_individus)]
         return L
 
 
-    def Start_Algo_gene(self):
-        for i in range(self.nb_generations):
-            if self.selection_type == "elitiste" :
-                self.Individus = select.selection_elitiste(self.Individus,self.taux_selec)
-            ### bla bla fct diff
-            
-            L = []
-            for _ in range(self.nb_individus):
-                L.append(random.choice(self.Individus)+random.choice(self.Individus))
-            self.Individus = L
-        self.Individus.sort()
-        return self.Individus[0].Rot_table
+    for i in range(nb_generations):
+        Geniteurs = select.selection(Population,taux_selec,selection_type)
+        Population = []
+        for _ in range(nb_individus):
+            individu = random.choice(Geniteurs)+random.choice(Geniteurs)
+            individu.mutation(0.1,1)  #### à rendre progressif
+            Population.append(individu)
 
+    Population.sort()
+    return Population[0]
