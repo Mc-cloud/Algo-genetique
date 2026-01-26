@@ -74,6 +74,9 @@ class Population :
         self.nb_generations = nb_generations
         self.selection_type = selection_type
         self.best_table = self.Start_Algo_gene()
+        global str_data,Rot_data
+        str_data = dna_seq
+        Rot_data = self.rot_table
     
     def New_pop(self):
         def New_individu():
