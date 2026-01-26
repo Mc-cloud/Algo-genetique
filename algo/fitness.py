@@ -22,7 +22,7 @@ def dist_euclid(scores: list) -> float:
     return np.sqrt(res)
 
 
-def fitness(rot_table: RotTable, seq: str, fct_poids: function = dist_df, nbappend = 3, nbcuts = 3, coup_combin: function = dist_euclid) -> float :
+def fitness(rot_table: RotTable, seq: str, fct_poids = dist_df, nbappend = 3, nbcuts = 3, coup_combin = dist_euclid) -> float :
     """prend en entrée une table de rotations et un code ADN,
     calcule le chemin et en déduit un score.
     Edit : prend aussi un nombre de nœuds finaux à rajouter, 
