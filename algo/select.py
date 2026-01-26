@@ -1,7 +1,7 @@
 import random
 import numpy as np
 
-def selection_eletiste(list_ind, taux_selec):
+def selection_elitiste(list_ind, taux_selec):
     list_ind_sort = sorted(list_ind)
 
     n = len(list_ind)
@@ -9,7 +9,6 @@ def selection_eletiste(list_ind, taux_selec):
     selection = list_ind_sort[:int(n*taux_selec)]
 
     return selection
-
 
 def selection_tournament(list_ind, taux_selec):
     selection = []
@@ -37,7 +36,7 @@ def selection_roulette(list_ind, taux_selec):
 
     return select
 
-def selection_rang(list_ind, taux_selec):
+def selection_roulette_exp(list_ind, taux_selec):
     proba = [np.exp(-ind.score) for ind in list_ind]
     select = random.choices(list_ind, proba, k = int(taux_selec*len(list_ind)//2))
     return select
@@ -49,6 +48,21 @@ def selection_rang_reel(list_ind, taux_selec):
     
     n_parents = len(list_ind) // 2
     select = random.choices(list_ind_sort, weights=proba, k=int(taux_selec*n_parents))
+    
+    return select
+
+def selection_rang_geometrique(list_ind, taux_selec, q=0.3):
+    """
+    q: pression de selec (0 < q < 1).
+    """
+    list_ind_sort = sorted(list_ind)
+    n = len(list_ind_sort)
+
+    proba = [q * (1 - q)**i for i in range(n)]
+    
+    # 3. Select parents
+    k = int(len(list_ind) * taux_selec)
+    select = random.choices(list_ind_sort, weights=proba, k=k)
     
     return select
 
