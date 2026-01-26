@@ -3,7 +3,7 @@ import dna.Traj3D as Traj3D
 import numpy as np
 import random
 import fitness
-import select
+import selection
 import copy
 from json import load as json_load
 
@@ -88,7 +88,7 @@ def AlgoGenetique(Population, filename : str,dna_seq: str, nb_generations,taux_s
 
 
     for i in range(nb_generations):
-        Geniteurs = select.selection(Population,taux_selec,selection_type)
+        Geniteurs = selection.selection(Population,taux_selec,selection_type)
         Population = []
         for _ in range(nb_individus):
             individu = random.choice(Geniteurs)+random.choice(Geniteurs)
