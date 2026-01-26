@@ -18,10 +18,10 @@ class Traj3D:
         [0, 0, 0, 1]]
     )
 
-    def __init__(self):
+    def __init__(self,want_to_plot=False):
         self.__Traj3D = []
-        self.fig = plt.figure()
-        self.ax = plt.axes(projection='3d')
+        self.fig = plt.figure() if want_to_plot else None
+        self.ax = plt.axes(projection='3d') if want_to_plot else None
 
     def getTraj(self) -> list:
         return self.__Traj3D

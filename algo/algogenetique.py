@@ -2,8 +2,8 @@ import dna.RotTable as RotTable
 import dna.Traj3D as Traj3D
 import numpy as np
 import random
-import fitness
-import selection
+from algo.fitness import fitness
+from algo.selection import selection
 import copy
 from json import load as json_load
 
@@ -37,9 +37,9 @@ class Individu:
         global str_data
         s_score,o_score = self.score,other.score
         Table ={}
-        for XY in self.Rot_table:
-            Ls = self.Rot_table[XY].copy()
-            Lo = other.Rot_table[XY].copy()
+        for XY in self.Rot_table.rot_table:
+            Ls = self.Rot_table.rot_table[XY].copy()
+            Lo = other.Rot_table.rot_table[XY].copy()
             for i in range(3):
                 alpha = 0.5  # implementer alpha en fct des scores
                 Ls[i] = alpha*Ls[i] +(1-alpha)*Lo[i]
@@ -49,7 +49,7 @@ class Individu:
     def mutation(self,mutrate,sigma):
         global Rot_data
         if 0<=mutrate <=1:
-            Table =copy.deepcopy(self.Rot_table)
+            Table =copy.deepcopy(self.Rot_table.rot_table)
             for XY in Table:
                 L = Table[XY]
                 for i in range(3):
@@ -61,18 +61,16 @@ class Individu:
             self.score = self.fit()
 
     def fit(self) -> float: #Renvoie le score de l'individu
-        return fitness.fitness(self.Rot_table,str_data)
+        return fitness(self.Rot_table,str_data)
 
     def __lt__(self,other):
         return self.score<other.score
     
-def AlgoGenetique(Population, filename : str,dna_seq: str, nb_generations,taux_selec,selection_type : str) :
+def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str) :
     rot_table = json_load(open(filename))
-    nb_individus = len (Population)
     global str_data,Rot_data
     str_data = dna_seq
     Rot_data = rot_table
-    Population = New_pop()
 
     def New_pop():
         def New_individu():
@@ -85,10 +83,14 @@ def AlgoGenetique(Population, filename : str,dna_seq: str, nb_generations,taux_s
             return Individu(Table_rot)
         L = [New_individu() for _ in range (nb_individus)]
         return L
+    
+    Population = New_pop()
+
+    
 
 
     for i in range(nb_generations):
-        Geniteurs = selection.selection(Population,taux_selec,selection_type)
+        Geniteurs = selection(Population,taux_selec,selection_type)
         Population = []
         for _ in range(nb_individus):
             individu = random.choice(Geniteurs)+random.choice(Geniteurs)
