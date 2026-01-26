@@ -7,9 +7,12 @@ class RotTable:
 
     # 3 first values: 3 angle values
     # 3 last values: SD values
-
+    '''
     def __init__(self, filename: str):
         self.rot_table = json_load(open(filename))
+    #'''
+    def __init__(self, Table_rot):
+        self.rot_table = Table_rot
 
     ###################
     # WRITING METHODS #
