@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.typing as npt
 from dna.RotTable import RotTable
 from dna.Traj3D import Traj3D
 
@@ -38,13 +37,8 @@ def fitness(rot_table: RotTable, seq: str, fct_poids = dist_df, nbappend = 1, nb
         score = fct_poids(coords,nbappend)
         return score
     
-    list_coupes = [i*np.floor(nbases/(nbcuts+1)) for i in range(nbcuts+1)]
+    list_coupes = [i*int(np.floor(nbases/(nbcuts+1))) for i in range(nbcuts+1)]
 
-    score = coup_combin([eval_une_coupure(seq, nbappend, index)**2 for index in list_coupes])
+    score = coup_combin([eval_une_coupure(seq, nbappend, index) for index in list_coupes])
 
     return score
-
-
-
-
-
