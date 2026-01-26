@@ -29,12 +29,12 @@ def fitness(rot_table: RotTable, seq: str, fct_poids = dist_df, nbappend = 3, nb
     et un nombre de coupures à faire."""
     nbases = len(seq)
     assert nbases >= nbappend
-    
+    traj = Traj3D()
+
     def eval_une_coupure(seq: str, nbappend: int, indcut: int):
-        traj = Traj3D()
+
         traj.compute(seq[indcut:]+seq[:indcut+nbappend], rot_table)
         coords = traj.getTraj()
-        del traj
         score = fct_poids(coords,nbappend)
         return score
     
