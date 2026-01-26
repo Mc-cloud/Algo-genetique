@@ -22,19 +22,19 @@ def dist_euclid(scores: list) -> float:
     return np.sqrt(res)
 
 
-def fitness(rot_table: RotTable, seq: str, fct_poids = dist_df, nbappend = 3, nbcuts = 3, coup_combin = dist_euclid) -> float :
+def fitness(rot_table: RotTable, seq: str, fct_poids: function = dist_df, nbappend = 3, nbcuts = 3, coup_combin: function = dist_euclid) -> float :
     """prend en entrée une table de rotations et un code ADN,
     calcule le chemin et en déduit un score.
     Edit : prend aussi un nombre de nœuds finaux à rajouter, 
     et un nombre de coupures à faire."""
     nbases = len(seq)
     assert nbases >= nbappend
-    
+    traj = Traj3D()
+
     def eval_une_coupure(seq: str, nbappend: int, indcut: int):
-        traj = Traj3D()
+
         traj.compute(seq[indcut:]+seq[:indcut+nbappend], rot_table)
         coords = traj.getTraj()
-        del traj
         score = fct_poids(coords,nbappend)
         return score
     
