@@ -3,6 +3,7 @@ import dna.Traj3D as Traj3D
 import numpy as np
 import random
 import fitness
+import select
 from json import load as json_load
 
 str_data = 'AACTGTCAGCTACCGATCATCTAGCTCTATATCGCGCATTAGCAGC'
@@ -64,7 +65,7 @@ class Individu:
         return self.score<other.score
     
 class Population :
-    def __init__(self,filename : str,dna_seq: str, nb_individus, nb_generations,taux_selec):
+    def __init__(self,filename : str,dna_seq: str, nb_individus, nb_generations,taux_selec,selection_type : str):
         self.rot_table = json_load(open(filename))
         self.Individus = self.New_pop()
         self.dna = dna_seq
@@ -74,10 +75,18 @@ class Population :
         self.best_table = self.Start_Algo_gene()
     
     def New_pop(self):
-        L = []
-        for i in range(self.nb_individus):
-            a
+        def New_individu():
+            Table_rot = self.rot_table
+            for XY in Table_rot:
+                L = Table_rot[XY]
+                for i in range(3):
+                        L[i] = random.uniform(-Rot_data[XY][i+3],Rot_data[XY][i+3])
+                Table_rot[XY] = L
+            return Individu(Table_rot)
+            
+        L = [New_individu() for _ in range (self.nb_individus)]
+        self.Individus = L
 
 
     def Start_Algo_gene(self):
-         a
+        1
