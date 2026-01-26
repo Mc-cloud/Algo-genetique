@@ -38,8 +38,8 @@ class Individu:
         s_score,o_score = self.score,other.score
         Table ={}
         for XY in self.Rot_table:
-            Ls = self.Rot_table[XY].copy()
-            Lo = other.Rot_table[XY].copy()
+            Ls = self.Rot_table[XY].rot_table.copy()
+            Lo = other.Rot_table[XY].rot_table.copy()
             for i in range(3):
                 alpha = 0.5
                 if s_score >0 or o_score >0 :
