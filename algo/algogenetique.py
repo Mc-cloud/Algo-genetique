@@ -72,6 +72,7 @@ class Population :
         self.taux_selec = taux_selec
         self.nb_individus = nb_individus
         self.nb_generations = nb_generations
+        self.selection_type = selection_type
         self.best_table = self.Start_Algo_gene()
     
     def New_pop(self):
@@ -89,4 +90,15 @@ class Population :
 
 
     def Start_Algo_gene(self):
-        1
+        for i in range(self.nb_generations):
+            if self.selection_type == "elitiste" :
+                self.Individus = select.selection_elitiste(self.individus,self.taux_selec)
+            ### bla bla fct diff
+            
+            L = []
+            for _ in range(self.nb_individus):
+                L.append(random.choice(self.Individus)+random.choice(self.Individus))
+            self.Individus = L
+        self.Individus.sort()
+        return self.Individus[0].Rot_table
+
