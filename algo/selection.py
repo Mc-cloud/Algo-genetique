@@ -68,7 +68,7 @@ def selection_rang_geometrique(list_ind, taux_selec, q=0.3):
     
     return select
 
-selections_dic = {"elitiste":selection_elitiste,"tournament":selection_tournament,"roulette":selection_roulette_exp,"roulette_exp":selection_roulette_exp,,"rang_reel":selection_rang_reel,"rang_geo":selection_rang_geometrique}
+selections_dic = {"elitiste":selection_elitiste,"tournament":selection_tournament,"roulette":selection_roulette_exp,"roulette_exp":selection_roulette_exp,"rang_reel":selection_rang_reel,"rang_geo":selection_rang_geometrique}
 def selection(list_ind,taux_selec,select_type):
     if select_type in selections_dic:
         return selections_dic[select_type](list_ind,taux_selec)
