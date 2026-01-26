@@ -41,7 +41,9 @@ class Individu:
             Ls = self.Rot_table.rot_table[XY].copy()
             Lo = other.Rot_table.rot_table[XY].copy()
             for i in range(3):
-                alpha = 0.5  # implementer alpha en fct des scores
+                alpha = 0.5
+                if s_score >0 or o_score >0 :
+                    alpha = (s_score)/(s_score+o_score)  #### implementer alpha en fct des scores
                 Ls[i] = alpha*Ls[i] +(1-alpha)*Lo[i]
             Table[XY] = Ls
         return Individu(Table)
