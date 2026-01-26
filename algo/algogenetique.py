@@ -92,6 +92,7 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
 
 
     for i in range(nb_generations):
+        print("itteration :", i+1, "/", nb_generations)
         Geniteurs = selection(Population,taux_selec,selection_type)
         Population = []
         for _ in range(nb_individus):
