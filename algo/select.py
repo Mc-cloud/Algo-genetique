@@ -2,7 +2,8 @@ import random
 import numpy as np
 
 def selection_elitiste(list_ind, taux_selec):
-    list_ind_sort = sorted(list_ind)
+    list_ind_sort = list(list_ind)
+    list_ind_sort.sort()
 
     n = len(list_ind)
 
@@ -42,7 +43,8 @@ def selection_roulette_exp(list_ind, taux_selec):
     return select
 
 def selection_rang_reel(list_ind, taux_selec):
-    list_ind_sort = sorted(list_ind, reverse=True)
+    list_ind_sort = list(list_ind)
+    list_ind_sort.sort(reverse = True)
     
     proba = [i + 1 for i in range(len(list_ind_sort))]
     
@@ -55,7 +57,9 @@ def selection_rang_geometrique(list_ind, taux_selec, q=0.3):
     """
     q: pression de selec (0 < q < 1).
     """
-    list_ind_sort = sorted(list_ind)
+    list_ind_sort = list(list_ind)
+    list_ind_sort.sort(reverse = True)
+
     n = len(list_ind_sort)
 
     proba = [q * (1 - q)**i for i in range(n)]
