@@ -1,17 +1,29 @@
 import pickle
 import os
 
-def save_simulation_data(filename, listes_data, params):
+def save_simulation_data(filename, best_indiv_list, best_score_list, worst_score_list, params, dna_seq):
+    """
+    Sauvegarde 3 listes passées séparément.
+    
+    Args:
+        filename (str): Chemin du fichier.
+        best_indiv_list, best_score_list, worst_score_list : Tes trois listes de données.
+        params (dict): Tes paramètres (nb_indiv, etc.).
+        dna_seq (str): La séquence d'ADN.
+    """
+
+    full_params = params.copy()
+    full_params['dna_seq'] = dna_seq
 
     payload = {
-        "parameters": params,
+        "parameters": full_params,
         "data": {
-            "liste_1": listes_data[0],
-            "liste_2": listes_data[1],
-            "liste_3": listes_data[2]
+            "best_indiv_list": best_indiv_list,
+            "best_score_list": best_score_list,
+            "worst_score_list": worst_score_list
         }
     }
-    
+
     folder = os.path.dirname(filename)
     if folder and not os.path.exists(folder):
         os.makedirs(folder)
@@ -19,49 +31,34 @@ def save_simulation_data(filename, listes_data, params):
     try:
         with open(filename, 'wb') as f:
             pickle.dump(payload, f)
-        print(f"Sauvegarde réussie dans '{filename}' avec les paramètres : {params}")
+        print(f"Sauvegarde réussie dans '{filename}'.")
     except Exception as e:
-        print(f"Erreur lors de la sauvegarde : {e}")
+        print(f"Erreur sauvegarde : {e}")
 
-def load_simulation_data(filename, check_nb_indiv, check_nb_gen, check_taux, check_type):
+def load_simulation_data(filename, check_dna_seq):
     """
-    Charge les données SEULEMENT si les paramètres correspondent.
-    
-    Returns:
-        tuple: (liste1, liste2, liste3) si tout est bon.
-    Raises:
-        ValueError: Si les paramètres ne correspondent pas.
-        FileNotFoundError: Si le fichier n'existe pas.
+    Charge les données , uniquement si l'adn est bien correspondant.
     """
     if not os.path.exists(filename):
-        raise FileNotFoundError(f"Le fichier '{filename}' n'existe pas.")
+        raise FileNotFoundError(f"Fichier '{filename}' introuvable.")
 
     with open(filename, 'rb') as f:
         loaded_payload = pickle.load(f)
 
     stored_params = loaded_payload["parameters"]
-    
-    # 2. VÉRIFICATION DES PARAMÈTRES (Le "Check")
     errors = []
-    
-    if stored_params['nb_indiv'] != check_nb_indiv:
-        errors.append(f"nb_indiv attendu {check_nb_indiv}, trouvé {stored_params['nb_indiv']}")
-        
-    if stored_params['nb_generations'] != check_nb_gen:
-        errors.append(f"nb_generations attendu {check_nb_gen}, trouvé {stored_params['nb_generations']}")
-        
-    if stored_params['taux_selec'] != check_taux:
-        errors.append(f"taux_selec attendu {check_taux}, trouvé {stored_params['taux_selec']}")
-        
-    if stored_params['selection_type'] != check_type:
-        errors.append(f"selection_type attendu '{check_type}', trouvé '{stored_params['selection_type']}'")
+
+    # --- VERIFICATIONS ---
+
+    stored_dna = stored_params.get('dna_seq', "") 
+    if stored_dna != check_dna_seq:
+        disp_store = (stored_dna[:20] + '...') if len(stored_dna) > 20 else stored_dna
+        disp_check = (check_dna_seq[:20] + '...') if len(check_dna_seq) > 20 else check_dna_seq
+        errors.append(f"- ADN DIFFERENT ! Stocké: '{disp_store}' vs Demandé: '{disp_check}'")
 
     if errors:
-        error_msg = "\n".join(errors)
-        raise ValueError(f"❌ CONFLIT DE PARAMÈTRES :\n{error_msg}\nImpossible de charger des données incohérentes.")
+        raise ValueError("PARAMÈTRES INCORRECTS :\n" + "\n".join(errors))
 
-    print("Paramètres validés. Chargement des données...")
-    
-    # 3. Retour des listes
-    data = loaded_payload["data"]
-    return data["liste_1"], data["liste_2"], data["liste_3"]
+    print("Paramètres et ADN validés. Chargement...")
+    d = loaded_payload["data"]
+    return d["best_indiv_list"], d["best_score_list"], d["worst_score_list"],loaded_payload["parameters"]
