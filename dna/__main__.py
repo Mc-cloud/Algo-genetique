@@ -21,7 +21,7 @@ args = parser.parse_args()
 def main():
 
     rot_table = RotTable(args.rot_table)
-    traj = Traj3D()
+    traj = Traj3D(want_to_plot=True)
 
     # Read file
     lineList = [line.rstrip('\n') for line in open(args.filename)]
