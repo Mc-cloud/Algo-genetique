@@ -35,9 +35,9 @@ def save_simulation_data(filename, best_indiv_list, best_score_list, worst_score
     except Exception as e:
         print(f"Erreur sauvegarde : {e}")
 
-def load_simulation_data(filename, check_nb_indiv, check_nb_gen, check_taux, check_type, check_dna_seq):
+def load_simulation_data(filename, check_dna_seq):
     """
-    Charge les données uniquement si TOUS les paramètres (y compris l'ADN) correspondent.
+    Charge les données , uniquement si l'adn est bien correspondant.
     """
     if not os.path.exists(filename):
         raise FileNotFoundError(f"Fichier '{filename}' introuvable.")
@@ -49,18 +49,6 @@ def load_simulation_data(filename, check_nb_indiv, check_nb_gen, check_taux, che
     errors = []
 
     # --- VERIFICATIONS ---
-    
-    if stored_params['nb_indiv'] != check_nb_indiv:
-        errors.append(f"- nb_indiv: Attendu {check_nb_indiv}, Trouvé {stored_params['nb_indiv']}")
-        
-    if stored_params['nb_generations'] != check_nb_gen:
-        errors.append(f"- nb_generations: Attendu {check_nb_gen}, Trouvé {stored_params['nb_generations']}")
-        
-    if stored_params['taux_selec'] != check_taux:
-        errors.append(f"- taux_selec: Attendu {check_taux}, Trouvé {stored_params['taux_selec']}")
-        
-    if stored_params['selection_type'] != check_type:
-        errors.append(f"- selection_type: Attendu '{check_type}', Trouvé '{stored_params['selection_type']}'")
 
     stored_dna = stored_params.get('dna_seq', "") 
     if stored_dna != check_dna_seq:
@@ -73,4 +61,4 @@ def load_simulation_data(filename, check_nb_indiv, check_nb_gen, check_taux, che
 
     print("Paramètres et ADN validés. Chargement...")
     d = loaded_payload["data"]
-    return d["best_indiv_list"], d["best_score_list"], d["worst_score_list"]
+    return d["best_indiv_list"], d["best_score_list"], d["worst_score_list"],loaded_payload["parameters"]
