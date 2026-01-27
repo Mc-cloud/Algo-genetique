@@ -43,6 +43,9 @@ def fitness(rot_table: RotTable, seq: str, fct_poids = dist_df, nbappend = 2, nb
 
     return score
 
+def fitness_basic(rot_table:RotTable, seq: str):
+    return fitness(rot_table,seq,nbcuts=0)
+
 #Tests
 
 str_data = 'AACTGTCAGCTACCGATCATCTAGCTCTATATCGCGCATTAGCAGC'
