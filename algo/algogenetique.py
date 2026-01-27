@@ -7,25 +7,9 @@ from algo.selection import selection
 import copy
 from json import load as json_load
 
-str_data = 'AACTGTCAGCTACCGATCATCTAGCTCTATATCGCGCATTAGCAGC'
-Rot_data = {
-    "AA": [35.62 , 7.2 , -154 ,      0.06 ,  0.6   , 0],
-    "AC": [34.4  , 1.1 ,  143 ,      1.3  ,  5     , 0],
-    "AG": [27.7  , 8.4 ,    2 ,      1.5  ,  3     , 0],
-    "AT": [31.5  , 2.6 ,    0 ,      1.1  ,  2     , 0],
-    "CA": [34.5  , 3.5 ,  -64 ,      0.9  , 34     , 0],
-    "CC": [33.67 , 2.1 ,  -57 ,      0.07 ,  2.1   , 0],
-    "CG": [29.8  , 6.7 ,    0 ,      1.1  ,  1.5   , 0],
-    "CT": [27.7  , 8.4 ,   -2 ,      1.5  ,  3     , 0],
-    "GA": [36.9  , 5.3 ,  120 ,      0.9  ,  6     , 0],
-    "GC": [40    , 5   ,  180 ,      1.2  ,  1.275 , 0],
-    "GG": [33.67 , 2.1 ,   57 ,      0.07 ,  2.1   , 0],
-    "GT": [34.4  , 1.1 , -143 ,      1.3  ,  5     , 0],
-    "TA": [36    , 0.9 ,    0 ,      1.1  ,  2     , 0],
-    "TC": [36.9  , 5.3 , -120 ,      0.9  ,  6     , 0],
-    "TG": [34.5  , 3.5 ,   64 ,      0.9  , 34     , 0],
-    "TT": [35.62 , 7.2 ,  154 ,      0.06 ,  0.6   , 0]
-}
+str_data = None
+Rot_data = None
+
 
 class Individu:
     def __init__(self, Table_rot):
@@ -92,7 +76,7 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
 
 
     for i in range(nb_generations):
-        print("itteration :", i+1, "/", nb_generations)
+        print("iteration :", i+1, "/", nb_generations)
         Geniteurs = selection(Population,taux_selec,selection_type)
         A =[Geniteurs[i].score for i in range(len(Geniteurs))]
         print("fit : ", np.sum(A))
@@ -103,4 +87,7 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
             Population.append(individu)
 
     Population.sort()
-    return Population[0]
+    if len(Population) >0:
+        return Population[0]
+    else:
+        return []
