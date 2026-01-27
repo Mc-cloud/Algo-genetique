@@ -47,7 +47,7 @@ class Individu:
             self.score = self.fit()
 
     def fit(self) -> float: #Renvoie le score de l'individu
-        return fitness(self.Rot_table,str_data,nbcuts=0)
+        return fitness(self.Rot_table,str_data,nbcuts=1)
 
     def __lt__(self,other):
         return self.score<other.score
