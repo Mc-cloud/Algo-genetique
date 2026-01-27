@@ -12,7 +12,10 @@ class RotTable:
         self.rot_table = json_load(open(filename))
     #'''
     def __init__(self, Table_rot):
-        self.rot_table = Table_rot
+        if isinstance(Table_rot,str):
+            self.rot_table = json_load(open(Table_rot))
+        else:
+            self.rot_table = Table_rot
 
     ###################
     # WRITING METHODS #
