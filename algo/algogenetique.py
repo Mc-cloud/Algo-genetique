@@ -27,7 +27,7 @@ class Individu:
             for i in range(3):
                 alpha = 0.5
                 if s_score >0 or o_score >0 :
-                    alpha = (o_score)/(s_score+o_score)  #### implementer alpha en fct des scores
+                    alpha = (o_score)/(s_score+o_score)  
                 Ls[i] = alpha*Ls[i] +(1-alpha)*Lo[i]
             Table[XY] = Ls
         return Individu(Table)
@@ -47,7 +47,7 @@ class Individu:
             self.score = self.fit()
 
     def fit(self) -> float: #Renvoie le score de l'individu
-        return fitness(self.Rot_table,str_data)
+        return fitness(self.Rot_table,str_data,nbcuts=0)
 
     def __lt__(self,other):
         return self.score<other.score
@@ -86,7 +86,7 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
         Population = Geniteurs.copy()
         while len(Population) < nb_individus:
             individu = random.choice(Geniteurs)+random.choice(Geniteurs)
-            individu.mutation(0.01*(1-i/nb_generations),(1-i/nb_generations)*1)  #### à rendre progressif
+            individu.mutation(0.01*(1-i/nb_generations),(1-i/nb_generations)*1)  
             Population.append(individu)
         best_indiv = min(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq))
         worst_indiv = max(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq))
