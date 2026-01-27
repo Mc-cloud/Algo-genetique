@@ -33,14 +33,14 @@
 # <img src="https://upload.wikimedia.org/wikipedia/commons/e/ea/Conda_logo.svg" alt="Conda Logo" height="50"/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://www.nicepng.com/png/full/506-5068487_open-install-png-logo.png" alt="Install" height="20"/> Install first [Miniconda](https://docs.conda.io/en/latest/miniconda.html).
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://www.nicepng.com/png/full/506-5068487_open-install-png-logo.png" alt="Install" height="20"/> `conda env create -f environment.yml`
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://www.nicepng.com/png/full/506-5068487_open-install-png-logo.png" alt="Install" height="20"/> `conda env create -f environment.yaml`
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Then,
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://icon-library.com/images/play-icon-white-png/play-icon-white-png-26.jpg" alt="Run" height="20"/> `conda run -n 3dna python -m 3dna data/plasmid_8k.fasta`
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://icon-library.com/images/play-icon-white-png/play-icon-white-png-26.jpg" alt="Run" height="20"/> `conda run -n 3dna python -m dna --draw data/plasmid_8k.fasta`
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://icon-library.com/images/play-icon-white-png/play-icon-white-png-26.jpg" alt="Run" height="20"/> `conda activate 3dna`
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://icon-library.com/images/play-icon-white-png/play-icon-white-png-26.jpg" alt="Run" height="20"/> `python -m 3dna data/plasmid_8k.fasta`
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://icon-library.com/images/play-icon-white-png/play-icon-white-png-26.jpg" alt="Run" height="20"/> `python -m dna --draw data/plasmid_8k.fasta`
