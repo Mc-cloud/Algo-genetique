@@ -9,7 +9,8 @@ from json import load as json_load
 
 str_data = None
 Rot_data = None
-
+nb_cut = None
+nbappend = None
 
 class Individu:
     def __init__(self, Table_rot):
@@ -47,16 +48,18 @@ class Individu:
             self.score = self.fit()
 
     def fit(self) -> float: #Renvoie le score de l'individu
-        return fitness(self.Rot_table,str_data,nbcuts=1)
+        return fitness(self.Rot_table,str_data,nbcuts=nb_cut)
 
     def __lt__(self,other):
         return self.score<other.score
     
-def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str,poisson=False) :
+def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str,poisson=False,nb_cuts = 0,nb_append = 1) :
     rot_table = json_load(open(filename))
-    global str_data,Rot_data
+    global str_data,Rot_data, nb_cut, nbappend 
     str_data = dna_seq
     Rot_data = rot_table
+    nb_cut = nb_cuts
+    nbappend = nb_append 
 
     def New_pop():
         def New_individu():
@@ -88,12 +91,12 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
             individu = random.choice(Geniteurs)+random.choice(Geniteurs)
             individu.mutation(0.01*(1-i/nb_generations),(1-i/nb_generations)*1)  
             Population.append(individu)
-        best_indiv = min(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq))
-        worst_indiv = max(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq))
-        print(f"Meilleur pour iter {i} : {fitness_basic(best_indiv.Rot_table,dna_seq)}")
-        print(f"Pire pour iter {i} : {fitness_basic(worst_indiv.Rot_table,dna_seq)}")
+        best_indiv = min(Population)
+        worst_indiv = max(Population)
+        print(f"Meilleur pour iter {i} : {best_indiv.score}")
+        print(f"Pire pour iter {i} : {worst_indiv.score}")
         Best_indiv_list.append(best_indiv)
-        Best_indiv_score_list.append(fitness_basic(best_indiv.Rot_table,dna_seq))
-        worst_indiv_score_list.append(fitness_basic(worst_indiv.Rot_table,dna_seq))
+        Best_indiv_score_list.append(best_indiv.score)
+        worst_indiv_score_list.append(worst_indiv.score)
 
     return Best_indiv_list,Best_indiv_score_list,worst_indiv_score_list
