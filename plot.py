@@ -1,0 +1,143 @@
+from algo.algogenetique import Individu
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import os
+from matplotlib.widgets import Slider
+from dna.Traj3D import Traj3D
+import numpy as np
+
+def get_trajectories(indiv_list:list,dna_seq:str):
+    trajectories=[]
+    for indiv in indiv_list:
+        traj = Traj3D()
+        traj.compute(dna_seq,indiv.Rot_table)
+        xyz = np.array(traj.getTraj())
+        trajectories.append(xyz)
+    return np.array(trajectories)
+
+def plot_with_slider(trajectories):
+    num_steps = len(trajectories)
+    
+    # Nombre de points dans une trajectoire (pour aller chercher le dernier)
+    num_points = trajectories.shape[1] 
+
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
+    plt.subplots_adjust(bottom=0.25) 
+
+    # 1. LA LIGNE PRINCIPALE (Bleue)
+    line, = ax.plot(
+        trajectories[0, :, 0], 
+        trajectories[0, :, 1], 
+        trajectories[0, :, 2], 
+        color='b', lw=1, alpha=0.6 # Un peu transparent pour voir les points
+    )
+
+    # 2. LE POINT DE DÉPART (Vert) - Index 0
+    # Note: On utilise le slicing 0:1 pour garder une forme de liste/array [valeur]
+    start_pt, = ax.plot(
+        trajectories[0, 0:1, 0], 
+        trajectories[0, 0:1, 1], 
+        trajectories[0, 0:1, 2], 
+        color='green', marker='o', markersize=4, linestyle='' 
+    )
+
+    # 3. LE POINT D'ARRIVÉE (Rouge) - Index -1 (le dernier)
+    end_pt, = ax.plot(
+        trajectories[0, -1:, 0], 
+        trajectories[0, -1:, 1], 
+        trajectories[0, -1:, 2], 
+        color='red', marker='o', markersize=4, linestyle='' 
+    )
+
+    # Titre initial
+    title = ax.set_title(f"Étape : 0")
+
+    # --- FIXER LES AXES ---
+    all_x = trajectories[:, :, 0].flatten()
+    all_y = trajectories[:, :, 1].flatten()
+    all_z = trajectories[:, :, 2].flatten()
+
+    ax.set_xlim(all_x.min(), all_x.max())
+    ax.set_ylim(all_y.min(), all_y.max())
+    ax.set_zlim(all_z.min(), all_z.max())
+    
+    # --- Slider ---
+    ax_slider = plt.axes([0.2, 0.1, 0.65, 0.03], facecolor='lightgoldenrodyellow')
+    slider = Slider(ax_slider, 'Étape', 0, num_steps - 1, valinit=0, valstep=1)
+
+    # --- Fonction de mise à jour ---
+    def update(val):
+        step = int(slider.val)
+        
+        line.set_data(trajectories[step, :, 0], trajectories[step, :, 1])
+        line.set_3d_properties(trajectories[step, :, 2])
+        
+        start_pt.set_data(trajectories[step, 0:1, 0], trajectories[step, 0:1, 1])
+        start_pt.set_3d_properties(trajectories[step, 0:1, 2])
+        
+        end_pt.set_data(trajectories[step, -1:, 0], trajectories[step, -1:, 1])
+        end_pt.set_3d_properties(trajectories[step, -1:, 2])
+        
+        title.set_text(f"Étape : {step}")
+        fig.canvas.draw_idle()
+
+    slider.on_changed(update)
+    plt.show()
+
+def save_trajectory_gif(trajectories, filename="gifs/etapes.gif", fps=10):
+    folder = os.path.dirname(filename)
+    if folder and not os.path.exists(folder):
+        os.makedirs(folder)
+        print(f"Dossier '{folder}' créé.")
+
+    num_steps = len(trajectories)
+    
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # La ligne ADN
+    line, = ax.plot([], [], [], color='b', lw=1, alpha=0.6)
+    # Point de départ (Vert)
+    start_pt, = ax.plot([], [], [], color='green', marker='o', markersize=8, linestyle='')
+    # Point d'arrivée (Rouge)
+    end_pt, = ax.plot([], [], [], color='red', marker='o', markersize=8, linestyle='')
+
+    title = ax.set_title("Iter 0")
+
+    all_x = trajectories[:, :, 0].flatten()
+    all_y = trajectories[:, :, 1].flatten()
+    all_z = trajectories[:, :, 2].flatten()
+
+    ax.set_xlim(all_x.min(), all_x.max())
+    ax.set_ylim(all_y.min(), all_y.max())
+    ax.set_zlim(all_z.min(), all_z.max())
+
+
+    def update(frame):
+        line.set_data(trajectories[frame, :, 0], trajectories[frame, :, 1])
+        line.set_3d_properties(trajectories[frame, :, 2])
+        
+        start_pt.set_data(trajectories[frame, 0:1, 0], trajectories[frame, 0:1, 1])
+        start_pt.set_3d_properties(trajectories[frame, 0:1, 2])
+        
+        end_pt.set_data(trajectories[frame, -1:, 0], trajectories[frame, -1:, 1])
+        end_pt.set_3d_properties(trajectories[frame, -1:, 2])
+        
+        title.set_text(f"Iter {frame}")
+        
+        return line, start_pt, end_pt, title
+
+    ani = animation.FuncAnimation(
+        fig, 
+        update, 
+        frames=num_steps, 
+        interval=1000/fps, 
+        blit=False 
+    )
+
+    ani.save(filename, writer='pillow', fps=fps)
+    
+    plt.close(fig) 
+    print(f"GIF sauvegardé avec succès : {filename}")
+
