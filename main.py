@@ -13,7 +13,8 @@ nb_generations = 20
 taux_selec = 0.5
 
 for selection_type in selections_dic.keys():
-    res = AlgoGenetique("dna/table.json",base_seq,nb_indiv,nb_generations,taux_selec,selection_type,poisson=True)
+    results = AlgoGenetique("dna/table.json",base_seq,nb_indiv,nb_generations,taux_selec,selection_type,poisson=False)
+    res = results[-1]
     score = fitness(res.Rot_table,base_seq,nbcuts=0)
     print(" score : ",res.score,"score final : ",score," via type de selection : ",selection_type)
 #     # traj_res = Traj3D(want_to_plot=True)

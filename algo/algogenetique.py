@@ -2,7 +2,7 @@ import dna.RotTable as RotTable
 import dna.Traj3D as Traj3D
 import numpy as np
 import random
-from algo.fitness import fitness
+from algo.fitness import fitness,fitness_basic
 from algo.selection import selection
 import copy
 from json import load as json_load
@@ -87,7 +87,7 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
         return L
     
     Population = New_pop()
-
+    Best_indiv_list = [min(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq))]
     
 
 
@@ -104,6 +104,10 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
             individu = random.choice(Geniteurs)+random.choice(Geniteurs)
             individu.mutation(0.01*(1-i/nb_generations),(1-i/nb_generations)*1)  #### à rendre progressif
             Population.append(individu)
+        best_indiv = min(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq))
+        worst_indiv = max(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq))
+        print(f"Meilleur pour iter {i} : {fitness_basic(best_indiv.Rot_table,dna_seq)}")
+        print(f"Pire pour iter {i} : {fitness_basic(worst_indiv.Rot_table,dna_seq)}")
+        Best_indiv_list.append(best_indiv)
 
-    Population.sort()
-    return Population[0]
+    return Best_indiv_list
