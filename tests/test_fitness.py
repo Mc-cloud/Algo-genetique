@@ -11,7 +11,7 @@ class TestFitnessReal(unittest.TestCase):
     def setUp(self):
         """Set up real data for testing."""
         # Standard table for testing
-        self.rot_table = RotTable({
+        self.rot_table = RotTable.RotTable({
             "AA": [35.62, 7.2, -154, 0.06, 0.6, 0],
             "AC": [34.4, 1.1, 143, 1.3, 5, 0],
             "AG": [27.7, 8.4, 2, 1.5, 3, 0],
