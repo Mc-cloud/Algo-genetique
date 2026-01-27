@@ -33,8 +33,9 @@ def selection_roulette(list_ind, taux_selec):
 
     return select
 
-def selection_roulette_exp(list_ind, taux_selec, temp=100):
-    proba = [np.exp(-(ind.score**2)/temp) for ind in list_ind]
+def selection_roulette_exp(list_ind, taux_selec, temp=1000):
+    min_score = min([ind.score for ind in list_ind])
+    proba = [np.exp((min_score**2-ind.score**2)/temp) for ind in list_ind]
     select = random.choices(list_ind, proba, k = int(taux_selec*len(list_ind)))
     return select
 
@@ -64,7 +65,7 @@ def selection_rang_geometrique(list_ind, taux_selec, q=0.3):
     
     return select
 
-selections_dic = {"elitiste":selection_elitiste,"tournament":selection_tournament,"roulette":selection_roulette,"rang_reel":selection_rang_reel,"rang_geo":selection_rang_geometrique}
+selections_dic = {"elitiste":selection_elitiste,"tournament":selection_tournament,"roulette":selection_roulette,"rang_reel":selection_rang_reel,"rang_geo":selection_rang_geometrique, "roulette_exp" : selection_roulette_exp}
 def selection(list_ind,taux_selec,select_type):
     if select_type in selections_dic:
         return selections_dic[select_type](list_ind,taux_selec)
