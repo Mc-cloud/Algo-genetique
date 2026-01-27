@@ -9,7 +9,7 @@ Rot_data_place = "dna/table.json"
 
 class TestAlgoGenetique(unittest.TestCase):
     def setUp(self):
-        alg.AlgoGenetique(Rot_data_place,str_data,0,0,0,'')
+        _ = alg.AlgoGenetique(Rot_data_place,str_data,0,0,0,'')
         Rot_data = alg.Rot_data
         self.Individu1 = alg.Individu(Rot_data)
         self.Individu2 = alg.Individu(Rot_data)
@@ -26,6 +26,10 @@ class TestAlgoGenetique(unittest.TestCase):
         for XY in D :
             for i in range(3):
                 self.assertAlmostEqual(D[XY][i], Rot_data[XY][i], delta=Rot_data[XY][i+3]+1e-6)
+    
+    def test_AlgoGenetique(self):
+        Best = alg.AlgoGenetique(Rot_data_place,str_data,0,0,0,'')
+        self.assertGreaterEqual(Best.score,self.Individu1.score)
 
 if __name__ == "__main__":
     unittest.main()
