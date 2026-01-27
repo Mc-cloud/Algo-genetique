@@ -18,8 +18,7 @@ def dist_df(coords: list, nbappend = 1):
     return np.sqrt(distsq)
 
 def dist_euclid(scores: list) -> float:
-    res = sum(score**2 for score in scores)
-    return np.sqrt(res)
+    return np.linalg.norm(scores)
 
 
 def fitness(rot_table: RotTable, seq: str, fct_poids = dist_df, nbappend = 3, nbcuts = 3, coup_combin = dist_euclid) -> float :

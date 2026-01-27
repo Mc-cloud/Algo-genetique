@@ -23,15 +23,11 @@ def selection_tournament(list_ind, taux_selec):
             selection.append(x[1])
         else : 
             selection.append(x[0])
-    
     return selection
 
 def selection_roulette(list_ind, taux_selec):
     total = sum([ind.score for ind in list_ind])
-    proba = []
-    for ind in list_ind:
-        prob = 1 - ind.score/total
-        proba.append(prob)
+    proba = [1-ind.score/total for ind in list_ind]
     
     select = random.choices(list_ind, proba, k = int(len(list_ind)*taux_selec))
 
