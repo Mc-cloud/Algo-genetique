@@ -2,30 +2,14 @@ import dna.RotTable as RotTable
 import dna.Traj3D as Traj3D
 import numpy as np
 import random
-from algo.fitness import fitness
+from algo.fitness import fitness,fitness_basic
 from algo.selection import selection
 import copy
 from json import load as json_load
 
-str_data = 'AACTGTCAGCTACCGATCATCTAGCTCTATATCGCGCATTAGCAGC'
-Rot_data = {
-    "AA": [35.62 , 7.2 , -154 ,      0.06 ,  0.6   , 0],
-    "AC": [34.4  , 1.1 ,  143 ,      1.3  ,  5     , 0],
-    "AG": [27.7  , 8.4 ,    2 ,      1.5  ,  3     , 0],
-    "AT": [31.5  , 2.6 ,    0 ,      1.1  ,  2     , 0],
-    "CA": [34.5  , 3.5 ,  -64 ,      0.9  , 34     , 0],
-    "CC": [33.67 , 2.1 ,  -57 ,      0.07 ,  2.1   , 0],
-    "CG": [29.8  , 6.7 ,    0 ,      1.1  ,  1.5   , 0],
-    "CT": [27.7  , 8.4 ,   -2 ,      1.5  ,  3     , 0],
-    "GA": [36.9  , 5.3 ,  120 ,      0.9  ,  6     , 0],
-    "GC": [40    , 5   ,  180 ,      1.2  ,  1.275 , 0],
-    "GG": [33.67 , 2.1 ,   57 ,      0.07 ,  2.1   , 0],
-    "GT": [34.4  , 1.1 , -143 ,      1.3  ,  5     , 0],
-    "TA": [36    , 0.9 ,    0 ,      1.1  ,  2     , 0],
-    "TC": [36.9  , 5.3 , -120 ,      0.9  ,  6     , 0],
-    "TG": [34.5  , 3.5 ,   64 ,      0.9  , 34     , 0],
-    "TT": [35.62 , 7.2 ,  154 ,      0.06 ,  0.6   , 0]
-}
+str_data = None
+Rot_data = None
+
 
 class Individu:
     def __init__(self, Table_rot):
@@ -43,7 +27,7 @@ class Individu:
             for i in range(3):
                 alpha = 0.5
                 if s_score >0 or o_score >0 :
-                    alpha = (o_score)/(s_score+o_score)  #### implementer alpha en fct des scores
+                    alpha = (o_score)/(s_score+o_score)  
                 Ls[i] = alpha*Ls[i] +(1-alpha)*Lo[i]
             Table[XY] = Ls
         return Individu(Table)
@@ -63,12 +47,12 @@ class Individu:
             self.score = self.fit()
 
     def fit(self) -> float: #Renvoie le score de l'individu
-        return fitness(self.Rot_table,str_data)
+        return fitness(self.Rot_table,str_data,nbcuts=0)
 
     def __lt__(self,other):
         return self.score<other.score
     
-def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str) :
+def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str,poisson=False) :
     rot_table = json_load(open(filename))
     global str_data,Rot_data
     str_data = dna_seq
@@ -87,20 +71,29 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
         return L
     
     Population = New_pop()
-
-    
-
+    Best_indiv_list = [min(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq))]
+    Best_indiv_score_list = [fitness_basic(Best_indiv_list[0].Rot_table,dna_seq)]
+    worst_indiv_score_list = [fitness_basic(max(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq)).Rot_table,dna_seq)]
 
     for i in range(nb_generations):
-        print("itteration :", i+1, "/", nb_generations)
-        Geniteurs = selection(Population,taux_selec,selection_type)
+        print("itération :", i+1, "/", nb_generations)
+        if poisson: # si l'on s'est mit en mode processur aléatoire de poisson, on aura une nombre de géniteurs suivant une loi de Poisson(taux_selec*nb_indiv) (on prendra le max avec 2, pour avoir assez de géniteurs)
+            Geniteurs = selection(Population,max(2,np.random.poisson(taux_selec*nb_individus))/nb_individus,selection_type)
+        else:
+            Geniteurs = selection(Population,taux_selec,selection_type)
         A =[Geniteurs[i].score for i in range(len(Geniteurs))]
         print("fit : ", np.sum(A))
-        Population = []
-        for _ in range(nb_individus):
+        Population = Geniteurs.copy()
+        while len(Population) < nb_individus:
             individu = random.choice(Geniteurs)+random.choice(Geniteurs)
-            individu.mutation(0.01*(1-i/nb_generations),(1-i/nb_generations)*1)  #### à rendre progressif
+            individu.mutation(0.01*(1-i/nb_generations),(1-i/nb_generations)*1)  
             Population.append(individu)
+        best_indiv = min(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq))
+        worst_indiv = max(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq))
+        print(f"Meilleur pour iter {i} : {fitness_basic(best_indiv.Rot_table,dna_seq)}")
+        print(f"Pire pour iter {i} : {fitness_basic(worst_indiv.Rot_table,dna_seq)}")
+        Best_indiv_list.append(best_indiv)
+        Best_indiv_score_list.append(fitness_basic(best_indiv.Rot_table,dna_seq))
+        worst_indiv_score_list.append(fitness_basic(worst_indiv.Rot_table,dna_seq))
 
-    Population.sort()
-    return Population[0]
+    return Best_indiv_list,Best_indiv_score_list,worst_indiv_score_list
