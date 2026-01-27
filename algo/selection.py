@@ -23,23 +23,19 @@ def selection_tournament(list_ind, taux_selec):
             selection.append(x[1])
         else : 
             selection.append(x[0])
-    
     return selection
 
 def selection_roulette(list_ind, taux_selec):
     total = sum([ind.score for ind in list_ind])
-    proba = []
-    for ind in list_ind:
-        prob = 1 - ind.score/total
-        proba.append(prob)
+    proba = [1-ind.score/total for ind in list_ind]
     
     select = random.choices(list_ind, proba, k = int(len(list_ind)*taux_selec))
 
     return select
 
-def selection_roulette_exp(list_ind, taux_selec, temp = 1):
-    proba = [np.exp(-ind.score/temp) for ind in list_ind]
-    select = random.choices(list_ind, proba, k = int(taux_selec*len(list_ind)//2))
+def selection_roulette_exp(list_ind, taux_selec, temp=100):
+    proba = [np.exp(-(ind.score**2)/temp) for ind in list_ind]
+    select = random.choices(list_ind, proba, k = int(taux_selec*len(list_ind)))
     return select
 
 def selection_rang_reel(list_ind, taux_selec):
@@ -47,7 +43,7 @@ def selection_rang_reel(list_ind, taux_selec):
     
     proba = [i + 1 for i in range(len(list_ind))]
     
-    n_parents = len(list_ind) // 2
+    n_parents = len(list_ind)
     select = random.choices(list_ind, weights=proba, k=int(taux_selec*n_parents))
     
     return select

@@ -52,7 +52,7 @@ class Individu:
     def __lt__(self,other):
         return self.score<other.score
     
-def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str) :
+def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str,poisson=False) :
     rot_table = json_load(open(filename))
     global str_data,Rot_data
     str_data = dna_seq
@@ -76,12 +76,15 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
 
 
     for i in range(nb_generations):
-        print("iteration :", i+1, "/", nb_generations)
-        Geniteurs = selection(Population,taux_selec,selection_type)
+        print("itération :", i+1, "/", nb_generations)
+        if poisson: # si l'on s'est mit en mode processur aléatoire de poisson, on aura une nombre de géniteurs suivant une loi de Poisson(taux_selec*nb_indiv) (on prendra le max avec 2, pour avoir assez de géniteurs)
+            Geniteurs = selection(Population,max(2,np.random.poisson(taux_selec*nb_individus))/nb_individus,selection_type)
+        else:
+            Geniteurs = selection(Population,taux_selec,selection_type)
         A =[Geniteurs[i].score for i in range(len(Geniteurs))]
         print("fit : ", np.sum(A))
-        Population = []
-        for _ in range(nb_individus):
+        Population = Geniteurs.copy()
+        while len(Population) < nb_individus:
             individu = random.choice(Geniteurs)+random.choice(Geniteurs)
             individu.mutation(0.01*(1-i/nb_generations),(1-i/nb_generations)*1)  #### à rendre progressif
             Population.append(individu)
