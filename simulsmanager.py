@@ -13,8 +13,9 @@ def simul_and_save_results(save_filename,dna_seq,params):
 
 def print_final_score_result(filename,dna_seq):
     res = load_simulation_data(filename,dna_seq)
-    _,bscore,wscore,params =res
-    print(f"Meilleur score final: {bscore[-1]}, Pire score final: {wscore[-1]} Avec les paramètres : {params}")
+    best,bscore,wscore,params =res
+    eucl_score_fin = fitness(best[-1].Rot_table,dna_seq,nbcuts=0)
+    print(f"Selon fitness, meilleur score final: {bscore[-1]}, pire score final: {wscore[-1]} \n meilleur score final en distance euclidienne : {eucl_score_fin}  Avec les paramètres : {params}")
 
 def load_and_visualise_timeline(filename,dna_seq):
     res = load_simulation_data(filename,dna_seq)
