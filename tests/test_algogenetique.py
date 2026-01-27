@@ -28,8 +28,8 @@ class TestAlgoGenetique(unittest.TestCase):
                 self.assertAlmostEqual(D[XY][i], Rot_data[XY][i], delta=Rot_data[XY][i+3]+1e-6)
     
     def test_AlgoGenetique(self):
-        Best = alg.AlgoGenetique(Rot_data_place,str_data,8,4,0.5,'')
-        self.assertGreaterEqual(Best[-1].score,self.Individu1.score)
+        Best,_ ,_= alg.AlgoGenetique(Rot_data_place,str_data,8,4,0.5,'')
+        self.assertGreaterEqual(self.Individu1.score,Best[-1].score)
 
 if __name__ == "__main__":
     unittest.main()
