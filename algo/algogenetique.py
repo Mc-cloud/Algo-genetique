@@ -47,7 +47,7 @@ class Individu:
                         tamp = L[i] + random.normalvariate(0,sigma*L[i+3])
                         L[i] = max(Rot_data[XY][i]-Rot_data[XY][i+3],min(tamp,Rot_data[XY][i]+Rot_data[XY][i+3]))
                     if random.random() < mutrate/big_mut : # grosses mutations rares
-                        tamp = L[i] + random.normalvariate(0,sigma*np.sqrt(big_mut)*L[i+3])
+                        tamp = L[i] + random.normalvariate(0,sigma*np.sqrt(np.sqrt(big_mut))*L[i+3])
                         L[i] = max(Rot_data[XY][i]-Rot_data[XY][i+3],min(tamp,Rot_data[XY][i]+Rot_data[XY][i+3]))
                 Table[XY] = L
             self.Rot_table = RotTable.RotTable(Table)
