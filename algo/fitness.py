@@ -8,6 +8,19 @@ def dist_df(coords: list, nbappend = 1):
     correspondant aux coordonnées des nœuds, en joiniant les nbappend premiers
     nœuds à la fin. On compare ensuite la distance euclidienne entre les
     nœuds initiaux et ceux rajoutés."""
+
+    """
+    Calcule la distance de fermeture d'une trajectoire ADN.
+    Mesure la distance euclidienne entre les premiers et derniers nœuds
+    d'une trajectoire pour évaluer si la structure ADN se referme correctement.
+    Args:
+        coords: Liste d'arrays numpy représentant les coordonnées 3D des nœuds de la trajectoire
+        nbappend: Nombre de nœuds à comparer entre le début et la fin (défaut: 1)
+    Returns:
+        Distance euclidienne totale entre les nbappend premiers et derniers nœuds
+    Note:
+        Utilisé pour vérifier la circularité de l'ADN (plasmides circulaires)
+    """
     start = coords[:nbappend]
     end = coords[-nbappend:]
     distsq = 0
@@ -18,20 +31,55 @@ def dist_df(coords: list, nbappend = 1):
     return np.sqrt(distsq)
 
 def dist_euclid(scores: list) -> float:
+    """
+    Calcule la norme euclidienne d'un vecteur de scores.
+    Args:
+        scores: Liste de valeurs numériques
+    Returns:
+        Norme L2 (euclidienne) du vecteur de scores
+    Note:
+        Utilisé comme fonction de combinaison pour agréger plusieurs scores
+    """
     return np.linalg.norm(scores)
 
 
 def fitness(rot_table: RotTable, seq: str, fct_poids = dist_df, nbappend = 2, nbcuts = 2, coup_combin = dist_euclid) -> float :
-    """prend en entrée une table de rotations et un code ADN,
-    calcule le chemin et en déduit un score.
-    Edit : prend aussi un nombre de nœuds finaux à rajouter, 
-    et un nombre de coupures à faire."""
+    """
+    Fonction de fitness pour évaluer la qualité d'une séquence ADN.
+    
+    Calcule un score de fermeture en testant la séquence à différents points de coupure
+    pour évaluer sa capacité à former une structure circulaire stable.
+    
+    Args:
+        rot_table: Table des rotations pour calculer la trajectoire 3D de l'ADN
+        seq: Séquence ADN à évaluer (chaîne de caractères)
+        fct_poids: Fonction de calcul du poids/score pour une trajectoire (défaut: dist_df)
+        nbappend: Nombre de nœuds à ajouter à la fin pour tester la fermeture (défaut: 2)
+        nbcuts: Nombre de points de coupure à tester (défaut: 2)
+        coup_combin: Fonction pour combiner les scores des différentes coupures (défaut: dist_euclid)
+    
+    Returns:
+        Score de fitness (plus le score est bas, meilleure est la fermeture)
+    
+    Note:
+        La méthode teste plusieurs rotations circulaires de la séquence pour évaluer
+        la stabilité globale de la structure ADN circulaire.
+    """
     nbases = len(seq)
     assert nbases >= nbappend
     traj = Traj3D()
 
     def eval_une_coupure(seq: str, nbappend: int, indcut: int):
-
+        """
+        Évalue le score de fermeture pour un point de coupure donné.
+        Args:
+            seq: Séquence ADN
+            nbappend: Nombre de nœuds à rajouter
+            indcut: Index du point de coupure
+        
+        Returns:
+            Score de fermeture pour cette coupure
+        """
         traj.compute(seq[indcut:]+seq[:indcut+nbappend], rot_table)
         coords = traj.getTraj()
         score = fct_poids(coords,nbappend)
