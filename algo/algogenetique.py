@@ -15,11 +15,29 @@ beta = 1
 big_mut = 2
 class Individu:
     def __init__(self, Table_rot):
+        """
+        Initialise un individu avec une table de rotations.
+        Args:
+            Table_rot: Dictionnaire contenant les paramètres de rotation pour chaque dinucléotide
+        """
         self.Rot_table = RotTable.RotTable(Table_rot)
         self.score = self.fit()
 
 
     def __add__(self, other): #fonction permettant d'acoupler deux individus
+        """
+        Opérateur de croisement (crossover) : combine deux individus parents.
+        Effectue un croisement pondéré par les scores des parents. Le parent avec le
+        meilleur score (plus bas) a plus d'influence sur la descendance.
+        Args:
+            other: Autre individu parent
+        Returns:
+            Nouvel individu enfant issu du croisement
+        Note:
+            - alpha représente la contribution du parent 'other'
+            - beta contrôle l'intensité du mélange génétique
+            - Chaque paramètre a 50% de chance de provenir majoritairement de chaque parent
+        """
         s_score,o_score = self.score,other.score
         alpha = 0.5
         if s_score >0 or o_score >0 :
@@ -53,14 +71,47 @@ class Individu:
             self.Rot_table = RotTable.RotTable(Table)
             self.score = self.fit()
 
-    def fit(self) -> float: #Renvoie le score de l'individu
+    def fit(self) -> float:
+        """
+        Calcule le score de fitness de l'individu.
+        """
         return fitness(self.Rot_table,str_data,nbcuts=nb_cut,nbappend=nbappend)
 
     def __lt__(self,other):
+        """
+        Opérateur de comparaison : permet de trier les individus par score.
+        """
         return self.score<other.score
     
 
 def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str,poisson=False,nb_cuts = 0,nb_append = 1,recuit=False,beta_reproduction = 0.7,mutrate = 0.02, big_mutation = 20) :
+    """
+    Algorithme génétique pour optimiser les paramètres de rotation de l'ADN.
+    
+    Cherche à trouver une table de rotations qui minimise le score de fermeture
+    de la structure ADN (pour former des plasmides circulaires stables).
+    
+    Args:
+        filename: Chemin vers le fichier JSON contenant la table de rotations initiale
+        dna_seq: Séquence ADN à optimiser
+        nb_individus: Taille de la population
+        nb_generations: Nombre de générations à simuler
+        taux_selec: Taux de sélection (proportion d'individus gardés comme géniteurs)
+        selection_type: Type de sélection ("elitiste", "tournament", "roulette", etc.)
+        poisson: Si True, le nombre de géniteurs suit une loi de Poisson (défaut: False)
+        nb_cuts: Nombre de points de coupure pour le calcul de fitness (défaut: 0)
+        nb_append: Nombre de nœuds à ajouter pour tester la fermeture (défaut: 1)
+        recuit: Si True, active le recuit simulé (température décroissante) (défaut: False)
+        beta_reproduction: Coefficient de mélange lors du croisement (défaut: 0.7)
+        mutrate: Taux de mutation initial (défaut: 0.02)
+        big_mutation: Facteur pour les grosses mutations (défaut: 20)
+    
+    Returns:
+        Tuple contenant :
+        - Liste des meilleurs individus à chaque génération
+        - Liste des scores du meilleur individu à chaque génération
+        - Liste des scores du pire individu à chaque génération
+    """
     rot_table = json_load(open(filename))
     global str_data,Rot_data, nb_cut, nbappend, big_mut, beta
     str_data = dna_seq
