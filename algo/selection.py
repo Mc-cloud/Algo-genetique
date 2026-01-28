@@ -2,6 +2,16 @@ import random
 import numpy as np
 
 def selection_elitiste(list_ind, taux_selec):
+    """
+    Sélection élitiste : conserve les meilleurs individus.
+    
+    Args:
+        list_ind: Liste des individus à sélectionner
+        taux_selec: Taux de sélection (proportion d'individus à garder)
+    
+    Returns:
+        Liste des meilleurs individus selon le taux de sélection
+    """
     list_ind_sort = list(list_ind)
     list_ind_sort.sort()
 
@@ -12,6 +22,17 @@ def selection_elitiste(list_ind, taux_selec):
     return selection
 
 def selection_tournament(list_ind, taux_selec, p = 0.001):
+    """
+    Sélection par tournoi : compare deux individus aléatoires et sélectionne le meilleur.
+    
+    Args:
+        list_ind: Liste des individus
+        taux_selec: Taux de sélection
+        p: Probabilité de sélectionner le moins bon individu (diversité)
+    
+    Returns:
+        Liste d'individus sélectionnés par tournoi + 10% des meilleurs
+    """
     selection = []
     n_list = list(list_ind)
     n = len(n_list)
@@ -25,13 +46,26 @@ def selection_tournament(list_ind, taux_selec, p = 0.001):
         elif  (x[0].score > x[1].score and q <= p) or (x[0].score < x[1].score and q > p): 
             selection.append(x[0])
 
-    for ind in list_ind[:int(n*0.1)]:
+    list_ind_sort = list(list_ind)
+    list_ind_sort.sort()
+
+    for ind in list_ind_sort[:int(n*0.1)]:
         if ind not in selection:
             selection.append(ind)
 
     return selection
 
 def selection_roulette(list_ind, taux_selec):
+    """
+    Sélection par roulette : probabilité inversement proportionnelle au score.
+    
+    Args:
+        list_ind: Liste des individus
+        taux_selec: Taux de sélection
+    
+    Returns:
+        Liste d'individus sélectionnés selon leurs probabilités
+    """
     total = sum([ind.score for ind in list_ind])
     proba = [1-ind.score/total for ind in list_ind]
     
@@ -40,6 +74,17 @@ def selection_roulette(list_ind, taux_selec):
     return select
 
 def selection_roulette_exp(list_ind, taux_selec, temp=1000):
+    """
+    Sélection par roulette avec fonction exponentielle (contrôle de la pression de sélection).
+    
+    Args:
+        list_ind: Liste des individus
+        taux_selec: Taux de sélection
+        temp: Température (contrôle la pression de sélection, plus elle est élevée, moins la sélection est sévère)
+    
+    Returns:
+        Liste d'individus sélectionnés avec distribution exponentielle
+    """
     min_score = min([ind.score for ind in list_ind])
     proba = [np.exp((min_score**2-ind.score**2)/temp) for ind in list_ind]
     select = random.choices(list_ind, proba, k = int(taux_selec*len(list_ind)))
