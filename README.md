@@ -94,8 +94,6 @@ conda env create -f environment.yaml
 conda activate algo-genetique
 ```
 
-## Utilisation :
-Mettre l'explication pour execution...
 
 ## Benchmarks 
 ```bash
@@ -254,14 +252,12 @@ Le projet implémente 7 méthodes de sélection :
 3. **Multi-points** : teste à plusieurs points de coupure pour robustesse
 4. **Score final** : Norme euclidienne des distances
 
-## Visualisations
-
-Les visualisations incluent : 
-- Evolution du meilleur score
-- Evolution du pire score
-- Diversité de la population
-- Comparaison entre méthodes
-
+## Visualisations : 
+Le projet génère diverses visualisations pour analyser les dynamiques évolutives :
+- **Evolution du Fitness** : Suivi du fitness de la population au fil du temps
+![png](evolutio_metrique.png)
+- **Evolution d'un plasmide au fils des générations:**
+![gif](gifs/ultimate.gif)
 ## Tests
 
 ```bash
