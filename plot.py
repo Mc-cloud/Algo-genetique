@@ -141,12 +141,15 @@ def save_trajectory_gif(trajectories, filename="gifs/etapes.gif", fps=10):
     plt.close(fig) 
     print(f"GIF sauvegardé avec succès : {filename}")
 
-def plot_best_worst(filename,dna_seq):
+def plot_best_worst(filename,dna_seq,title=""):
     _,best_list,worst_list,_ = load_simulation_data(filename,dna_seq)
     N= [i for i in range(len(best_list))]
     plt.plot(N,best_list, label = "best table")
     plt.plot(N,worst_list, label = "worst table")
+    plt.yscale("log")
     plt.xlabel("générations")
     plt.ylabel("score ")
+    plt.title(title)
+    plt.legend()
     plt.show()
     
