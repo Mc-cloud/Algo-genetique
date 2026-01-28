@@ -8,8 +8,8 @@ import numpy as np
 base_table = RotTable("dna/table.json")
 base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
 
-nb_indiv = 150
-nb_generations = 20
+nb_indiv = 1000
+nb_generations = 30
 taux_selec = 0.5
 
 
@@ -22,7 +22,7 @@ for selection_type in selections_dic.keys():
 #     # traj_res = Traj3D(want_to_plot=True)
 #     # traj_res.compute(base_seq,res.Rot_table)
 #     # traj_res.draw() #'''
-T = [(1,5),(1,1)]
+T = [(1,1)]
 L = []
 for a,b in T :
     res = AlgoGenetique("dna/table.json",base_seq,nb_indiv,nb_generations,taux_selec,"elitiste",nb_cuts = a,nb_append = b)

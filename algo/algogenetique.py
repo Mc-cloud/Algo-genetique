@@ -74,9 +74,9 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
         return L
     
     Population = New_pop()
-    Best_indiv_list = [min(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq))]
-    Best_indiv_score_list = [fitness_basic(Best_indiv_list[0].Rot_table,dna_seq)]
-    worst_indiv_score_list = [fitness_basic(max(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq)).Rot_table,dna_seq)]
+    Best_indiv_list = [min(Population)]
+    Best_indiv_score_list = [Best_indiv_list[0].score]
+    worst_indiv_score_list = [max(Population).score]
 
     for i in range(nb_generations):
         print("itération :", i+1, "/", nb_generations)
@@ -93,8 +93,8 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
             Population.append(individu)
         best_indiv = min(Population)
         worst_indiv = max(Population)
-        print(f"Meilleur pour iter {i} : {best_indiv.score}")
-        print(f"Pire pour iter {i} : {worst_indiv.score}")
+        print(f"Meilleur pour iter {i+1} : {best_indiv.score}")
+        print(f"Pire pour iter {i+1} : {worst_indiv.score}")
         Best_indiv_list.append(best_indiv)
         Best_indiv_score_list.append(best_indiv.score)
         worst_indiv_score_list.append(worst_indiv.score)

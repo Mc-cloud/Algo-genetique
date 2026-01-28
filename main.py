@@ -10,15 +10,16 @@ from simulsmanager import *
 base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
 
 params = {
-    "nb_individus":100,
-    "nb_generations":20,
+    "nb_individus":8,
+    "nb_generations":10,
     "taux_selec":0.5,
     "selection_type":"elitiste",
     "poisson":False,
-    "nb_cuts": 0,
+    "nb_cuts": 1,
     "nb_append" : 1
     }
 
-simul_and_save_results("data_algo/exemple1",base_seq,params)
+simul_and_save_results("data_algo/exemple3",base_seq,params)
 
-load_and_visualise_timeline("data_algo/exemple1",base_seq)
+load_and_visualise_timeline("data_algo/exemple3",base_seq)
+#load_and_save_gif("gifs/exemple2","data_algo/exemple3",base_seq,fps=5)
