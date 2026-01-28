@@ -124,7 +124,7 @@ if __name__ == "__main__" :
 
         print("Type de sélection.")
         while True : # Demander le type de selection
-            selection_type_n = input("Quelle façon de sélectionner les survivants sur chaque génération ? \n\t1 élitiste \n\t2 tournoi \n\t3 roulette fitness\n\t4 roulette rang \n\t5 roulette rang géométrique \n\t6 roulette exponentielle ")
+            selection_type_n = input("Quelle façon de sélectionner les survivants sur chaque génération ? \n\t1 élitiste \n\t2 tournoi \n\t3 roulette fitness\n\t4 roulette rang \n\t5 roulette rang géométrique \n\t6 roulette exponentielle \n>")
             if not selection_type_n in selections_dic:
                 print("Erreur : entrez soit le chiffre correspondant à l'option, soit le nom de l'option.")
                 print()
@@ -136,7 +136,7 @@ if __name__ == "__main__" :
         while True : # Demander la proportion des survivants
             var_taux_selec = input("Quel proportion de la population doit subsister d'une itération à l'autre ? \n\t• 0 < q < 1 \n\tPar défaut q = 0.5 \n>")
             if var_taux_selec == "":
-                var_taux_selec = 0.5
+                taux_selec = 0.5
                 break
             try:
                 taux_selec = float(var_taux_selec)
@@ -168,10 +168,10 @@ if __name__ == "__main__" :
 
         while True : # nombre de générations
             var_nb_gen = input("Combien de générations doit-il y avoir pour cette exécution ? \n\t• Nombre entier strictement positif \n\t• par défaut n = 20 \n>")
-            if var_nb_indiv =="":
-                var_nb_indiv = 20
+            if var_nb_gen =="":
+                var_nb_gen = 20
                 break
-            elif not var_nb_indiv.isdigit() or not int(var_nb_indiv)>0:
+            elif not var_nb_gen.isdigit() or not int(var_nb_gen)>0:
                 print("Entrez un nombre entier strictement positif en base décimale.")
                 print()
             else:
