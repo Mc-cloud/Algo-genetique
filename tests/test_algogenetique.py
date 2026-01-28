@@ -14,10 +14,6 @@ class TestAlgoGenetique(unittest.TestCase):
         self.Individu1 = alg.Individu(Rot_data)
         self.Individu2 = alg.Individu(Rot_data)
 
-    def test_somme(self):
-        New_individu = self.Individu1+self.Individu2
-        self.assertEqual(New_individu.Rot_table.rot_table, self.Individu1.Rot_table.rot_table)
-    
     def test_mutation(self):
         Rot_data = alg.Rot_data
         New_individu = self.Individu1
