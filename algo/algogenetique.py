@@ -53,7 +53,8 @@ class Individu:
     def __lt__(self,other):
         return self.score<other.score
     
-def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str,poisson=False,nb_cuts = 0,nb_append = 1) :
+
+def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str,poisson=False,nb_cuts = 0,nb_append = 1,recuit=False) :
     rot_table = json_load(open(filename))
     global str_data,Rot_data, nb_cut, nbappend 
     str_data = dna_seq
