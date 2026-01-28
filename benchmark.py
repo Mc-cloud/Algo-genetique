@@ -6,7 +6,7 @@ from algo.fitness import fitness
 import numpy as np
 from simulsmanager import simul_and_save_results
 from resultsmanager import load_simulation_data
-from plot import plot_with_slider,get_trajectories,plot_best_worst
+from plot import plot_with_slider,get_trajectories,plot_best_worst,plot_three_indicators
 # base_table = RotTable("dna/table.json")
 # base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
 
@@ -42,6 +42,13 @@ for selection_type in selections_dic.keys():
     # v2 = coords[1] -coords[0]
     # v1,v2 = v1/np.linalg.norm(v1),v2/np.linalg.norm(v2)
     # print("dist :", dist, "norm:", np.linalg.norm(v1-v2), "ps :", np.dot(v2,v1))
+
+def get_indicators(coords):
+    dist = np.linalg.norm(coords[0]-coords[-2])
+    v1 = coords[-1]-coords[-2]
+    v2 = coords[1] -coords[0]
+    v1,v2 = v1/np.linalg.norm(v1),v2/np.linalg.norm(v2)
+    return dist,np.linalg.norm(v1-v2),np.dot(v2,v1)
 
 '''
 score = fitness(best.Rot_table,base_seq,nbcuts=0)
@@ -113,12 +120,23 @@ def grid_search_compare(base_save_filename,dna_seq,params_listed,show="convergen
                                         best_res = (indiv_list,b_list,w_list)
     print(f"La meilleur configuration trouvée est : {best_config}, avec un score de {best_config_score}")
     best_indiv_list,best_b_list,best_w_list = best_res
+    def get_where_belong(param):
+        return f"{best_config[param]}∈"+"{"+((f"{params_listed[param]}")[1:])[:-1]+"}" if len(params_listed[param])>1 else f"{best_config[param]}"
+    title = f"\n nombre d'individus : {get_where_belong("nb_individus")} nombre d'itérations : {get_where_belong("nb_generations")} taux de sélection : {get_where_belong("taux_selec")} \nsélection:{get_where_belong("selection_type")} nombre de coupes : {get_where_belong("nb_cuts")} Poisson utilisé : {"Oui" if best_config["poisson"] else "Non"}"
     if show=="convergence_best":
         print("Visualisation de la convergence de la meilleure configuration : ")
-        def get_where_belong(param):
-            return f"{best_config[param]}∈"+"{"+((f"{params_listed[param]}")[1:])[:-1]+"}" if len(params_listed[param])>1 else f"{best_config[param]}"
-        title = f"\n nombre d'individus : {get_where_belong("nb_individus")} nombre d'itérations : {get_where_belong("nb_generations")}\ntaux de sélection : {get_where_belong("taux_selec")} sélection:{get_where_belong("selection_type")} \nnombre de coupes : {get_where_belong("nb_cuts")}\nPoisson utilisé : {"Oui" if best_config["poisson"] else "Non"}"
         plot_best_worst(base_save_filename+"_".join([f"{a}{best_config[a]}" for a in best_config]),dna_seq,title=title)
+    elif show=="3indicators":
+        print("Visualisation des 3 indicateurs")
+        dist,norm,ps = [],[],[]
+        for indiv in indiv_list:
+            traj_res = Traj3D()
+            traj_res.compute(dna_seq,indiv.Rot_table)
+            d,n,p = get_indicators(traj_res.getTraj())
+            dist.append(d)
+            norm.append(n)
+            ps.append(p)
+        plot_three_indicators(dist,norm,ps,title=title)
     else:
         print("Visualisation de la meilleure configuration..")
         plot_with_slider(get_trajectories(best_indiv_list,dna_seq))
