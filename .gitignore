@@ -1,5 +1,9 @@
 # Python cache
 __pycache__/
 *.pyc
+<<<<<<< HEAD
 *.pyo
 *.pyd
+=======
+dna/__pycache__/
+>>>>>>> 381d799954e0adaa6bccad1350495eb29f4bb1c2

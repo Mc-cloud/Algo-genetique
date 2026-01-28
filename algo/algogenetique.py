@@ -81,9 +81,15 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
     for i in range(nb_generations):
         print("itération :", i+1, "/", nb_generations)
         if poisson: # si l'on s'est mit en mode processur aléatoire de poisson, on aura une nombre de géniteurs suivant une loi de Poisson(taux_selec*nb_indiv) (on prendra le max avec 2, pour avoir assez de géniteurs)
-            Geniteurs = selection(Population,max(2,np.random.poisson(taux_selec*nb_individus))/nb_individus,selection_type)
+            if recuit:
+                Geniteurs = selection(Population,max(2,np.random.poisson(taux_selec*nb_individus))/nb_individus,selection_type, n=i)
+            else:
+                Geniteurs = selection(Population,max(2,np.random.poisson(taux_selec*nb_individus))/nb_individus,selection_type)
         else:
-            Geniteurs = selection(Population,taux_selec,selection_type)
+            if recuit:
+                Geniteurs = selection(Population,taux_selec,selection_type, n=i)
+            else:
+                Geniteurs = selection(Population,taux_selec,selection_type)
         A =[Geniteurs[i].score for i in range(len(Geniteurs))]
         print("fit : ", np.sum(A))
         Population = Geniteurs.copy()
