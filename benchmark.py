@@ -6,42 +6,7 @@ from algo.fitness import fitness
 import numpy as np
 from simulsmanager import simul_and_save_results
 from resultsmanager import load_simulation_data
-from plot import plot_with_slider,get_trajectories,plot_best_worst,plot_three_indicators
-# base_table = RotTable("dna/table.json")
-# base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
-
-# nb_indiv = 1000
-# nb_generations = 30
-# taux_selec = 0.5
-
-
-'''
-for selection_type in selections_dic.keys():
-    results = AlgoGenetique("dna/table.json",base_seq,nb_indiv,nb_generations,taux_selec,selection_type,poisson=False)
-    res = results[-1]
-    score = fitness(res.Rot_table,base_seq,nbcuts=0)
-    print(" score : ",res.score,"score final : ",score," via type de selection : ",selection_type)
-#     # traj_res = Traj3D(want_to_plot=True)
-#     # traj_res.compute(base_seq,res.Rot_table)
-#     # traj_res.draw() #'''
-# T = [(0,1),(1,1),(1,3),(1,5),(2,3),(2,5),(3,5)]
-# params = {"nb_individus":150,"nb_generations":20,"taux_selec":0.5,"selection_type":"elitiste","poisson":False,"recuit":False,"nb_cuts":0,"nb_append":1}
-# L = []
-# for a,b in T :
-#     params["nb_cuts"]=a
-#     params["nb_append"]=b
-#     simul_and_save_results(f"data_algo/benchmark_nbcuts{a}_nbappend{b}",base_seq,params)
-    # res = AlgoGenetique("dna/table.json",base_seq,nb_indiv,nb_generations,taux_selec,"elitiste",nb_cuts = a,nb_append = b)
-    # bests, _, _ = res
-    # best = bests[-1]
-    # traj = Traj3D()
-    # traj.compute(base_seq+base_seq[0]+base_seq[1], best.Rot_table)
-    # coords = traj.getTraj()
-    # dist = np.linalg.norm(coords[0]-coords[-2])
-    # v1 = coords[-1]-coords[-2]
-    # v2 = coords[1] -coords[0]
-    # v1,v2 = v1/np.linalg.norm(v1),v2/np.linalg.norm(v2)
-    # print("dist :", dist, "norm:", np.linalg.norm(v1-v2), "ps :", np.dot(v2,v1))
+from plot import plot_with_slider,get_trajectories,plot_best_worst,plot_three_indicators,save_trajectory_gif
 
 def get_indicators(coords):
     dist = np.linalg.norm(coords[0]-coords[-2])
@@ -88,7 +53,18 @@ def grid_search_params_save(base_save_filename,dna_seq,params_listed):
                                     }
                                     simul_and_save_results(base_save_filename+"_".join([f"{a}{curr_params[a]}" for a in curr_params]),dna_seq,curr_params)
 
-def grid_search_compare(base_save_filename,dna_seq,params_listed,show="convergence_best"):
+def grid_search_compare(base_save_filename,dna_seq,params_listed,show="convergence_best",gif_name=""):
+    """
+    Docstring for grid_search_compare
+    
+    :param base_save_filename: chemin de base pour retrouver les simulations sauvegardées (préfixe commun à toutes les simulations)
+    :param dna_seq: la séquence d'ADN à considérer
+    :param params_listed: Dictionnaire avec en clef les paramètres usuels, et en valeur la liste de params à tester
+    :param show: par défaut, show="convergence_best", affiche la convergence de la meilleure configuration. 
+                 Si show="3indicators", affiche les 3 indicateurs de la meilleure configuration, étant l'alignement, la continuité et la distance.
+                 sinon affiche la trajectoire de la meilleure configuration , en fonction des itérations.
+    :param gif_name: vide par défaut, s'il n'est pas vide, sauvegarde un gif de l'évolution de la meilleure configuration sous ce nom.
+    """
     best_config_score = float('inf')
     best_config=None
     best_res=None
@@ -125,7 +101,7 @@ def grid_search_compare(base_save_filename,dna_seq,params_listed,show="convergen
     title = f"\n nombre d'individus : {get_where_belong("nb_individus")} nombre d'itérations : {get_where_belong("nb_generations")} taux de sélection : {get_where_belong("taux_selec")} \nsélection:{get_where_belong("selection_type")} nombre de coupes : {get_where_belong("nb_cuts")} Poisson utilisé : {"Oui" if best_config["poisson"] else "Non"}"
     if show=="convergence_best":
         print("Visualisation de la convergence de la meilleure configuration : ")
-        plot_best_worst(base_save_filename+"_".join([f"{a}{best_config[a]}" for a in best_config]),dna_seq,title=title)
+        plot_best_worst(base_save_filename+"_".join([f"{a}{best_config[a]}" for a in best_config]),dna_seq,title="Evolution du pire et meilleur individu en fonction de l'itération, sur la meilleure configuration préalable de paramètres trouvée \n"+title)
     elif show=="3indicators":
         print("Visualisation des 3 indicateurs")
         dist,norm,ps = [],[],[]
@@ -140,6 +116,8 @@ def grid_search_compare(base_save_filename,dna_seq,params_listed,show="convergen
     else:
         print("Visualisation de la meilleure configuration..")
         plot_with_slider(get_trajectories(best_indiv_list,dna_seq))
+    if gif_name:
+        save_trajectory_gif(get_trajectories(best_indiv_list,dna_seq),gif_name,fps=10)
 
                                     
 
