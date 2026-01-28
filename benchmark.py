@@ -6,6 +6,7 @@ from algo.fitness import fitness
 import numpy as np
 from simulsmanager import simul_and_save_results
 from resultsmanager import load_simulation_data
+from plot import plot_with_slider,get_trajectories
 base_table = RotTable("dna/table.json")
 base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
 
@@ -80,7 +81,10 @@ def grid_search_params_save(base_save_filename,dna_seq,params_listed):
                                     }
                                     simul_and_save_results(base_save_filename+"_".join([f"a{curr_params[a]}" for a in curr_params]))
 
-def grid_search_compare(base_save_filename,dna_seq,params_listed):
+def grid_search_compare(base_save_filename,dna_seq,params_listed,show="convergence_best"):
+    best_config_score = int("inf")
+    best_config=None
+    best_res=None
     for nb_individus in params_listed.get("nb_individus",[150]):
         for nb_generations in params_listed.get("nb_generations",[20]):
             for taux_selec in params_listed.get("taux_selec",[0.5]):
@@ -101,7 +105,20 @@ def grid_search_compare(base_save_filename,dna_seq,params_listed):
                                     }
                                     loc_path = base_save_filename+"_".join([f"a{curr_params[a]}" for a in curr_params])
                                     res = load_simulation_data(loc_path,dna_seq)
-                                    #TODO
-                                    #calculer son résultat.
+                                    indiv_list,b_list,w_list = res
+                                    final_score = b_list[-1]
+                                    if final_score < best_config_score:
+                                        best_config_score = final_score
+                                        best_config = curr_params
+                                        best_res = res
+    print(f"La meilleur configuration trouvée est : {best_config}, avec un score de {best_config_score}")
+    best_indiv_list,best_b_list,best_w_list = best_res
+    if show=="convergence_best":
+        print("Visualisation de la convergence de la meilleure configuration : ")
+        # APPELER SUR plot la visu de BESTvs WORST
+    else:
+        print("Visualisation de la meilleure configuration..")
+        plot_with_slider(get_trajectories(best_indiv_list,dna_seq))
+
                                     
 
