@@ -153,3 +153,28 @@ def plot_best_worst(filename,dna_seq,title=""):
     plt.legend()
     plt.show()
     
+def plot_three_indicators(dist,norm,ps,title=""):
+    fig, axs = plt.subplots(3,1, figsize = (12,14), sharex = True)
+    generations = range(len(dist))
+
+    axs[0].plot(generations, dist)
+    axs[0].set_ylabel('Distance')
+    axs[0].set_title('Évolution de la distance de fermeture')
+    axs[0].grid(True, linestyle='--')
+    # axs[0].legend()
+
+    axs[1].plot(generations, norm)
+    axs[1].set_ylabel('$|\\vec{v}{start} - \\vec{v}{end}|$')
+    axs[1].set_title('Continuité : Norme de la différence des directions')
+    axs[1].grid(True, linestyle='--')
+
+    axs[2].plot(generations,ps)
+    axs[2].set_ylabel('$\\vec{v}{start} \\cdot \\vec{v}{end}$')
+    axs[2].set_xlabel('Génération')
+    axs[2].set_title('Alignement : Produit scalaire des directions')
+    axs[2].grid(True, linestyle='--')
+
+    fig.suptitle(title)
+    #plt.tight_layout()
+    plt.show()
+    #plt.savefig('Evolution_metrique_genetique.png')
