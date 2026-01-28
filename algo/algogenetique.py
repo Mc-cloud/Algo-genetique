@@ -11,7 +11,8 @@ str_data = None
 Rot_data = None
 nb_cut = None
 nbappend = None
-
+beta = 1
+big_mut = 2
 class Individu:
     def __init__(self, Table_rot):
         self.Rot_table = RotTable.RotTable(Table_rot)
@@ -20,15 +21,18 @@ class Individu:
 
     def __add__(self, other): #fonction permettant d'acoupler deux individus
         s_score,o_score = self.score,other.score
+        alpha = 0.5
+        if s_score >0 or o_score >0 :
+            alpha = (o_score)/(s_score+o_score) 
         Table ={}
         for XY in self.Rot_table.rot_table:
             Ls = self.Rot_table.rot_table[XY].copy()
             Lo = other.Rot_table.rot_table[XY].copy()
             for i in range(3):
-                alpha = 0.5
-                if s_score >0 or o_score >0 :
-                    alpha = (o_score)/(s_score+o_score)  
-                Ls[i] = alpha*Ls[i] +(1-alpha)*Lo[i]
+                if random.random() < alpha :
+                    Ls[i] = (alpha*Ls[i] +(1-alpha)*Lo[i])*beta + (1-beta)* Ls[i] 
+                else :
+                    Ls[i] = (alpha*Ls[i] +(1-alpha)*Lo[i])*beta + (1-beta)* Lo[i] 
             Table[XY] = Ls
         return Individu(Table)
     
@@ -39,8 +43,11 @@ class Individu:
             for XY in Table:
                 L = Table[XY]
                 for i in range(3):
-                    if random.random() < mutrate :
+                    if random.random() < mutrate :  #petites mutations fréquentes
                         tamp = L[i] + random.normalvariate(0,sigma*L[i+3])
+                        L[i] = max(Rot_data[XY][i]-Rot_data[XY][i+3],min(tamp,Rot_data[XY][i]+Rot_data[XY][i+3]))
+                    if random.random() < mutrate/big_mut : # grosses mutations rares
+                        tamp = L[i] + random.normalvariate(0,sigma*np.sqrt(big_mut)*L[i+3])
                         L[i] = max(Rot_data[XY][i]-Rot_data[XY][i+3],min(tamp,Rot_data[XY][i]+Rot_data[XY][i+3]))
                 Table[XY] = L
             self.Rot_table = RotTable.RotTable(Table)
@@ -53,14 +60,15 @@ class Individu:
         return self.score<other.score
     
 
-def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str,poisson=False,nb_cuts = 0,nb_append = 1,recuit=False) :
+def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str,poisson=False,nb_cuts = 0,nb_append = 1,recuit=False,beta_reproduction = 0.7,mutrate = 0.02, big_mutation = 20) :
     rot_table = json_load(open(filename))
-    global str_data,Rot_data, nb_cut, nbappend 
+    global str_data,Rot_data, nb_cut, nbappend, big_mut, beta
     str_data = dna_seq
     Rot_data = rot_table
     nb_cut = nb_cuts
     nbappend = nb_append 
-
+    beta = beta_reproduction
+    big_mut = big_mutation
     def New_pop():
         def New_individu():
             Table_rot =  copy.deepcopy(rot_table)
@@ -95,7 +103,7 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
         Population = Geniteurs.copy()
         while len(Population) < nb_individus:
             individu = random.choice(Geniteurs)+random.choice(Geniteurs)
-            individu.mutation(0.01*(1-i/nb_generations),(1-i/nb_generations)*1)  
+            individu.mutation(mutrate*(1-i/nb_generations),(1-i/nb_generations)*0.5)  
             Population.append(individu)
         best_indiv = min(Population)
         worst_indiv = max(Population)
