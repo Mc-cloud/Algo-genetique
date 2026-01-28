@@ -5,7 +5,7 @@ import os
 from matplotlib.widgets import Slider
 from dna.Traj3D import Traj3D
 import numpy as np
-
+from resultsmanager import load_simulation_data
 def get_trajectories(indiv_list:list,dna_seq:str):
     trajectories=[]
     for indiv in indiv_list:
@@ -141,3 +141,12 @@ def save_trajectory_gif(trajectories, filename="gifs/etapes.gif", fps=10):
     plt.close(fig) 
     print(f"GIF sauvegardé avec succès : {filename}")
 
+def plot_best_worst(filename,dna_seq):
+    _,best_list,worst_list,_ = load_simulation_data(filename,dna_seq)
+    N= [i for i in range(len(best_list))]
+    plt.plot(N,best_list, label = "best table")
+    plt.plot(N,worst_list, label = "worst table")
+    plt.xlabel("générations")
+    plt.ylabel("score ")
+    plt.show()
+    
