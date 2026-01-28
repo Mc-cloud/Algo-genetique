@@ -87,11 +87,11 @@ if __name__ == "__main__" :
     nb_instances = 0
     while True : # Demander la liste des algorithmes à exécuter, avec quels paramètres.
         new_gen = input(f"Voulez-vous ajouter une population (instance de l'algorithme dont il faudra préciser les paramètres) ? \nActuellement {nb_instances} populations prévues.  \n\toui/o \n\tnon/n \n>")
-        if not new_gen in {'o','oui','n','non',''} :
+        if not new_gen in {'o','oui','n','non','','y','yes','n','no'} :
             print("Erreur : veuillez donner une entrée valide.")
             print()
             pass
-        elif new_gen in {'non','n',''}:
+        elif new_gen in {'non','no','n',''}:
             break
         else:
             nb_instances+=1
@@ -179,20 +179,72 @@ if __name__ == "__main__" :
             else:
                 break
         print()
-        list_nb_gen.append(int(var_nb_gen))    
+        list_nb_gen.append(int(var_nb_gen))
+    
+    plot_bs = []
+
+    print("Options d'affichage")
+    while True : # Options d'affichage : voulez-vous rajouter un affichage des fitness au cours du temps ?
+        var_plot_bs = input("Voulez-vous afficher afficher l'évolution de la fitness du meilleur candidat de chaque population \n\t• non/n \n\t• selon un couple (n_bases_recollement,n_coupures) \n\t• selon la fonction de fitness de chacune des population d'indice i_1,i_2,…,i_n ; i_k ≥ 1 \n\t• selon la fonction de fitness de chacune des populations choisies : t/tout")
+        if var_plot_bs in {'','n','no','non'}:
+            break
+        elif var_plot_bs in {'t','tout','a','all'}:
+            plot_bs = range(nb_instances)
+        elif var_plot_bs[0]=='(':
+            try:
+                # Enlève parenthèses et remplace virgules par espaces
+                fx_plot_bs = var_plot_bs.strip().strip('()').replace(',', ' ')
+                fx_plot_bs = [int(x) for x in plot_bs.split()]
+                
+                if len(plot_bs) != 2:
+                    print("Erreur : entrez exactement 2 nombres.\n")
+                    continue
+                else:
+                    list_nb_append.append(fx_plot_bs[0])
+                    list_nb_cuts.append(fx_plot_bs[1])
+                    plot_bs = [nb_instances+1]
+                    break 
+            except ValueError:
+                print("Erreur : format invalide. Exemple : (5, 10). Ne pas mettre de parenthèses pour une liste d'indices.\n")
+
+        else:
+            try:
+                # Remplace virgules par espaces
+                var_plot_bs = var_plot_bs.replace(',', ' ')
+                # Convertit en liste d'entiers
+                plot_bs = [int(x) for x in var_plot_bs.split()]
+                var_bool = True
+                for i in plot_bs:
+                    if i < 1 or i > nb_instances:
+                        print("N'indiquez que des numéros valides de population.")
+                        var_bool = False
+                        break
+                if not var_bool:
+                    pass
+                else:
+                    break
+            except ValueError:
+                print("Erreur : entrez une option correcte, 'n'/'non', 't/tout', ou des nombres entiers positifs séparés par des espaces ou des virgules, correspondant aux indices (i≥1) à choisir.")
+                print()
+        print()
+        list_fitness_to_plot = {i : lambda rot_table_x : fitness(rot_table_x,seq,nbappend=list_nb_append[i],nbcuts=list_nb_cuts[i]) for i in plot_bs}
+            
+
+        break 
     # while True :
     #Rajouter d'autres options comme décrit en haut de ce fichier (autre endroit pour demander le type de comparaisons)
     print(f"Nombre total de populations : {nb_instances}")
     print()
     Best_indiv_list,Best_indiv_score_list,worst_indiv_score_list = [],[],[]
-    for i in range(nb_instances):
-        print(f"Lancement de la {i+1}-e population :")
-        Best_indiv,Best_indiv_score,worst_indiv_score = AlgoGenetique(table_rot_file ,seq , nb_individus = list_nb_individus[i],nb_generations = list_nb_gen[i],taux_selec = list_taux_selec[i], selection_type = list_selection_type[i],poisson=False,nb_cuts = list_nb_cuts[i],nb_append = list_nb_append[i],recuit=False)
-        print()
-        Best_indiv_list.append(Best_indiv)
-        Best_indiv_score_list.append([fitness(indiv.Rot_table,seq,nbcuts = 0) for indiv in Best_indiv])
-        worst_indiv_score_list.append(worst_indiv_score)
-        plt.plot(Best_indiv_score, label=f"{i+1}-ème population")
-    plt.legend()
-    plt.show()
-    
+    for k in plot_bs:
+        for i in range(nb_instances):
+            print(f"Lancement de la {i+1}-e population :")
+            Best_indiv,Best_indiv_score,worst_indiv_score = AlgoGenetique(table_rot_file ,seq , nb_individus = list_nb_individus[i],nb_generations = list_nb_gen[i],taux_selec = list_taux_selec[i], selection_type = list_selection_type[i],poisson=False,nb_cuts = list_nb_cuts[i],nb_append = list_nb_append[i],recuit=False)
+            print()
+            Best_indiv_list.append(Best_indiv)
+            Best_indiv_score_list.append([fitness(indiv.Rot_table,seq,nbcuts = 0) for indiv in Best_indiv])
+            worst_indiv_score_list.append(worst_indiv_score)
+            plt.plot(Best_indiv_score, label=f"{i+1}-ème population")
+        plt.legend()
+        plt.show()
+        
