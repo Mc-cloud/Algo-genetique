@@ -25,9 +25,10 @@ def selection_tournament(list_ind, taux_selec, p = 0.001):
         elif  (x[0].score > x[1].score and q <= p) or (x[0].score < x[1].score and q > p): 
             selection.append(x[0])
 
-    for ind in list_ind[int(n*0.1)]:
+    for ind in list_ind[:int(n*0.1)]:
         if ind not in selection:
             selection.append(ind)
+
     return selection
 
 def selection_roulette(list_ind, taux_selec):
