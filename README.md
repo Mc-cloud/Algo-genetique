@@ -101,7 +101,7 @@ Mettre l'explication pour execution...
 Le projet génère diverses visualisations pour analyser les dynamiques évolutives :
 - **Evolution du Fitness** : Suivi du fitness de la population au fil du temps
 ![png](evolutio_metrique.png)
-- **Evolution d'un plasmide a travers les générations:**
+- **Evolution d'un plasmide au fils des générations:**
 ![gif](gifs/ultimate.gif)
 ## Tests :
 
