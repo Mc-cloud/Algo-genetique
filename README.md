@@ -143,9 +143,9 @@ For open source projects, say how it is licensed. -->
 Finished (we guess)
 
 ## testing the cover 
-Pour tester le coverage, il faut se positionner dans la racine du projet : Algo-génétique.
+Pour tester le coverage, il faut se positionner dans la racine du projet : ```Algo-génétique```.
 
-coverage run -m unittest discover -s tests -p "test_*.py"
+```coverage run -m unittest discover -s tests -p "test_*.py"```
 puis 
 
-coverage report
+```coverage report```
