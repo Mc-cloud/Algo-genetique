@@ -6,7 +6,7 @@ from algo.fitness import fitness
 import numpy as np
 from simulsmanager import simul_and_save_results
 from resultsmanager import load_simulation_data
-from plot import plot_with_slider,get_trajectories
+from plot import plot_with_slider,get_trajectories,plot_best_worst
 # base_table = RotTable("dna/table.json")
 # base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
 
@@ -115,7 +115,10 @@ def grid_search_compare(base_save_filename,dna_seq,params_listed,show="convergen
     best_indiv_list,best_b_list,best_w_list = best_res
     if show=="convergence_best":
         print("Visualisation de la convergence de la meilleure configuration : ")
-        # APPELER SUR plot la visu de BESTvs WORST
+        def get_where_belong(param):
+            return f"{best_config[param]}∈"+"{"+((f"{params_listed[param]}")[1:])[:-1]+"}"
+        title = f"taux de sélection : {get_where_belong("taux_selec")}\nsélection:{get_where_belong("selection_type")}\nnombre de coupes : {get_where_belong("nb_cuts")}\nPoisson utilisé : {"Oui" if best_config["poisson"] else "Non"}"
+        plot_best_worst(base_save_filename+"_".join([f"a{best_config[a]}" for a in best_config]),dna_seq,title=title)
     else:
         print("Visualisation de la meilleure configuration..")
         plot_with_slider(get_trajectories(best_indiv_list,dna_seq))

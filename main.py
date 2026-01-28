@@ -29,7 +29,7 @@ params = {
 
 #load_and_save_gif("gifs/benchmark_nbcuts0_nbappend1.gif","data_algo/benchmark_nbcuts0_nbappend1",base_seq)
 
-name = "data_algo/gsearch2"
+name = "data_algo/gsearch1"
 params_to_search = {
                         "nb_individus":[150],
                         "nb_generations":[20],
@@ -40,6 +40,6 @@ params_to_search = {
                         "nb_append":[1],
                         "recuit":[False]
                                     }
-grid_search_params_save(name,base_seq,params_to_search)
+#grid_search_params_save(name,base_seq,params_to_search)
 grid_search_compare(name,base_seq,params_to_search)
 
