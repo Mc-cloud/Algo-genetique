@@ -97,12 +97,133 @@ conda activate algo-genetique
 ## Utilisation :
 Mettre l'explication pour execution...
 
-## Visualisations : 
-Le projet génère diverses visualisations pour analyser les dynamiques évolutives :
-- **Evolution du Fitness** : Suivi du fitness de la population au fil du temps
-![png](evolutio_metrique.png)
-- **Evolution d'un plasmide au fils des générations:**
-![gif](gifs/ultimate.gif)
+## Benchmarks 
+```bash
+# Benchmark avec recherche de grille automatique
+python benchmark.py
+
+# Tester l'impact du nombre de coupures
+python benchmark_cuts.py
+
+# Tests paramétriques personnalisés
+python tests_param.py
+```
+
+## Utilisation
+
+Le **fichier executeur** (`executeur_comparaison_algos.py`) est un programme interactif qui guide l'utilisateur pas à pas pour configurer et exécuter l'algorithme génétique.
+
+```bash
+python executeur_comparaison_algos.py
+```
+
+### Étape 1 : Sélection des fichiers d'entrée
+
+Le programme vous demandera d'abord les fichiers nécessaires :
+
+```
+Indiquez le fichier '.fasta' contenant la séquence du plasmide d'étude.
+> data/plasmid_8k.fasta
+```
+
+Fichiers FASTA disponibles dans `data/` :
+- `plasmid_2k_*.fasta` : Petits plasmides (tests rapides)
+- `plasmid_8k.fasta` : Plasmide de taille moyenne (recommandé)
+- `plasmid_180k.fasta` : Grand plasmide (calculs longs)
+
+```
+Indiquez le fichier '.json' correspondant à la table de Rotation initiale.
+S'il s'agit de la table du modèle, faites simplement 'Enter'
+> [Enter pour utiliser dna/table.json par défaut]
+```
+
+### Étape 2 : Configuration des populations
+
+Vous pouvez configurer **plusieurs populations** avec des paramètres différents pour les comparer :
+
+```
+Voulez-vous ajouter une population ?
+Actuellement 0 populations prévues.
+    oui/o
+    non/n
+> oui
+```
+
+Pour chaque population, vous devrez configurer :
+
+#### a. Paramètres de fitness
+
+```
+Sur combien de bases voulez-vous tester la qualité du recollement ?
+    • 1 ≤ n ≤ longueur(séquence ADN)
+    • Par défaut n = 2
+> 2
+```
+→ Nombre de nœuds à comparer entre début et fin (`nbappend`)
+
+```
+Combien d'autres points de départ voulez-vous tester ?
+    • 0 ≤ n
+    • Par défaut n = 0
+> 0
+```
+→ Nombre de coupures supplémentaires (`nbcuts`). ⚠️ Attention : augmente le temps de calcul !
+
+#### b. Méthode de sélection
+
+```
+Quelle façon de sélectionner les survivants ?
+    1 élitiste
+    2 tournoi
+    3 roulette fitness
+    4 roulette rang
+    5 roulette rang géométrique
+    6 roulette exponentielle
+> 2
+```
+
+Ou tapez le nom complet : `tournoi`, `élitiste`, etc.
+
+#### c. Taux de sélection
+
+```
+Quelle proportion de la population doit subsister ?
+    • 0 < q < 1
+    • Par défaut q = 0.5
+> 0.3
+```
+→ Exemple : 0.3 signifie que 30% des individus deviennent géniteurs
+
+#### d. Dimensionnement
+
+```
+Combien d'individus par génération ?
+    • Par défaut n = 100
+> 150
+```
+
+```
+Combien de générations ?
+    • Par défaut n = 20
+> 50
+```
+
+### Étape 3 : Exécution et visualisation
+
+Une fois toutes les populations configurées, l'exécuteur :
+
+1. **Lance les simulations** séquentiellement
+2. **Affiche la progression** en temps réel :
+   ```
+   Lancement de la 1-e population :
+   itération : 1 / 50
+   fit : 12.456
+   Meilleur pour iter 1 : 3.234
+   Pire pour iter 1 : 45.678
+   ```
+
+3. **Génère un graphique comparatif** montrant l'évolution du fitness de toutes les populations
+
 ## Tests :
 
 Exécutez la suite de tests pour vérifier l'implémentation :
@@ -126,26 +247,48 @@ Le projet implémente 7 méthodes de sélection :
 | **rang_reel** | Probabilité proportionnelle au rang | Évite la domination excessive |
 | **rang_geo** | Distribution géométrique des probabilités | Bon compromis pression/diversité |
 
-## Authors and acknowledgment
-Merci à Melkior Demaille, Clément Cournil--Rabeux, Clément Rebola, et Mathéo Cahitte.
+## Fonction de fitness
 
-Cournil-Rabeux Clement
+1. **Calcul de la trajectoire 3D**: Chaque dinucléotide applique une rotation
+2. **Test de fermeture** : Calcule la distance euclidienne entre le début et la fin
+3. **Multi-points** : teste à plusieurs points de coupure pour robustesse
+4. **Score final** : Norme euclidienne des distances
 
-Demaille Melkior
+## Visualisations
 
-Rebola Clement
+Les visualisations incluent : 
+- Evolution du meilleur score
+- Evolution du pire score
+- Diversité de la population
+- Comparaison entre méthodes
 
-<!-- ## License
-For open source projects, say how it is licensed. -->
+## Tests
 
-## Project status
-<!-- If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers. -->
-Finished (we guess)
+```bash
+# Exécuter tous les tests
+python -m unittest discover -s tests
 
-## testing the cover 
-Pour tester le coverage, il faut se positionner dans la racine du projet : ```Algo-génétique```.
+# Avec couverture de code
+coverage run -m unittest discover -s tests -p "test_*.py"
+coverage report
 
-```coverage run -m unittest discover -s tests -p "test_*.py"```
-puis 
+# Tests spécifiques
+python -m unittest tests.test_fitness
+python -m unittest tests.test_selection
+python -m unittest tests.test_algogenetique
+```
 
-```coverage report```
+## Auteurs
+- **Matheo Cahitte** [Mc-cloud](https://github.com/Mc-cloud)
+- **Clément Cournil-Rabeux** 
+- **Melkior Demaille**
+- **Clément Rebola**
+
+## Documentation
+
+Pour plus de détails, consultez :
+- Le rapport complet dans `documents/Rapport_EI_*.pdf`
+- Les présentations dans `documents/AG-Pres.pdf` et `documents/AG-Poly.pdf`
+- Le sujet initial dans `documents/EI_AlgoGen_project.pdf
+
+**Statut** : Projet terminé (2024-2025)
