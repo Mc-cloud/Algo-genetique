@@ -5,14 +5,21 @@ from algo.selection import selections_dic
 from algo.fitness import fitness
 from plot import *
 import numpy as np
+from simulsmanager import *
 
-base_table = RotTable("dna/table.json")
 base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
 
-nb_indiv = 100
-nb_generations = 20
-taux_selec = 0.5
+params = {
+    "nb_individus":100,
+    "nb_generations":20,
+    "taux_selec":0.5,
+    "selection_type":"elitiste",
+    "poisson":False,
+    "nb_cuts": 0,
+    "nb_append" : 1
+    }
 
+simul_and_save_results("data_algo/exemple1",base_seq,params)
 
 '''
 for selection_type in selections_dic.keys():
@@ -40,3 +47,4 @@ save_trajectory_gif(get_trajectories(best,base_seq))
 plt.plot(score_recuit_30)
 plt.plot(score_exp_normal)
 plt.show()
+load_and_visualise_timeline("data_algo/exemple1",base_seq)
