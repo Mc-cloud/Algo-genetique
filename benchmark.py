@@ -5,6 +5,7 @@ from algo.selection import selections_dic
 from algo.fitness import fitness
 import numpy as np
 from simulsmanager import simul_and_save_results
+from resultsmanager import load_simulation_data
 base_table = RotTable("dna/table.json")
 base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
 
@@ -47,3 +48,60 @@ print(" score : ",best.score,"score final : ",score," via type de selection : ",
 traj_res = Traj3D(want_to_plot=True)
 traj_res.compute(base_seq,best[-1].Rot_table)
 traj_res.draw() #'''
+
+def grid_search_params_save(base_save_filename,dna_seq,params_listed):
+    """
+    Docstring for grid_search_params
+    
+    :param params_listed: Dictionnaire avec en clef les paramètres usuels, et en valeur la liste de params à tester
+    """
+    if "nb_individus" not in params_listed:
+        params_listed["nb_individus"]=150
+    if "nb_generations" not in params_listed:
+        params_listed[""]
+
+    for nb_individus in params_listed.get("nb_individus",[150]):
+        for nb_generations in params_listed.get("nb_generations",[20]):
+            for taux_selec in params_listed.get("taux_selec",[0.5]):
+                for selection_type in params_listed.get("selection_type",["elitiste"]):
+                    for poisson in params_listed.get("poisson",[False]):
+                        for nb_cuts in params_listed.get("nb_cuts",[0]):
+                            for nb_append in params_listed.get("nb_append",[1]):
+                                for recuit in params_listed.get("recuit",[False]):
+                                    curr_params = {
+                                        "nb_individus":nb_individus,
+                                        "nb_generations":nb_generations,
+                                        "taux_selec":taux_selec,
+                                        "selection_type":selection_type,
+                                        "poisson":poisson,
+                                        "nb_cuts":nb_cuts,
+                                        "nb_append":nb_append,
+                                        "recuit":recuit
+                                    }
+                                    simul_and_save_results(base_save_filename+"_".join([f"a{curr_params[a]}" for a in curr_params]))
+
+def grid_search_compare(base_save_filename,dna_seq,params_listed):
+    for nb_individus in params_listed.get("nb_individus",[150]):
+        for nb_generations in params_listed.get("nb_generations",[20]):
+            for taux_selec in params_listed.get("taux_selec",[0.5]):
+                for selection_type in params_listed.get("selection_type",["elitiste"]):
+                    for poisson in params_listed.get("poisson",[False]):
+                        for nb_cuts in params_listed.get("nb_cuts",[0]):
+                            for nb_append in params_listed.get("nb_append",[1]):
+                                for recuit in params_listed.get("recuit",[False]):
+                                    curr_params = {
+                                        "nb_individus":nb_individus,
+                                        "nb_generations":nb_generations,
+                                        "taux_selec":taux_selec,
+                                        "selection_type":selection_type,
+                                        "poisson":poisson,
+                                        "nb_cuts":nb_cuts,
+                                        "nb_append":nb_append,
+                                        "recuit":recuit
+                                    }
+                                    loc_path = base_save_filename+"_".join([f"a{curr_params[a]}" for a in curr_params])
+                                    res = load_simulation_data(loc_path,dna_seq)
+                                    #TODO
+                                    #calculer son résultat.
+                                    
+
