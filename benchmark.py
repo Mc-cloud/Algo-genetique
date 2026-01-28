@@ -103,7 +103,7 @@ def grid_search_compare(base_save_filename,dna_seq,params_listed,show="convergen
                                         "nb_append":nb_append,
                                         "recuit":recuit
                                     }
-                                    loc_path = base_save_filename+"_".join([f"a{curr_params[a]}" for a in curr_params])
+                                    loc_path = base_save_filename+"_".join([f"{a}{curr_params[a]}" for a in curr_params])
                                     res = load_simulation_data(loc_path,dna_seq)
                                     indiv_list,b_list,w_list,_ = res
                                     final_score = b_list[-1]
@@ -116,9 +116,9 @@ def grid_search_compare(base_save_filename,dna_seq,params_listed,show="convergen
     if show=="convergence_best":
         print("Visualisation de la convergence de la meilleure configuration : ")
         def get_where_belong(param):
-            return f"{best_config[param]}∈"+"{"+((f"{params_listed[param]}")[1:])[:-1]+"}"
-        title = f"taux de sélection : {get_where_belong("taux_selec")}\nsélection:{get_where_belong("selection_type")}\nnombre de coupes : {get_where_belong("nb_cuts")}\nPoisson utilisé : {"Oui" if best_config["poisson"] else "Non"}"
-        plot_best_worst(base_save_filename+"_".join([f"a{best_config[a]}" for a in best_config]),dna_seq,title=title)
+            return f"{best_config[param]}∈"+"{"+((f"{params_listed[param]}")[1:])[:-1]+"}" if len(params_listed[param])>1 else f"{best_config[param]}"
+        title = f"\n nombre d'individus : {get_where_belong("nb_individus")} nombre d'itérations : {get_where_belong("nb_generations")}\ntaux de sélection : {get_where_belong("taux_selec")} sélection:{get_where_belong("selection_type")} \nnombre de coupes : {get_where_belong("nb_cuts")}\nPoisson utilisé : {"Oui" if best_config["poisson"] else "Non"}"
+        plot_best_worst(base_save_filename+"_".join([f"{a}{best_config[a]}" for a in best_config]),dna_seq,title=title)
     else:
         print("Visualisation de la meilleure configuration..")
         plot_with_slider(get_trajectories(best_indiv_list,dna_seq))
