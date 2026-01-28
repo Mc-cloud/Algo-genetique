@@ -22,5 +22,10 @@ params = {
 
 simul_and_save_results("data_algo/exemple5",base_seq,params)
 
+<<<<<<< HEAD
 load_and_visualise_timeline("data_algo/exemple5",base_seq)
 #load_and_save_gif("gifs/exemple2","data_algo/exemple3",base_seq,fps=5)
+=======
+load_and_visualise_timeline("data_algo/exemple3",base_seq)
+#load_and_save_gif("gifs/exemple2","data_algo/exemple3",base_seq,fps=5)
+>>>>>>> 9257b7ea5d2806cabbc2aa594dac65f8a5d41100
