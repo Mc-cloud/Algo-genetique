@@ -91,12 +91,32 @@ def selection_roulette_exp(list_ind, taux_selec, temp=1000):
     return select
 
 def selection_roulette_exp_normal(list_ind, taux_selec):
+    """
+    Sélection par roulette exponentielle normalisée (température = min_score).
+    
+    Args:
+        list_ind: Liste des individus
+        taux_selec: Taux de sélection
+    
+    Returns:
+        Liste d'individus sélectionnés avec distribution exponentielle normalisée
+    """
     min_score = min([ind.score for ind in list_ind])
     proba = [np.exp((min_score**2-ind.score**2)/min_score) for ind in list_ind]
     select = random.choices(list_ind, proba, k = int(taux_selec*len(list_ind)))
     return select
 
 def selection_rang_reel(list_ind, taux_selec):
+    """
+    Sélection par rang linéaire : probabilité proportionnelle au rang.
+    
+    Args:
+        list_ind: Liste des individus
+        taux_selec: Taux de sélection
+    
+    Returns:
+        Liste d'individus sélectionnés selon leur rang
+    """
     list_ind.sort(reverse = True)
     
     proba = [i + 1 for i in range(len(list_ind))]
@@ -108,7 +128,16 @@ def selection_rang_reel(list_ind, taux_selec):
 
 def selection_rang_geometrique(list_ind, taux_selec, q=0.3):
     """
-    q: pression de selec (0 < q < 1).
+    Sélection par rang géométrique : probabilité décroissante géométriquement.
+    
+    Args:
+        list_ind: Liste des individus
+        taux_selec: Taux de sélection
+        q: Paramètre de pression de sélection (0 < q < 1)
+           Plus q est élevé, plus la sélection favorise les meilleurs
+    
+    Returns:
+        Liste d'individus sélectionnés selon une distribution géométrique
     """
     list_ind.sort()
 
@@ -124,6 +153,18 @@ def selection_rang_geometrique(list_ind, taux_selec, q=0.3):
 
 selections_dic = {"elitiste":selection_elitiste,"tournament":selection_tournament,"roulette":selection_roulette,"rang_reel":selection_rang_reel,"rang_geo":selection_rang_geometrique, "roulette_exp" : selection_roulette_exp, "roulette_exp_norm": selection_roulette_exp_normal}
 def selection(list_ind,taux_selec,select_type, n=None):
+    """
+    Fonction générique de sélection : appelle la méthode appropriée.
+    
+    Args:
+        list_ind: Liste des individus
+        taux_selec: Taux de sélection
+        select_type: Type de sélection (clé du dictionnaire selections_dic)
+        n: Numéro de génération (optionnel, utilisé pour ajuster la température)
+    
+    Returns:
+        Liste d'individus sélectionnés selon la méthode choisie
+    """
     if n:
         if select_type == "roulette_exp":
             return selections_dic[select_type](list_ind,taux_selec, temp = max(100,700-n*30))
