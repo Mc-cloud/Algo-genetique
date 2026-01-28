@@ -19,7 +19,6 @@ class Individu:
 
 
     def __add__(self, other): #fonction permettant d'acoupler deux individus
-        global str_data
         s_score,o_score = self.score,other.score
         Table ={}
         for XY in self.Rot_table.rot_table:
@@ -34,7 +33,7 @@ class Individu:
         return Individu(Table)
     
     def mutation(self,mutrate,sigma):
-        global Rot_data
+        #global Rot_data
         if 0<=mutrate <=1:
             Table =copy.deepcopy(self.Rot_table.rot_table)
             for XY in Table:
@@ -91,7 +90,7 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
                 Geniteurs = selection(Population,taux_selec,selection_type, n=i)
             else:
                 Geniteurs = selection(Population,taux_selec,selection_type)
-        A =[Geniteurs[i].score for i in range(len(Geniteurs))]
+        A =[Geniteurs[k].score for k in range(len(Geniteurs))]
         print("fit : ", np.sum(A))
         Population = Geniteurs.copy()
         while len(Population) < nb_individus:
