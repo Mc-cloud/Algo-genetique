@@ -84,15 +84,17 @@ if __name__ == "__main__" :
     list_nb_cuts = []
     list_nb_individus = []
     list_poisson = []
-
+    nb_instances = 0
     while True : # Demander la liste des algorithmes à exécuter, avec quels paramètres.
-        new_gen = input("Voulez-vous ajouter une population (instance de l'algorithme dont il faudra préciser les paramètres) ? \n\toui/o \n\tnon/n \n>")
+        new_gen = input(f"Voulez-vous ajouter une population (instance de l'algorithme dont il faudra préciser les paramètres) ? \nActuellement {nb_instances} populations prévues.  \n\toui/o \n\tnon/n \n>")
         if not new_gen in {'o','oui','n','non',''} :
             print("Erreur : veuillez donner une entrée valide.")
             print()
             pass
         elif new_gen in {'non','n',''}:
             break
+        else:
+            nb_instances+=1
         print()
 
         print("Choix des paramètres de la fonction de fitness.")
@@ -176,8 +178,21 @@ if __name__ == "__main__" :
                 print()
             else:
                 break
-        break
+        print()
+        list_nb_gen.append(int(var_nb_gen))    
     # while True :
     #Rajouter d'autres options comme décrit en haut de ce fichier (autre endroit pour demander le type de comparaisons)
-    selection_type = "elitiste"
-    Best_indiv_list,Best_indiv_score_list,worst_indiv_score_list = AlgoGenetique(table_rot_file ,seq , nb_individus = 100,nb_generations = 20,taux_selec = 0.5, selection_type = selection_type,poisson=False,nb_cuts = 0,nb_append = 1,recuit=False)
+    print(f"Nombre total de populations : {nb_instances}")
+    print()
+    Best_indiv_list,Best_indiv_score_list,worst_indiv_score_list = [],[],[]
+    for i in range(nb_instances):
+        print(f"Lancement de la {i+1}-e population :")
+        Best_indiv,Best_indiv_score,worst_indiv_score = AlgoGenetique(table_rot_file ,seq , nb_individus = list_nb_individus[i],nb_generations = list_nb_gen[i],taux_selec = list_taux_selec[i], selection_type = list_selection_type[i],poisson=False,nb_cuts = list_nb_cuts[i],nb_append = list_nb_append[i],recuit=False)
+        print()
+        Best_indiv_list.append(Best_indiv)
+        Best_indiv_score_list.append([fitness(indiv.Rot_table,seq,nbcuts = 0) for indiv in Best_indiv])
+        worst_indiv_score_list.append(worst_indiv_score)
+        plt.plot(Best_indiv_score, label=f"{i+1}-ème population")
+    plt.legend()
+    plt.show()
+    
