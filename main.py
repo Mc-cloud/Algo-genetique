@@ -47,4 +47,5 @@ save_trajectory_gif(get_trajectories(best,base_seq))
 plt.plot(score_recuit_30)
 plt.plot(score_exp_normal)
 plt.show()
+
 load_and_visualise_timeline("data_algo/exemple1",base_seq)
