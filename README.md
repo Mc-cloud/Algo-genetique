@@ -102,6 +102,8 @@ Le projet génère diverses visualisations pour analyser les dynamiques évoluti
 - **Evolution du Fitness** : Suivi du fitness de la population au fil du temps
 - **Distribution
 
+evolution d'un plasmide a travers des générations:
+![gif](gifs/ultimate.gif)
 ## Tests :
 
 Exécutez la suite de tests pour vérifier l'implémentation :
