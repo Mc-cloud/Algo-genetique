@@ -6,16 +6,21 @@ from matplotlib.widgets import Slider
 from dna.Traj3D import Traj3D
 import numpy as np
 from resultsmanager import load_simulation_data
+
+
 def get_trajectories(indiv_list:list,dna_seq:str):
     trajectories=[]
+    traj = Traj3D()
     for indiv in indiv_list:
-        traj = Traj3D()
         traj.compute(dna_seq,indiv.Rot_table)
         xyz = np.array(traj.getTraj())
         trajectories.append(xyz)
     return np.array(trajectories)
 
-def plot_with_slider(trajectories):
+def plot_with_slider(trajectories, block=True):
+    """Mets de la documentation dans tes fonctions, Clément, je t'en supplie…
+    Au moins les plus importantes ! 
+    Là j'ai aucune idée de ce qu'est censé être une trajectoire à priori, une instance de Traj3D ?"""
     num_steps = len(trajectories)
     
     # Nombre de points dans une trajectoire (pour aller chercher le dernier)
@@ -83,7 +88,7 @@ def plot_with_slider(trajectories):
         fig.canvas.draw_idle()
 
     slider.on_changed(update)
-    plt.show()
+    plt.show(block=block)
 
 def save_trajectory_gif(trajectories, filename="gifs/etapes.gif", fps=10):
     folder = os.path.dirname(filename)
