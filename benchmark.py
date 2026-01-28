@@ -7,12 +7,12 @@ import numpy as np
 from simulsmanager import simul_and_save_results
 from resultsmanager import load_simulation_data
 from plot import plot_with_slider,get_trajectories
-base_table = RotTable("dna/table.json")
-base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
+# base_table = RotTable("dna/table.json")
+# base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
 
-nb_indiv = 1000
-nb_generations = 30
-taux_selec = 0.5
+# nb_indiv = 1000
+# nb_generations = 30
+# taux_selec = 0.5
 
 
 '''
@@ -24,13 +24,13 @@ for selection_type in selections_dic.keys():
 #     # traj_res = Traj3D(want_to_plot=True)
 #     # traj_res.compute(base_seq,res.Rot_table)
 #     # traj_res.draw() #'''
-T = [(0,1),(1,1),(1,3),(1,5),(2,3),(2,5),(3,5)]
-params = {"nb_individus":150,"nb_generations":20,"taux_selec":0.5,"selection_type":"elitiste","poisson":False,"recuit":False,"nb_cuts":0,"nb_append":1}
-L = []
-for a,b in T :
-    params["nb_cuts"]=a
-    params["nb_append"]=b
-    simul_and_save_results(f"data_algo/benchmark_nbcuts{a}_nbappend{b}",base_seq,params)
+# T = [(0,1),(1,1),(1,3),(1,5),(2,3),(2,5),(3,5)]
+# params = {"nb_individus":150,"nb_generations":20,"taux_selec":0.5,"selection_type":"elitiste","poisson":False,"recuit":False,"nb_cuts":0,"nb_append":1}
+# L = []
+# for a,b in T :
+#     params["nb_cuts"]=a
+#     params["nb_append"]=b
+#     simul_and_save_results(f"data_algo/benchmark_nbcuts{a}_nbappend{b}",base_seq,params)
     # res = AlgoGenetique("dna/table.json",base_seq,nb_indiv,nb_generations,taux_selec,"elitiste",nb_cuts = a,nb_append = b)
     # bests, _, _ = res
     # best = bests[-1]
@@ -79,10 +79,10 @@ def grid_search_params_save(base_save_filename,dna_seq,params_listed):
                                         "nb_append":nb_append,
                                         "recuit":recuit
                                     }
-                                    simul_and_save_results(base_save_filename+"_".join([f"a{curr_params[a]}" for a in curr_params]))
+                                    simul_and_save_results(base_save_filename+"_".join([f"{a}{curr_params[a]}" for a in curr_params]),dna_seq,curr_params)
 
 def grid_search_compare(base_save_filename,dna_seq,params_listed,show="convergence_best"):
-    best_config_score = int("inf")
+    best_config_score = float('inf')
     best_config=None
     best_res=None
     for nb_individus in params_listed.get("nb_individus",[150]):
@@ -105,12 +105,12 @@ def grid_search_compare(base_save_filename,dna_seq,params_listed,show="convergen
                                     }
                                     loc_path = base_save_filename+"_".join([f"a{curr_params[a]}" for a in curr_params])
                                     res = load_simulation_data(loc_path,dna_seq)
-                                    indiv_list,b_list,w_list = res
+                                    indiv_list,b_list,w_list,_ = res
                                     final_score = b_list[-1]
                                     if final_score < best_config_score:
                                         best_config_score = final_score
                                         best_config = curr_params
-                                        best_res = res
+                                        best_res = (indiv_list,b_list,w_list)
     print(f"La meilleur configuration trouvée est : {best_config}, avec un score de {best_config_score}")
     best_indiv_list,best_b_list,best_w_list = best_res
     if show=="convergence_best":
