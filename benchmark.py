@@ -8,8 +8,8 @@ from simulsmanager import simul_and_save_results
 base_table = RotTable("dna/table.json")
 base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
 
-nb_indiv = 150
-nb_generations = 20
+nb_indiv = 1000
+nb_generations = 30
 taux_selec = 0.5
 
 

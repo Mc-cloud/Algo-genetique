@@ -19,7 +19,6 @@ class Individu:
 
 
     def __add__(self, other): #fonction permettant d'acoupler deux individus
-        global str_data
         s_score,o_score = self.score,other.score
         Table ={}
         for XY in self.Rot_table.rot_table:
@@ -34,7 +33,7 @@ class Individu:
         return Individu(Table)
     
     def mutation(self,mutrate,sigma):
-        global Rot_data
+        #global Rot_data
         if 0<=mutrate <=1:
             Table =copy.deepcopy(self.Rot_table.rot_table)
             for XY in Table:
@@ -75,9 +74,9 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
         return L
     
     Population = New_pop()
-    Best_indiv_list = [min(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq))]
-    Best_indiv_score_list = [fitness_basic(Best_indiv_list[0].Rot_table,dna_seq)]
-    worst_indiv_score_list = [fitness_basic(max(Population,key=lambda x:fitness_basic(x.Rot_table,dna_seq)).Rot_table,dna_seq)]
+    Best_indiv_list = [min(Population)]
+    Best_indiv_score_list = [Best_indiv_list[0].score]
+    worst_indiv_score_list = [max(Population).score]
 
     for i in range(nb_generations):
         print("itération :", i+1, "/", nb_generations)
@@ -91,7 +90,7 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
                 Geniteurs = selection(Population,taux_selec,selection_type, n=i)
             else:
                 Geniteurs = selection(Population,taux_selec,selection_type)
-        A =[Geniteurs[i].score for i in range(len(Geniteurs))]
+        A =[Geniteurs[k].score for k in range(len(Geniteurs))]
         print("fit : ", np.sum(A))
         Population = Geniteurs.copy()
         while len(Population) < nb_individus:
@@ -100,8 +99,8 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
             Population.append(individu)
         best_indiv = min(Population)
         worst_indiv = max(Population)
-        print(f"Meilleur pour iter {i} : {best_indiv.score}")
-        print(f"Pire pour iter {i} : {worst_indiv.score}")
+        print(f"Meilleur pour iter {i+1} : {best_indiv.score}")
+        print(f"Pire pour iter {i+1} : {worst_indiv.score}")
         Best_indiv_list.append(best_indiv)
         Best_indiv_score_list.append(best_indiv.score)
         worst_indiv_score_list.append(worst_indiv.score)

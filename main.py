@@ -10,8 +10,8 @@ from simulsmanager import *
 base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
 
 params = {
-    "nb_individus":100,
-    "nb_generations":20,
+    "nb_individus":8,
+    "nb_generations":10,
     "taux_selec":0.5,
     "selection_type":"elitiste",
     "poisson":False,
