@@ -29,7 +29,7 @@ params = {
 
 #load_and_save_gif("gifs/benchmark_nbcuts0_nbappend1.gif","data_algo/benchmark_nbcuts0_nbappend1",base_seq)
 
-name = "data_algo/gsearch1"
+name = "data_algo/gsearch2"
 params_to_search = {
                         "nb_individus":[150],
                         "nb_generations":[20],
