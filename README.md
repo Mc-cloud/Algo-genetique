@@ -66,7 +66,6 @@ Algo-genetique/
 │   ├── test_algogenetique.py
 │   ├── test_fitness.py
 │   └── test_selection.py
-├── main.py                    # Script principal
 ├── plot.py                    # Génération de graphiques
 ├── resultsmanager.py          # Gestion des résultats
 ├── simulsmanager.py           # Gestion des simulations
