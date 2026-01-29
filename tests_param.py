@@ -1,5 +1,5 @@
 """
-Compare fitness evolution across different selection types
+Compare la fitness à travers les générations
 """
 
 from dna.RotTable import *
@@ -10,28 +10,22 @@ import numpy as np
 
 import os
 
-# Create the directory relative to where your script is
 output_dir = "data_algo"
 os.makedirs(output_dir, exist_ok=True)
 
-# Load DNA sequence
 base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:])
 
-# Fixed parameters
 nb_indiv = 150
 nb_generations = 20
 taux_selec = 0.5
 nb_cuts = 0
 nb_append = 1
 
-# Get all available selection types
 selection_types = list(selections_dic.keys())
 print(f"Available selection types: {selection_types}\n")
 
-# Store results
 results_by_selection = {}
 
-# Run genetic algorithm for each selection type
 for selection_type in selection_types:
     print(f"\n{'='*70}")
     print(f"Running with selection type: {selection_type}")
@@ -58,9 +52,6 @@ for selection_type in selection_types:
     print(f"\nFinal best score: {best_scores[-1]:.6f}")
     print(f"Final worst score: {worst_scores[-1]:.6f}")
 
-# ============================================================================
-# PLOT 1: Best fitness evolution comparison
-# ============================================================================
 plt.figure(figsize=(14, 8))
 colors = plt.cm.tab10(np.linspace(0, 1, len(selection_types)))
 
@@ -79,12 +70,8 @@ plt.tight_layout()
 plt.savefig(os.path.join(output_dir, 'selection_comparison_best.png'), dpi=300, bbox_inches='tight')
 print("\n✓ Plot saved: selection_comparison_best.png")
 
-# ============================================================================
-# PLOT 2: Best AND Worst fitness evolution (subplots)
-# ============================================================================
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 11))
 
-# Top plot: Best fitness
 for idx, selection_type in enumerate(selection_types):
     best_scores = results_by_selection[selection_type]['best_scores']
     generations = np.arange(len(best_scores))
@@ -97,7 +84,6 @@ ax1.set_title('Best Individual Fitness Evolution', fontsize=14, fontweight='bold
 ax1.legend(fontsize=10, loc='best', framealpha=0.95, edgecolor='black')
 ax1.grid(True, alpha=0.3, linestyle='--')
 
-# Bottom plot: Worst fitness
 for idx, selection_type in enumerate(selection_types):
     worst_scores = results_by_selection[selection_type]['worst_scores']
     generations = np.arange(len(worst_scores))
@@ -114,9 +100,6 @@ plt.tight_layout()
 plt.savefig(os.path.join(output_dir, 'selection_comparison_combined.png'), dpi=300, bbox_inches='tight')
 print("✓ Plot saved: selection_comparison_combined.png")
 
-# ============================================================================
-# PLOT 3: Improvement bar chart
-# ============================================================================
 plt.figure(figsize=(12, 7))
 
 improvements = []
@@ -138,7 +121,6 @@ plt.ylabel('Fitness Improvement', fontsize=13, fontweight='bold')
 plt.title('Total Fitness Improvement by Selection Type', fontsize=15, fontweight='bold', pad=20)
 plt.grid(True, alpha=0.3, axis='y', linestyle='--')
 
-# Add value labels on bars
 for i, bar in enumerate(bars):
     height = bar.get_height()
     plt.text(bar.get_x() + bar.get_width()/2., height,
@@ -149,9 +131,6 @@ plt.tight_layout()
 plt.savefig(os.path.join(output_dir, 'selection_comparison_improvement.png'), dpi=300, bbox_inches='tight')
 print("✓ Plot saved: selection_comparison_improvement.png")
 
-# ============================================================================
-# PLOT 3: Meilleur fitness comparaison (bar chart)
-# ============================================================================
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
 
 final_best = [results_by_selection[st]['best_scores'][-1] for st in selection_types]
@@ -190,9 +169,6 @@ plt.tight_layout()
 plt.savefig(os.path.join(output_dir, 'selection_comparison_final.png'), dpi=300, bbox_inches='tight')
 print("✓ Plot saved: selection_comparison_final.png")
 
-# ============================================================================
-# PRINT STATISTIQUES
-# ============================================================================
 print("\n" + "="*80)
 print("STAT")
 print("="*80)
