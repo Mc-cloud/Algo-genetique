@@ -7,7 +7,8 @@ il doit pouvoir choisir s'il veut
     - p2 choisir plusieurs modes de résolution et obtenir leurs meilleurs résultats
     - p3 choisir ou non de récupérer les courbes d'évolution de la fitness, selon quelle fonction ( p4 et de représenter ou non les k meilleurs/pires/etc)
     - p2 choisir s'il veut évaluer les différents résultats, selon quelle fitenss
-    - p1.5 permettre CTRL+Z pour revenir à la question précédente
+    - p1 pouvoir enregistrer les .json des tables des meilleurs
+    - p5 permettre CTRL+Z pour revenir à la question précédente
 
 """
 from json import load as json_load
@@ -26,7 +27,7 @@ import os
 def checkpath(fichier):
     test = os.path.exists(fichier)
     if  not test:
-            print(f"Erreur : Le fichier '{fichier}' est introuvable.")
+            print(f"Erreur : Le fichier/dossier '{fichier}' est introuvable.")
             print("Vérifiez que :")
             print("  - Le fichier est dans le même dossier que ce programme")
             print("  - Ou indiquez le chemin complet (ex: /chemin/vers/fichier.txt)")
@@ -87,11 +88,11 @@ if __name__ == "__main__" :
     nb_instances = 0
     while True : # Demander la liste des algorithmes à exécuter, avec quels paramètres.
         new_gen = input(f"Voulez-vous ajouter une population (instance de l'algorithme dont il faudra préciser les paramètres) ? \nActuellement {nb_instances} populations prévues.  \n\toui/o \n\tnon/n \n>")
-        if not new_gen in {'o','oui','n','non',''} :
+        if not new_gen in {'o','oui','n','non','','y','yes','n','no'} :
             print("Erreur : veuillez donner une entrée valide.")
             print()
             pass
-        elif new_gen in {'non','n',''}:
+        elif new_gen in {'non','no','n',''}:
             break
         else:
             nb_instances+=1
@@ -136,9 +137,9 @@ if __name__ == "__main__" :
         list_selection_type.append(selections_dic[selection_type_n])
 
         while True : # Demander la proportion des survivants
-            var_taux_selec = input("Quel proportion de la population doit subsister d'une itération à l'autre ? \n\t• 0 < q < 1 \n\tPar défaut q = 0.5 \n>")
+            var_taux_selec = input("Quel proportion de la population doit subsister d'une itération à l'autre ? \n\t• 0 < q < 1 \n\tPar défaut q = 0.3 \n>")
             if var_taux_selec == "":
-                taux_selec = 0.5
+                taux_selec = 0.3
                 break
             try:
                 taux_selec = float(var_taux_selec)
@@ -179,20 +180,150 @@ if __name__ == "__main__" :
             else:
                 break
         print()
-        list_nb_gen.append(int(var_nb_gen))    
-    # while True :
-    #Rajouter d'autres options comme décrit en haut de ce fichier (autre endroit pour demander le type de comparaisons)
+        list_nb_gen.append(int(var_nb_gen))
+    
+    plot_bs = []
+    print("Début des calculs")
     print(f"Nombre total de populations : {nb_instances}")
     print()
-    Best_indiv_list,Best_indiv_score_list,worst_indiv_score_list = [],[],[]
+    Best_indiv_list = []
+
     for i in range(nb_instances):
         print(f"Lancement de la {i+1}-e population :")
         Best_indiv,Best_indiv_score,worst_indiv_score = AlgoGenetique(table_rot_file ,seq , nb_individus = list_nb_individus[i],nb_generations = list_nb_gen[i],taux_selec = list_taux_selec[i], selection_type = list_selection_type[i],poisson=False,nb_cuts = list_nb_cuts[i],nb_append = list_nb_append[i],recuit=False)
         print()
         Best_indiv_list.append(Best_indiv)
-        Best_indiv_score_list.append([fitness(indiv.Rot_table,seq,nbcuts = 0) for indiv in Best_indiv])
-        worst_indiv_score_list.append(worst_indiv_score)
-        plt.plot(Best_indiv_score, label=f"{i+1}-ème population")
-    plt.legend()
-    plt.show()
+    print("Fin.")
+    print()
+
+
+    print("Options d'affichage")
+    while True : # Options d'affichage : voulez-vous rajouter un affichage des fitness au cours du temps ?
+        var_plot_bs = input("Voulez-vous afficher afficher l'évolution de la fitness du meilleur candidat de chaque population \n\t• non/n \n\t• selon un couple (n_bases_recollement,n_coupures) \n\t• selon la fonction de fitness de chacune des population d'indice i_1,i_2,…,i_n ; i_k ≥ 1 \n\t• selon la fonction de fitness de chacune des populations choisies : t/tout \n>")
+        if var_plot_bs in {'','n','no','non'}:
+            plot_bs = []
+            break
+        elif var_plot_bs in {'t','tout','a','all'}:
+            plot_bs = range(nb_instances)
+            break
+        elif var_plot_bs[0]=='(':
+            try:
+                # Enlève parenthèses et remplace virgules par espaces
+                fx_plot_bs = var_plot_bs.strip().strip('()').replace(',', ' ')
+                fx_plot_bs = [int(x) for x in fx_plot_bs.split()]
+                
+                if len(fx_plot_bs) != 2:
+                    print("Erreur : entrez exactement 2 nombres.\n")
+                    continue
+                else:
+                    list_nb_append.append(fx_plot_bs[0])
+                    list_nb_cuts.append(fx_plot_bs[1])
+                    plot_bs = [nb_instances]
+                    break 
+            except ValueError:
+                print("Erreur : format invalide. Exemple : (5, 10). Ne pas mettre de parenthèses pour une liste d'indices.\n")
+                print()
+
+        else:
+            try:
+                # Remplace virgules par espaces
+                var_plot_bs = var_plot_bs.replace(',', ' ')
+                # Convertit en liste d'entiers
+                plot_bs = [int(x)-1 for x in var_plot_bs.split()]
+                var_bool = True
+                for i in plot_bs:
+                    if i < 0 or i >= nb_instances:
+                        print("N'indiquez que des numéros valides de population.")
+                        var_bool = False
+                        break
+                if not var_bool:
+                    pass
+                else:
+                    break
+            except ValueError:
+                print("Erreur : entrez une option correcte, 'n'/'non', 't/tout', un tuple parenthésé (n,k), ou des nombres entiers positifs séparés par des espaces ou des virgules, correspondant aux indices (i≥1) à choisir.")
+                print()
+    print()
+    list_fitness_to_plot = {i : (lambda rot_table_x, idx=i: fitness(rot_table_x, seq, nbappend=list_nb_append[idx], nbcuts=list_nb_cuts[idx])) for i in plot_bs}
+ 
+
+    for k in plot_bs:
+        Best_indiv_score_list = []
+        plt.figure(k+1)
+        plt.title(f"Évolution de l'évaluation des meilleurs de chaque population pour la fonction de fitness {k+1}")
+
+        for i in range(nb_instances):
+            Best_indiv_score_list.append([list_fitness_to_plot[k](indiv.Rot_table) for indiv in Best_indiv_list[i]])
+            plt.plot(Best_indiv_score_list[i], label=f"{i+1}-ème population")
+
+        plt.legend()
+        plt.show(block=False)
     
+    if plot_bs:  # Si des plots ont été créés
+        input("\nAppuyez sur Entrée pour fermer les graphiques et passer à l'étape suivante")
+        print()
+        plt.close('all')
+    
+    while True : # Demander s'il faut afficher les sliders pour les meilleurs résultats
+        var_sliders = input("Voulez-vous afficher l'évolution du meilleur chemin en fonction de la génération, pour chaque population ? \n\t• o/oui \n\t• n/non \n>")
+        if not var_sliders in {'o','oui','n','non','','y','yes','n','no'} :
+            print("Erreur : veuillez donner une entrée valide.")
+            print()
+            pass
+        elif var_sliders in {'non','no','n',''}:
+            break
+        else:
+            for indiv in Best_indiv_list:
+                plot_with_slider(get_trajectories(indiv,seq), block=False)
+            input("\nAppuyez sur Entrée pour fermer les graphiques et passer à l'étape suivante")
+            print()
+            break
+
+    while True : # Demander s'il faut enregistrer les tables json, et pour quelle(s) population(s).
+        var_download_json = input("Voulez-vous enregistrer les tables json du meilleur candidat : \n\t• non/n \n\t• seulement des populations d'indice i_1,i_2,…,i_n ; i_k ≥ 1 \n\t• de toutes les populations : t/tout \n>")
+        if var_download_json in {'','n','no','non'}:
+            download_json=[]
+            break
+        elif var_download_json in {'t','tout','a','all'}:
+            download_json = range(nb_instances)
+            break
+        else:
+            try:
+                # Remplace virgules par espaces
+                var_download_json = var_download_json.replace(',', ' ')
+                # Convertit en liste d'entiers
+                download_json = [int(x)-1 for x in var_download_json.split()]
+                var_bool = True
+                for i in download_json:
+                    if i < 0 or i >= nb_instances:
+                        print("N'indiquez que des numéros valides de population.")
+                        var_bool = False
+                        break
+                if not var_bool:
+                    pass
+                else:
+                    break
+            except ValueError:
+                print("Erreur : entrez une option correcte, 'n'/'non', 't/tout', ou des nombres entiers positifs séparés par des espaces ou des virgules, correspondant aux indices (i≥1) à choisir.")
+                print()
+       
+    print()
+    list_json_to_download = {i : f"optimal_rot_table_{sequence_file.replace('/', '_').replace('\\', '_')}_{list_selection_type[i]}_{list_nb_append[i]}_{list_nb_cuts[i]}_{list_nb_individus[i]}_{list_nb_gen[i]}"  for i in download_json}  
+
+    while True : # Demander où enregistrer tout ça
+        folder = input("Dans quel dossier enregistrer les json ? \n\t(défaut: 'rot_tables_results') \n>")
+        if folder == "":
+            folder = "rot_tables_results"
+            break
+        elif not checkpath(folder):
+            pass
+        else:
+            break
+    for i in list_json_to_download:
+        filepath = os.path.join(folder, list_json_to_download[i])
+        print(filepath)
+        Best_indiv_list[i][-1].Rot_table.save(filepath)
+        
+        
+    
+    print("\nProgramme terminé.")
