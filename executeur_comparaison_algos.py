@@ -39,7 +39,7 @@ selections_dic ={
     "elitiste":"elitiste","tournament":"tournament","roulette":"roulette","rang_reel":"rang_reel","rang_geo":"rang_geo","roulette_exp":"roulette_exp",
     "élitiste":"elitiste","tournoi":"tournament", "roulette fitness":"roulette","roulette rang":"rang_reel","roulette rang géométrique":"rang_geo","roulette exponentielle":"roulette_exp",
     "1":"elitiste","2":"tournament","3":"roulette","4":"rang_reel","5":"rang_geo","6":"roulette_exp",
-    "":"elitiste",
+    "":"elitiste", "7" : "tournoi_elitiste"
 }
 
 
@@ -134,7 +134,7 @@ if __name__ == "__main__" :
         print("Type de sélection.")
         print()
         while True : # Demander le type de selection
-            selection_type_n = input("Quelle façon de sélectionner les survivants sur chaque génération ? \n\t1 élitiste \n\t2 tournoi \n\t3 roulette fitness\n\t4 roulette rang \n\t5 roulette rang géométrique \n\t6 roulette exponentielle \n>")
+            selection_type_n = input("Quelle façon de sélectionner les survivants sur chaque génération ? \n\t1 élitiste \n\t2 tournoi \n\t3 roulette fitness\n\t4 roulette rang \n\t5 roulette rang géométrique \n\t6 roulette exponentielle  \n\t 7 tournoi elitiste\n>")
             if not selection_type_n in selections_dic:
                 print("Erreur : entrez soit le chiffre correspondant à l'option, soit le nom de l'option.")
                 print()

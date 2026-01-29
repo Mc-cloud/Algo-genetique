@@ -21,7 +21,7 @@ def selection_elitiste(list_ind, taux_selec):
 
     return selection
 
-def selection_tournament(list_ind, taux_selec, p = 0.001):
+def selection_tournament_elitiste(list_ind, taux_selec, p = 0.001):
     """
     Sélection par tournoi : compare deux individus aléatoires et sélectionne le meilleur.
     
@@ -52,6 +52,33 @@ def selection_tournament(list_ind, taux_selec, p = 0.001):
     for ind in list_ind_sort[:int(n*0.1)]:
         if ind not in selection:
             selection.append(ind)
+
+    return selection
+
+def selection_tournament(list_ind, taux_selec, p = 0.001):
+    """
+    Sélection par tournoi : compare deux individus aléatoires et sélectionne le meilleur.
+    
+    Args:
+        list_ind: Liste des individus
+        taux_selec: Taux de sélection
+        p: Probabilité de sélectionner le moins bon individu (diversité)
+    
+    Returns:
+        Liste d'individus sélectionnés par tournoi + 10% des meilleurs
+    """
+    selection = []
+    n_list = list(list_ind)
+    n = len(n_list)
+    k = int(n*taux_selec)
+
+    for _ in range(k):
+        q = random.random()
+        x = random.sample(n_list, k=2)
+        if (x[0].score > x[1].score and q > p) or (x[0].score < x[1].score and q <= p) :
+            selection.append(x[1])
+        elif  (x[0].score > x[1].score and q <= p) or (x[0].score < x[1].score and q > p): 
+            selection.append(x[0])
 
     return selection
 
@@ -151,7 +178,7 @@ def selection_rang_geometrique(list_ind, taux_selec, q=0.3):
     
     return select
 
-selections_dic = {"elitiste":selection_elitiste,"tournament":selection_tournament,"roulette":selection_roulette,"rang_reel":selection_rang_reel,"rang_geo":selection_rang_geometrique, "roulette_exp" : selection_roulette_exp, "roulette_exp_norm": selection_roulette_exp_normal}
+selections_dic = {"tournament_elitiste" : selection_tournament_elitiste, "elitiste":selection_elitiste,"tournament":selection_tournament,"roulette":selection_roulette,"rang_reel":selection_rang_reel,"rang_geo":selection_rang_geometrique, "roulette_exp" : selection_roulette_exp, "roulette_exp_norm": selection_roulette_exp_normal}
 def selection(list_ind,taux_selec,select_type, n=None):
     """
     Fonction générique de sélection : appelle la méthode appropriée.
