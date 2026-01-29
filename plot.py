@@ -157,6 +157,22 @@ def plot_best_worst(filename,dna_seq,title=""):
     plt.title(title)
     plt.legend()
     plt.show()
+
+def plot_best_multiple(filenames,dna_seq,labels,title=""):
+    if len(labels) != len(filenames):
+        labels = [os.path.basename(f) for f in filenames]
+    for i in range(len(filenames)):
+        filename = filenames[i]
+        _,best_list,worst_list,_ = load_simulation_data(filename,dna_seq)
+        N= [i for i in range(len(best_list))]
+        plt.plot(N,best_list, label = f"best {labels[i]}")
+        #plt.plot(N,worst_list, label = f"worst {labels[i]}")
+    plt.yscale("log")
+    plt.xlabel("générations")
+    plt.ylabel("score ")
+    plt.title(title)
+    plt.legend()
+    plt.show()
     
 def plot_three_indicators(dist,norm,ps,title=""):
     fig, axs = plt.subplots(3,1, figsize = (12,14), sharex = True)
