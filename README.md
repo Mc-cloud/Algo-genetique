@@ -68,7 +68,8 @@ Algo-genetique/
 ├── plot.py                    # Génération de graphiques
 ├── resultsmanager.py          # Gestion des résultats
 ├── simulsmanager.py           # Gestion des simulations
-├── executeur_comparaison_algos.py  # Comparaison d'algorithmes
+├── executeur_comparaison_algos.py  # Exécuteur d'algorithmes, 
+interface dans terminal
 ├── benchmark.py               # Recherche de paramètres optimaux
 ├── benchmark_cuts.py          # Benchmark sur les points de coupure
 └── tests_param.py             # Tests paramétriques
@@ -114,6 +115,7 @@ Le **fichier executeur** (`executeur_comparaison_algos.py`) est un programme int
 ```bash
 python executeur_comparaison_algos.py
 ```
+→ Lors qu'une option `Par défaut` est proposée, il suffit de renvoyer un champ vide pour la sélectionner.
 
 ### Étape 1 : Sélection des fichiers d'entrée
 
@@ -129,11 +131,15 @@ Fichiers FASTA disponibles dans `data/` :
 - `plasmid_8k.fasta` : Plasmide de taille moyenne (recommandé)
 - `plasmid_180k.fasta` : Grand plasmide (calculs longs)
 
+(Vous pouvez en utiliser d'autres, tant que vous précisez bien le `PATH`.)
+
+Ensuite :
 ```
 Indiquez le fichier '.json' correspondant à la table de Rotation initiale.
 S'il s'agit de la table du modèle, faites simplement 'Enter'
 > [Enter pour utiliser dna/table.json par défaut]
 ```
+Laissé en option même si à priori la table de départ sera forcément celle du modèle.
 
 ### Étape 2 : Configuration des populations
 
@@ -157,7 +163,7 @@ Sur combien de bases voulez-vous tester la qualité du recollement ?
     • Par défaut n = 2
 > 2
 ```
-→ Nombre de nœuds à comparer entre début et fin (`nbappend`)
+→ Nombre de bases aux extrémités dont on teste la bonne superposition (`nbappend`).
 
 ```
 Combien d'autres points de départ voulez-vous tester ?
@@ -165,7 +171,7 @@ Combien d'autres points de départ voulez-vous tester ?
     • Par défaut n = 0
 > 0
 ```
-→ Nombre de coupures supplémentaires (`nbcuts`). ⚠️ Attention : augmente le temps de calcul !
+→ Nombre de coupures supplémentaires du plasmide testées (`nbcuts`), réparties de manière homogène. ⚠️ Attention : augmente le temps de calcul !
 
 #### b. Méthode de sélection
 
@@ -180,17 +186,17 @@ Quelle façon de sélectionner les survivants ?
 > 2
 ```
 
-Ou tapez le nom complet : `tournoi`, `élitiste`, etc.
+Indiquez le numéro ou tapez le nom complet : `tournoi`, `élitiste`, etc.
 
 #### c. Taux de sélection
 
 ```
 Quelle proportion de la population doit subsister ?
     • 0 < q < 1
-    • Par défaut q = 0.5
-> 0.3
+    • Par défaut q = 0.3
+> 0.4
 ```
-→ Exemple : 0.3 signifie que 30% des individus deviennent géniteurs
+→ Exemple : 0.4 signifie que 40% des individus sont conservés d'une génération à l'autre (parmis eux seront les géniteurs).
 
 #### d. Dimensionnement
 
@@ -199,18 +205,22 @@ Combien d'individus par génération ?
     • Par défaut n = 100
 > 150
 ```
-
+Des résultats sensiblement meilleurs sont souvent obtenus avec une plus large population, par exemple `1000` individus.
 ```
 Combien de générations ?
     • Par défaut n = 20
 > 50
 ```
+Évidemment le temps d'exécution est croissant avec ces deux paramètres.
 
-### Étape 3 : Exécution et visualisation
+### Étape 3 : Exécution, visualisation et téléchargement
+
+#### a. Exécution
 
 Une fois toutes les populations configurées, l'exécuteur :
 
 1. **Lance les simulations** séquentiellement
+
 2. **Affiche la progression** en temps réel :
    ```
    Lancement de la 1-e population :
@@ -219,8 +229,86 @@ Une fois toutes les populations configurées, l'exécuteur :
    Meilleur pour iter 1 : 3.234
    Pire pour iter 1 : 45.678
    ```
+Attention, les seed d'aléatoire seront différentes pour chaque population, il peut être intéressant de comparer plusieurs instances aux paramètres identiques !
 
-3. **Génère un graphique comparatif** montrant l'évolution du fitness de toutes les populations
+#### b. Visualisation de la fitness
+
+Une fois les calculs terminés, l'exécuteur propose de **Générer des graphiques comparatifs** montrant l'évolution du fitness du meilleur de chaque populations, avec différents paramètres :
+
+```
+Voulez-vous afficher afficher l'évolution de la fitness du meilleur candidat de chaque population 
+        • non/n 
+        • selon un couple (n_bases_recollement,n_coupures) 
+        • selon la fonction de fitness de chacune des population d'indice i_1,i_2,…,i_n ; i_k ≥ 1 
+        • selon la fonction de fitness de chacune des populations choisies : t/tout 
+>(2,1)
+```
+Ici il s'agit de choisir la (ou les) fonctions de fitness à employer pour comparer les meilleurs candidats des différentes populations.
+- Indiquez directement un couple `(nbappend,nbcoup)` pour un seul graphique selon la fitness ayant ces paramètres.
+- Indiquez une liste (par exemple `1, 3, 4`) des indices des populations dont on veut utiliser la fonction de fitness pour la comparaison. L'exemple donnera ici trois graphiques, où les meilleurs de *toutes* les populations seront comparées selon les *paramètres de fitness* de la première, la troisième et la quatrième population respectivement.
+- Indiquez `t` ou `tout` pour afficher un graphique pour les paramètres de fitness de chaque population (cette option est donc équivalente au fait d'énumérer `1,2,3,4` s'il y a quatre populations au total, par exemple).
+
+```
+Appuyez sur Entrée pour fermer les graphiques et passer à l'étape suivante
+```
+Plusieurs figures peuvent apparaître, vous avez l'option de les télécharger directement avec l'interface de la fenêtre. Répondre à cet input les fermera.
+
+#### c. Slider d'évolution des meilleures trajectoires
+
+Le programme va demander si vous voulez afficher un widget de type "slider" pour visualiser dynamiquement l'évolution de la trajectoire du meilleur individu le long des génération. 
+
+```
+Voulez-vous afficher l'évolution du meilleur chemin en fonction de la génération, pour chaque population ? 
+        • o/oui 
+        • n/non 
+>o
+```
+→ Si vous acceptez, le programme affichera un widget slider *pour chaque population*.
+ 
+⚠️ Attention : Nous avons remarqué que Slider (issu de la bibliothèque matplotlib.widget) est parfois peu interactif, il est possible que sur certains ordinateurs il soit compliqué de faire glisser le curseur.
+
+```
+Appuyez sur Entrée pour fermer les graphiques et passer à l'étape suivante
+```
+
+De même, plusieurs figures vont apparaître. Malheureusement les télécharger ici ne sauvgardera qu'un arrêt sur image. Pour télécharger sous forme de `.gif` voir la fonction `save_trajectory_gif` de `plot.py`.
+
+#### d. Téléchargement des tables de rotation des meilleurs individus.
+
+Une fois toutes ces étapes passées, le programme va proposer de garder en mémoire les tables des meilleurs candidats des différentes populations, avec ces options :
+
+```
+Voulez-vous enregistrer les tables json du meilleur candidat : 
+        • non/n 
+        • seulement des populations d'indice i_1,i_2,…,i_n ; i_k ≥ 1 
+        • de toutes les populations : t/tout 
+>t
+```
+→ Comme pour la visualisation comparée des fitness de chaque population, on peut ici choisir une liste d'indices ( par exemple `1,3`) ou directement l'option `t`/`tout`.
+
+Si au moins un indice est sélectionné :
+
+```
+Dans quel dossier enregistrer les json ? 
+        (défaut: 'rot_tables_results') 
+>
+```
+→ Le fichier par défaut est dédié à ces résultats. Vous pouvez en proposer un autre, tant qu'il existe et que son `PATH` est correcte.
+
+Si tout est en ordre, le(s) fichier(s) sera/ont téléchargé(s) sous le format :
+`[nom_dossier_résultat]/optimal_rot_table_[chemin_source_de_la_séquence]_[nom_du_fichier_de_la_séquence]_[méthode_de_sélection]_[nb_append]_[nb_cuts]_[nb_individus]_[nb_générations]`
+
+Le programme affichant le chemin dans le terminal ; exemple :
+
+```
+rot_tables_results/optimal_rot_table_data_plasmid_8k.fasta_elitiste_4_3_150_25
+```
+
+### Fin
+Le programme affiche
+```
+Programme terminé.
+```
 
 ## Tests :
 

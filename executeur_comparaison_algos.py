@@ -44,15 +44,17 @@ selections_dic ={
 
 
 if __name__ == "__main__" :
-    print("Logiciel de détermination de matrice de rotation optimale pour un plasmide")
+    print("Programme de détermination de matrice de rotation optimale pour un plasmide.")
+    print()
 
     while True : # Demande le fichier lié à la séquence ADN
         sequence_file = input("Indiquez le fichier '.fasta' contenant la séquence du plasmide d'étude. \n> ")
         if not checkpath(sequence_file) :
-            pass
+            continue
         elif not sequence_file[-6:]==".fasta":
             print("Erreur : Le fichier doit avoir l'extension '.fasta'.")
             print()
+            continue
         else:
              break
     print()
@@ -67,10 +69,11 @@ if __name__ == "__main__" :
                 table_rot_file = "dna/table.json"
                 break
             if not checkpath(table_rot_file):
-                pass
+                continue
             elif not table_rot_file[-5:] == ".json":
                 print("Erreur : Le fichier doit avoir l'extension '.json'.")
                 print()
+                continue
             else:
                 break
     print()
@@ -91,7 +94,7 @@ if __name__ == "__main__" :
         if not new_gen in {'o','oui','n','non','','y','yes','n','no'} :
             print("Erreur : veuillez donner une entrée valide.")
             print()
-            pass
+            continue
         elif new_gen in {'non','no','n',''}:
             break
         else:
@@ -99,6 +102,7 @@ if __name__ == "__main__" :
         print()
 
         print("Choix des paramètres de la fonction de fitness.")
+        print()
         while True : # paramètre de la fonction de fitness : nombre de recollements à tester
             var_nb_append = input("Sur combien de bases voulez-vous tester la qualité du recollement des extrémités du plasmide (qualité de la boucle) ? \n\t• 1 ≤ n ≤ longueur(séquence ADN). \n\t• Par défaut n = 2. \n Attention à ne pas dépasser la taille de la séquence ! \n>")
             if var_nb_append =="":
@@ -107,6 +111,7 @@ if __name__ == "__main__" :
             elif not var_nb_append.isdigit() or not int(var_nb_append)>0:
                 print("Entrez un nombre entier strictement positif en base décimale.")
                 print()
+                continue
             else:
                 break
         print()
@@ -120,17 +125,20 @@ if __name__ == "__main__" :
             elif not var_nb_cuts.isdigit() or not int(var_nb_cuts)>=0:
                 print("Entrez un nombre entier positif en base décimale.")
                 print()
+                continue
             else:
                 break
         print()
-        list_nb_cuts.append(max(1,int(var_nb_cuts)))
+        list_nb_cuts.append(max(0,int(var_nb_cuts)))
 
         print("Type de sélection.")
+        print()
         while True : # Demander le type de selection
             selection_type_n = input("Quelle façon de sélectionner les survivants sur chaque génération ? \n\t1 élitiste \n\t2 tournoi \n\t3 roulette fitness\n\t4 roulette rang \n\t5 roulette rang géométrique \n\t6 roulette exponentielle \n>")
             if not selection_type_n in selections_dic:
                 print("Erreur : entrez soit le chiffre correspondant à l'option, soit le nom de l'option.")
                 print()
+                continue
             else:
                 break
         print()
@@ -146,10 +154,11 @@ if __name__ == "__main__" :
             except ValueError:
                 print("Erreur : veuillez entrer un nombre décimal entre 0 et 1, le séparateur entre les parties entières et fractionnaires est le '.'.")
                 print()
-                pass
+                continue
             if not 0 < taux_selec and taux_selec < 1 :
                 print("Le taux de sélection doit être compris entre 0 et 1 strictement.")
                 print()
+                continue
             else:
                 break
         print()
@@ -164,6 +173,7 @@ if __name__ == "__main__" :
             elif not var_nb_indiv.isdigit() or not int(var_nb_indiv)>0:
                 print("Entrez un nombre entier strictement positif en base décimale.")
                 print()
+                continue
             else:
                 break
         print()
@@ -177,6 +187,7 @@ if __name__ == "__main__" :
             elif not var_nb_gen.isdigit() or not int(var_nb_gen)>0:
                 print("Entrez un nombre entier strictement positif en base décimale.")
                 print()
+                continue
             else:
                 break
         print()
@@ -223,6 +234,7 @@ if __name__ == "__main__" :
             except ValueError:
                 print("Erreur : format invalide. Exemple : (5, 10). Ne pas mettre de parenthèses pour une liste d'indices.\n")
                 print()
+                continue
 
         else:
             try:
@@ -237,12 +249,13 @@ if __name__ == "__main__" :
                         var_bool = False
                         break
                 if not var_bool:
-                    pass
+                    continue
                 else:
                     break
             except ValueError:
                 print("Erreur : entrez une option correcte, 'n'/'non', 't/tout', un tuple parenthésé (n,k), ou des nombres entiers positifs séparés par des espaces ou des virgules, correspondant aux indices (i≥1) à choisir.")
                 print()
+                continue
     print()
     list_fitness_to_plot = {i : (lambda rot_table_x, idx=i: fitness(rot_table_x, seq, nbappend=list_nb_append[idx], nbcuts=list_nb_cuts[idx])) for i in plot_bs}
  
@@ -265,11 +278,11 @@ if __name__ == "__main__" :
         plt.close('all')
     
     while True : # Demander s'il faut afficher les sliders pour les meilleurs résultats
-        var_sliders = input("Voulez-vous afficher l'évolution du meilleur chemin en fonction de la génération, pour chaque population ? \n\t• o/oui \n\t• n/non \n>")
+        var_sliders = input("Voulez-vous afficher l'évolution de la trajectoire du meilleur de chaque génération avec un slider, pour chaque population ? \n(Parfois, le slider du widget est peu interactif.) \n\t• o/oui \n\t• n/non \n>")
         if not var_sliders in {'o','oui','n','non','','y','yes','n','no'} :
             print("Erreur : veuillez donner une entrée valide.")
             print()
-            pass
+            continue
         elif var_sliders in {'non','no','n',''}:
             break
         else:
@@ -300,12 +313,13 @@ if __name__ == "__main__" :
                         var_bool = False
                         break
                 if not var_bool:
-                    pass
+                    continue
                 else:
                     break
             except ValueError:
                 print("Erreur : entrez une option correcte, 'n'/'non', 't/tout', ou des nombres entiers positifs séparés par des espaces ou des virgules, correspondant aux indices (i≥1) à choisir.")
                 print()
+                continue
        
     print()
     list_json_to_download = {i : f"optimal_rot_table_{sequence_file.replace('/', '_').replace('\\', '_')}_{list_selection_type[i]}_{list_nb_append[i]}_{list_nb_cuts[i]}_{list_nb_individus[i]}_{list_nb_gen[i]}"  for i in download_json}  
@@ -316,7 +330,7 @@ if __name__ == "__main__" :
             folder = "rot_tables_results"
             break
         elif not checkpath(folder):
-            pass
+            continue
         else:
             break
     for i in list_json_to_download:
