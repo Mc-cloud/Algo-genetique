@@ -363,8 +363,7 @@ python -m unittest tests.test_algogenetique
 ## Documentation
 
 Pour plus de détails, consultez :
-- Le rapport complet dans `documents/Rapport_EI_*.pdf`
-- Les présentations dans `documents/AG-Pres.pdf` et `documents/AG-Poly.pdf`
+- Le rapport complet dans `Rapport_EI_ST2_V2-1.pdf`
 - Le sujet initial dans `documents/EI_AlgoGen_project.pdf
 
 **Statut** : Projet terminé (2024-2025)
