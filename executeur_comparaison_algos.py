@@ -287,7 +287,7 @@ if __name__ == "__main__" :
             break
         else:
             for indiv in Best_indiv_list:
-                plot_with_slider(get_trajectories(indiv,seq), block=False)
+                plot_with_slider(get_trajectories(indiv,seq), block=True)
             input("\nAppuyez sur Entrée pour fermer les graphiques et passer à l'étape suivante")
             print()
             break
