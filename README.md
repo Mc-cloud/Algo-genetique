@@ -94,9 +94,6 @@ conda env create -f environment.yaml
 conda activate algo-genetique
 ```
 
-## Utilisation :
-Mettre l'explication pour execution...
-
 ## Benchmarks 
 ```bash
 # Benchmark avec recherche de grille automatique
