@@ -318,7 +318,8 @@ Le projet implémente 7 méthodes de sélection :
 | Méthode | Description | Usage |
 |---------|-------------|-------|
 | **elitiste** | Garde les N meilleurs individus | Convergence rapide, risque de convergence prématurée |
-| **tournament** | Tournoi entre paires + 10% d'élite | Bon équilibre exploration/exploitation |
+| **tournoi simple** | Tournoi entre paires | Convergence rapide, risque de convergence prématurée |
+| **tournament_elitiste** | Tournoi entre paires + 10% d'élite | Bon équilibre exploration/exploitation |
 | **roulette** | Probabilité inversement proportionnelle au score | Maintient la diversité |
 | **roulette_exp** | Roulette avec distribution exponentielle | Pression de sélection ajustable |
 | **roulette_exp_norm** | Roulette exponentielle normalisée | Bon pour la convergence finale |
