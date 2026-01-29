@@ -339,6 +339,7 @@ Le projet génère diverses visualisations pour analyser les dynamiques évoluti
 - **Evolution d'un plasmide au fils des générations:**
 ![gif](gifs/ultimate.gif)
 ## Tests
+Pour la bonne éxecution des tests, veillez à vous mettre dans le dossier algo-genetique
 
 ```bash
 # Exécuter tous les tests
