@@ -129,7 +129,7 @@ def selection_roulette_exp_normal(list_ind, taux_selec):
         Liste d'individus sélectionnés avec distribution exponentielle normalisée
     """
     min_score = min([ind.score for ind in list_ind])
-    proba = [np.exp((min_score**2-ind.score**2)/min_score) for ind in list_ind]
+    proba = [np.exp((min_score**2-ind.score**2)/(2*min_score)) for ind in list_ind]
     select = random.choices(list_ind, proba, k = int(taux_selec*len(list_ind)))
     return select
 

@@ -324,7 +324,7 @@ if __name__ == "__main__" :
     print()
     list_json_to_download = {i : f"optimal_rot_table_{sequence_file.replace('/', '_').replace('\\', '_')}_{list_selection_type[i]}_{list_nb_append[i]}_{list_nb_cuts[i]}_{list_nb_individus[i]}_{list_nb_gen[i]}"  for i in download_json}  
 
-    while True : # Demander où enregistrer tout ça
+    while download_json : # Demander où enregistrer tout ça
         folder = input("Dans quel dossier enregistrer les json ? \n\t(défaut: 'rot_tables_results') \n>")
         if folder == "":
             folder = "rot_tables_results"

@@ -255,7 +255,7 @@ Plusieurs figures peuvent apparaître, vous avez l'option de les télécharger d
 
 #### c. Slider d'évolution des meilleures trajectoires
 
-Le programme va demander si vous voulez afficher un widget de type "slider" pour visualiser dynamiquement l'évolution de la trajectoire du meilleur individu le long des génération. 
+Le programme va demander si vous voulez afficher un widget de type "slider" pour visualiser dynamiquement l'évolution de la trajectoire du meilleur individu le long des génération. Attention, les sliders s'affichent l'un après l'autre.
 
 ```
 Voulez-vous afficher l'évolution du meilleur chemin en fonction de la génération, pour chaque population ? 
@@ -263,7 +263,7 @@ Voulez-vous afficher l'évolution du meilleur chemin en fonction de la générat
         • n/non 
 >o
 ```
-→ Si vous acceptez, le programme affichera un widget slider *pour chaque population*.
+→ Si vous acceptez, le programme affichera un widget slider *pour chaque population*, l'un après l'autre.
  
 ⚠️ Attention : Nous avons remarqué que Slider (issu de la bibliothèque matplotlib.widget) est parfois peu interactif, il est possible que sur certains ordinateurs il soit compliqué de faire glisser le curseur.
 
