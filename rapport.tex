@@ -1,7 +1,9 @@
 \documentclass{article}
+\usepackage[french]{babel}
 \usepackage{graphicx} % Required for inserting images
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{float}
 
 \title{Rapport EI DEMAILLE COURNIL RABEUX REBOLA CAHITTE}
 \author{Mathéo Cahitte, Clément Cournil-Rabeux, Melkior Demaille, Clément Rebola}
@@ -12,25 +14,33 @@
 \maketitle
 
 \section{Introduction}
-Le sujet de cet EI est les algorithmes génétiques, plus particulièrement leur application dans le calcul de la trajectoire spatiale d'une séquence d'ADN. L'indication que nous avons est d'étudier des plasmides : sans connaître leur géométrie exacte on sait cependant qu'ils doivent boucler. De plus, la trajectoire donnée doit correspondre à celle engendrée par une table indiquant le décalage dans l'espace correspondant à chaque couple possible de dinucléotide - c'est à dire trois angles pour chacun des 16 dinucléotides. C'est en partant d'une table de référence donnée par un modèle expérimental que nous devons itérer, afin de trouver un table proche mais plus adaptée.
+Le sujet de cet EI est les algorithmes génétiques, plus particulièrement leur application dans le calcul de la trajectoire spatiale d'une séquence d'ADN. L'indication que nous avons est d'étudier des plasmides : sans connaître leur géométrie exacte on sait cependant qu'ils doivent boucler. De plus, la trajectoire donnée doit correspondre à celle engendrée par une table indiquant le décalage dans l'espace correspondant à chaque couple possible de dinucléotide - c'est à dire trois angles pour chacun des 16 dinucléotides, la translation étant fixée. C'est en partant d'une table de référence donnée par un modèle expérimental que nous devons itérer, afin de trouver une table proche mais plus adaptée.
 
-Pour ce rapport, nous avons choisi de commencer par présenter et motiver nos choix théoriques et en terme de méthodologie, puis — schémas à l'appuis — d'expliquer comment nous les avons mis à l'épreuve, et les conclusions qu'on en a tiré.
+Une recherche rapide sur les plasmides permet d'apprendre que le fait qu'ils bouclent ne dépend en réalité pas de leur géométrie de moindre contrainte. En effet, soit un plasmide est copié directement depuis un plasmide préexistant (donc cyclique dès le début), soit des enzymes "reconnaissent" les extrémités compatibles du plasmide sous forme linéique pour le recoller. Avec cette information, on peut réinterpréter le sujet comme étant de trouver une table modélisant un replis le meilleur possible étant donné un plasmide en argument, et non pas une "table universelle" comme celle du modèle initial. En effet, au vu de la réalité des plasmides, une telle table est au mieux inadaptée à la condition de bouclement. 
+Une autre raison empêche d’entraîner une table « universelle » valable pour toute séquence ADN.
+Une telle table devrait fournir un bon repliement pour chaque séquence.
+Or cela nécessiterait de longues séquences de référence dont on connaisse la position spatiale de chaque nucléotide, comme c’est le cas pour les protéines utilisées par AlphaFold. Ici la seule information donnée sur les entrées est que ce sont des plasmides. La seule chose que nous pouvons mesurer est donc à quel point ils "bouclent", sans autre prérequis envisageable sur la forme précise qu'ils occupent dans l'espace.
+
+Dans ce rapport, nous avons choisi de commencer par présenter et motiver nos choix théoriques et en terme de méthodologie, d'expliquer ensuite notre algorithme avec plus de formalisme, puis finalement — schémas à l’appui — d'expliquer comment nous l'avons mis à l'épreuve, et les conclusions qu'on en a tiré.
+
 \section{Méthodologie}
 
 \subsection{Pourquoi un algorithme génétique ?}
-En jouant sur 32 paramètres (les deux premiers angles pour chaque dinucléotide), on a un espace grand pour les configurations, trop pour une résolution analytique (d'autant que le calcul devrait prendre en compte les positions de milliers de bases). De plus, il y a potentiellement de nombreux minimums locaux qu'une descente de gradient risque de ne pas éviter efficacement. Pour finir, on se doute que les trajectoires sont tout de même des fonctions lisses (même si très sensibles) des angles reportés dans les tables, un algorithme génétique est donc bien adapté pour que génération après génération, on se rapproche des extrémums les plus prometteurs.
+En jouant sur 32 paramètres (les deux premiers angles pour chaque dinucléotide), on a un espace grand pour les configurations, trop pour envisager une résolution analytique (d'autant que le calcul devrait prendre en compte les positions de milliers de bases). De plus, il y a potentiellement de nombreux minimums locaux qu'une simple descente de gradient risque de ne pas éviter efficacement. Pour finir, on se doute que les trajectoires sont tout de même des fonctions lisses (même si très sensibles) des angles reportés dans les tables, un algorithme génétique est donc bien adapté pour que génération après génération, on se rapproche des extremums les plus prometteurs.
 
 \subsection{Quelle fonction de fitness ?}
-Le sujet repose sur les plasmides. La compréhension que nous en avons est qu'il faut arriver pour chaque plasmide à une table qui donne la trajectoire la plus proche possible d'une chaîne qui boucle, dans la limite des écarts-types donnés par le modèle. Réalistiquement, aux échelles des tailles des plasmides, des effets des forces intermoléculaires ou de la température doivent courber d'identiques dinucléotides différemment, un effet dont on ne pourra pas ici prendre compte. De même on pourraît vouloir entraîner une seule table "universelle" pour toute séquence ADN, qui donne un bon repliment pour ces séquences (ce que le modèle fournit pour celles qui sont assez courtes). Cependant il faudrait pour cela disposer de séquences de référence dont on connaît les positions dans l'espace pour chaque nucléotide (à l'instar des protéines sur lesquelles AlphaFold s'entraîne). Ici la seule information donnée sur les entrées est que ce sont des plasmides. La seule chose que nous pouvons mesurer est donc à quel point ils "bouclent", sans autre prérequis envisageable sur la forme précise qu'ils occupent dans l'espace.
+Le sujet repose sur les plasmides. La compréhension que nous en avons est qu'il faut arriver pour chaque plasmide à une table qui donne la trajectoire la plus proche possible d'une chaîne qui boucle, dans la limite des écarts-types donnés par le modèle. D'un point de vue pragmatique, aux échelles des tailles des plasmides, des effets des forces intermoléculaires ou de la température doivent courber d'identiques dinucléotides différemment, un effet qu'on ne pourra ici pas prendre en compte (cf. introduction). 
 
-La première idée qui vient est donc de mesurer la distance entre la première et la dernière base dans l'espace, comme fonction de fitness : plus les extrémités sont proches, plus il est convainquant que la table corresponde à celle modélisant au mieux le chemin du plasmide. En réfléchissant un peu plus, le plasmide devant boucler, ce qui nous intéresse est la différence entre la position de la première base de la séquence (l'origine), et la position où elle se retrouverait en parcourant la boucle jusqu'au bout. On peut même adjoindre les k premières bases à la fin de notre séquence, et minimiser la distance entre la position de chacune d'entre elle en début et en bout de chaîne. Le fait de mesurer la distance sur au moins deux bases permet en outre de tenir compte de la table dans le rapprochement des plasmides : boucler de façon compatible avec la table de rotation est plus souhaitable que de retrouver nos extrémités certes superposées mais avec un angle d'incidence quelconque - ceci s'apparente à une condition de continuité $C^k$.
+La première idée qui vient est donc de mesurer la distance entre la première et la dernière base dans l'espace, comme fonction de fitness : plus les extrémités sont proches, plus il est convainquant que la table corresponde à celle modélisant au mieux le chemin du plasmide. En réfléchissant un peu plus, le plasmide devant boucler, ce qui nous intéresse est la différence entre la position de la première base de la séquence (l'origine), et la position où elle se retrouverait en parcourant la boucle jusqu'au bout. On peut même adjoindre les k premières bases à la fin de notre séquence, et minimiser la distance entre la position de chacune d'entre elle en début et en bout de chaîne. Le fait de mesurer la distance sur au moins deux bases permet en outre de tenir compte de la table dans le rapprochement des extrémités : boucler de façon compatible avec la table de rotation est plus souhaitable que de retrouver nos extrémités certes superposées mais avec un angle d'incidence quelconque - ceci peut s'apparenter à une condition de continuité $C^k$.
 
-Nous avons eu une idée pour vérifier plus loin la compatibilité d'une table avec un plasmide, mais qui pointait vers les limites du modèle : si la table permet en partant d'une représentation linéique particulière du plasmide de le voir boucler sur lui-même, nous n'avons pour l'instant aucune garantie que si le client considère plutôt un autre gène comme le début du plasmide la table fonctionne toujours. Autrement dit, il faudrait tester la qualité du bouclage du chemin obtenu avec un "début/fin" du plasmide différent, d'autres coupes de sa séquence que celles données par le fichier. Ainsi nous avons ajouté en paramètre de notre fonction le nombre de coupes autres que celles fournie qu'il faudra tester (réparties de façon homogène). Évidemment, ceci multiplie le temps d'exécution de la fonction de fitness, et la rend bien plus exigente : nous ne sommes même pas certains qu'il puisse exister de solution acceptable en général, avec le modèle fourni. 
+Nous avons eu une idée pour vérifier plus loin la compatibilité d'une table avec un plasmide, mais qui pointait vers les limites du modèle. La table permet de visualiser la circularisation du plasmide à partir d’une représentation linéique donnée ; en revanche, nous n’avons pour l’instant aucune garantie qu’elle reste valable si le client prend un autre gène comme début du plasmide. Autrement dit, il faudrait tester la qualité du bouclage du chemin obtenu avec un "début/fin" du plasmide différent. 
+%d'autres coupes de sa séquence que celles données par le fichier. 
+Ainsi nous avons ajouté en paramètre de notre fonction le nombre de coupes autres que celle fournie qu'il faudra tester (réparties de façon homogène). Évidemment, ceci multiplie le temps d'exécution de la fonction de fitness, et la rend bien plus exigeante : nous ne sommes même pas certains qu'il puisse exister de solution acceptable en général, avec le modèle fourni. 
 %Après expérimentation, nous avons convenu qu'il vallait mieux laisser ce paramètre de côté et se permettre des populations plus larges pour aboutir à des résultats convenables, même si dépendants du point de départ.
 
 \subsubsection{Formalisation de la fonction de fitness}
 
-La qualité d'un individu (une table de rotation) est estimée par sa capacité à refermer la séquence nucléotidique du plasmide sur elle-même. Pour assurer une continuité d'ordre supérieur à la simple fermeture topologique, nous imposons un recouvrement de $k$ bases.
+La qualité d'un individu (une table de rotation) est définie par sa capacité à refermer convenablement la séquence nucléotidique du plasmide sur elle-même. Pour assurer une continuité d'ordre supérieur à la simple fermeture topologique, nous imposons un recouvrement de $k$ bases.
 
 Soit une trajectoire composée de points $\mathbf{P}_i \in \mathbb{R}^3$. La distance de fermeture pour une configuration donnée est définie par :
 \begin{equation}
@@ -306,6 +316,7 @@ La complexité totale sur $G$ générations somme les coûts d'évaluation, de s
     \textit{Note : En pratique} \\
     Dans notre contexte , le coût de calcul physique $C_{fit}$ peut devenir très élevé. Tant que la population $n$ reste raisonnable ($C_{fit} \gg \log n$), le temps de calcul est dominé par la physique plutôt que par le tri. On retrouve alors le même ordre de grandeur pratique :
     \[ \boxed {C_{total} \approx \mathcal{O}(G \cdot n \cdot C_{fit}) }\]
+    En pratique, $C_{fit} \approx k \cdot n_{cut} \cdot Plasmid_{size}$ où $k \approx \frac{1}{120000}  (secondes)$, ainsi, pour une population de 1000 individus, 25 Générations et un plasmide de taille 8000, le temps de calcul est d'environ 0h30-1h 
 \end{enumerate}
 
 %Ici on compare les diférents paramètres
@@ -315,23 +326,41 @@ Afin de sélectionner le meilleur modèle, nous avons décidé de
 
 
 \subsection{Choix de la fitness}
-
-\begin{figure}
+On a comparé différentes versions de fitness :
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Plot_selection/evolutio_metrique.png}
-    \caption{Comparaison des fonctions de fitness selon le nombre de coupes}
+    \caption{Comparaison des fonctions de fitness selon le nombre de coupes. Paramètres fixés : \texttt{nb\_individus = 150}, \texttt{nb\_generations = 24}, \texttt{taux\_selec=0.3}, \texttt{selection\_type = "elitiste"}}
     \label{fig:fitness_comparaison}
 \end{figure}
-\subsection{Choix de la sélection}
 
-\begin{figure}[htbp]
+On observe que fitness basique est le plus performant pour minimiser la distance .
+Pour l'alignement et la continuité, les autres fonctions de fitness (\texttt{nb\_cuts >= 1}) performent mieux .\\ On a que pour \texttt{nb\_cuts=2} et \texttt{append=1}, la performance est meilleure en continuité et en alignement que sur tout les autres .\\
+On peut donc conclure que pour avoir un résultat satisfaisant autre que sur la distance, une fonction de fitness avancée avec plusieurs coupes est une bonne solution .\\
+Cependant, les fonctions de fitness avancées sont coûteuses en temps de calcul, et donc le choix dépendra du but et des contraintes : \\
+Si l'on veut un résultat rapide ou qu'on ne se préoccupe que de la distance pure, on préférera la fitness basique .\\
+Sinon, on pourra alors rajouter des coupes à la fitness (qui devient avancée)
+
+\subsection{Choix de la sélection}
+Nous avons d'abord fait une présélection des 4 méthodes qui nous paraissaient les plus performantes.
+En effet, les méthodes comme rang réel ou roulette classique nous ont donnés des mauvais résultats lors de plusieurs simulations et n'ont donc pas été considérés .
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{Plot_selection/selection_comparison_best.png}
-    \caption{Comparaison des performances selon les différentes méthodes de sélection.}
+    \caption{Comparaison des performances selon les différentes méthodes de sélection. Paramètres fixés : \texttt{nb\_individus = 150}, \texttt{nb\_generations = 24}, \texttt{taux\_selec=0.3}, et fitness 'classique'}
     \label{fig:selection_comparison}
 \end{figure}
-
+On remarque que \texttt{elitiste} est la méthode la plus performante et est donc notre choix favorisé. 
+Les méthodes \texttt{tournament} (Tournoi) et \texttt{rang\_geo} (rang géométrique) donnent aussi des résultats satisfaisants.\\ Comme \texttt{tournament} est un peu moins coûteux en complexité que les autres méthodes, cela peut être un autre choix si l'on veut économiser du temps de calcul tout en ayant un résultat proche de \texttt{elitiste}, surtout si l'on veut faire une simulation avec une très grande quantité d'individus .
 \subsection{Choix des paramètres du modèle}
+\subsubsection{Choix du taux de sélection}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Plot_selection/taux_selec_comparison.png}
+    \caption{Comparaison des performances selon les différents taux de sélection. Paramètres fixés : \texttt{nb\_individus = 150}, \texttt{nb\_generations = 20}, \\ selection \texttt{elitiste}, et fitness 'classique' (0 cuts et 1 append)}
+    \label{fig:selection_comparison}
+\end{figure}
+\subsubsection{Choix du paramètres $\beta$ pour la mutation}
 
 
 \end{document}
