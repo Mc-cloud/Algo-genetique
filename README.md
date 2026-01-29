@@ -7,8 +7,7 @@ https://github.com/Mc-cloud/Algo-genetique
 
 
 A cause de bugs sur gitlab, nous avons décidé de cloner le git vers github. Ainsi, la contribution de certains membres du groupes n'a pas été pris en compte par github car ils se sont connectés à github avec leur compte gitlab : Clement Cournil-Rabeux et Clement Rebola. 
-
-
+Voici le lien vers le gitlab qui montre clairement qu'ils ont contribué énormément au projet : https://gitlab-cw2.centralesupelec.fr/clement.cournil-rabeux/jeux-evolutionnaires/
 ## Objectif
 
 Ce projet utilise un algorithme génétique pour optimiser les paramètres de rotation (twist, wedge, direction) des dinucléotides afin de minimiser la distance de fermeture des structures ADN circulaires (plasmides). L'algorithme cherche à trouver une table de rotations qui permette à la séquence ADN de se refermer sur elle-même avec une erreur minimale.
