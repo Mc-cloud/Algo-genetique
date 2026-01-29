@@ -7,6 +7,12 @@ from dna.Traj3D import Traj3D
 import numpy as np
 from resultsmanager import load_simulation_data
 
+def get_indicators(coords):
+    dist = np.linalg.norm(coords[0]-coords[-2])
+    v1 = coords[-1]-coords[-2]
+    v2 = coords[1] -coords[0]
+    v1,v2 = v1/np.linalg.norm(v1),v2/np.linalg.norm(v2)
+    return dist,np.linalg.norm(v1-v2),np.dot(v2,v1)
 
 def get_trajectories(indiv_list:list,dna_seq:str):
     trajectories=[]
@@ -199,3 +205,81 @@ def plot_three_indicators(dist,norm,ps,title=""):
     #plt.tight_layout()
     plt.show()
     #plt.savefig('Evolution_metrique_genetique.png')
+
+def plot_multiple_three_indicators(filenames,dna_seq,labels,title=""):
+    if len(labels) != len(filenames):
+        labels = [os.path.basename(f) for f in filenames]
+    fig, axs = plt.subplots(3,1, figsize = (12,14), sharex = True)
+
+    axs[0].set_ylabel('Distance')
+    axs[0].set_title('Évolution de la distance de fermeture')
+    axs[0].grid(True, linestyle='--')
+    # axs[0].legend()
+
+    axs[1].set_ylabel('$|\\vec{v}{start} - \\vec{v}{end}|$')
+    axs[1].set_title('Continuité : Norme de la différence des directions')
+    axs[1].grid(True, linestyle='--')
+
+    axs[2].set_ylabel('$\\vec{v}{start} \\cdot \\vec{v}{end}$')
+    axs[2].set_xlabel('Génération')
+    axs[2].set_title('Alignement : Produit scalaire des directions')
+    axs[2].grid(True, linestyle='--')
+
+    fig.suptitle(title)
+    for i in range(len(filenames)):
+        filename = filenames[i]
+        indiv_list,_,_,_ = load_simulation_data(filename,dna_seq)
+        dist,norm,ps = [],[],[]
+        for indiv in indiv_list:
+            traj_res = Traj3D()
+            traj_res.compute(dna_seq,indiv.Rot_table)
+            d,n,p = get_indicators(traj_res.getTraj())
+            dist.append(d)
+            norm.append(n)
+            ps.append(p)
+        axs[0].plot(range(len(dist)), dist, label = f"{labels[i]}")
+        axs[1].plot(range(len(norm)), norm, label = f"{labels[i]}")
+        axs[2].plot(range(len(ps)), ps, label = f"{labels[i]}")
+    axs[0].legend()
+    axs[1].legend()
+    axs[2].legend()
+    plt.show()
+        
+def plot_average_multiple(filename_groups, dna_seq, labels, title=""):
+    """
+    filename_groups : Liste de listes de noms de fichiers. 
+                      Ex: [['simulA_1.pkl', 'simulA_2.pkl'], ['simulB_1.pkl', ...]]
+    labels          : Liste des noms pour la légende (un par groupe)
+    """
+    
+    if len(labels) != len(filename_groups):
+        print("Attention : nombre de labels différent du nombre de groupes")
+    
+    # Boucle sur chaque GROUPE de simulations (ex: Modèle A, Modèle B...)
+    for i in range(len(filename_groups)):
+        group = filename_groups[i]
+        all_runs_best = [] 
+        
+        for filename in group:
+            _, best_list, _, _ = load_simulation_data(filename, dna_seq)
+            all_runs_best.append(best_list)
+        
+        min_len = min(len(run) for run in all_runs_best)
+        all_runs_best = [run[:min_len] for run in all_runs_best]
+        
+        arr = np.array(all_runs_best)
+        
+        # 4. Calcul de la moyenne (axis=0 signifie "colonne par colonne", donc génération par génération)
+        mean_curve = np.mean(arr, axis=0)
+        
+        # 5. Plot
+        N = range(len(mean_curve))
+        plt.plot(N, mean_curve, label=labels[i])
+        
+
+    plt.yscale("log")
+    plt.xlabel("Générations")
+    plt.ylabel("Score Moyen")
+    plt.title(title)
+    plt.legend()
+    plt.show()
