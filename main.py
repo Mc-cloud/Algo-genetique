@@ -5,31 +5,28 @@ from algo.selection import selections_dic
 from algo.fitness import fitness
 from plot import *
 import numpy as np
+from simulsmanager import *
+from benchmark import grid_search_params_save,grid_search_compare
 
-base_table = RotTable("dna/table.json")
 base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
-
-nb_indiv = 100
-nb_generations = 20
-taux_selec = 0.5
+name = "data_algo/gsearch1"
 
 
-'''
-for selection_type in selections_dic.keys():
-    results = AlgoGenetique("dna/table.json",base_seq,nb_indiv,nb_generations,taux_selec,selection_type,poisson=False)
-    res = results[-1]
-    score = fitness(res.Rot_table,base_seq,nbcuts=0)
-    print(" score : ",res.score,"score final : ",score," via type de selection : ",selection_type)
-#     # traj_res = Traj3D(want_to_plot=True)
-#     # traj_res.compute(base_seq,res.Rot_table)
-#     # traj_res.draw() #'''
+# Les différentes configurations de paramètres à simuler, ou comparer
+params_to_search = {
+                        "nb_individus":[150],
+                        "nb_generations":[20],
+                        "taux_selec":[0.3],
+                        "selection_type":["elitiste","tournament","rang_geo","roulette_exp_norm"],
+                        "poisson":[True,False],
+                        "nb_cuts":[0],
+                        "nb_append":[1],
+                        "recuit":[False]
+                                    }
 
-res = AlgoGenetique("dna/table.json",base_seq,nb_indiv,nb_generations,taux_selec,"elitiste")
-best, _, _ = res
-score = fitness(best[-1].Rot_table,base_seq,nbcuts=0)
-print(" score : ",best[-1].score,"score final : ",score," via type de selection : ","elitiste")
-# traj_res = Traj3D(want_to_plot=True)
-# traj_res.compute(base_seq,best[-1].Rot_table)
-# traj_res.draw()
-plot_with_slider(get_trajectories(best,base_seq))
-save_trajectory_gif(get_trajectories(best,base_seq))
+#Simule les différentes configurations et sauvegarde les résultats
+#grid_search_params_save(name,base_seq,params_to_search)
+
+#Compare les différentes configurations déjà simulées et sauvegardées, et affiche les résultats de la meilleure configuration
+grid_search_compare(name,base_seq,params_to_search)
+

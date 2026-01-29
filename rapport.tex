@@ -1,0 +1,401 @@
+\documentclass{article}
+\usepackage[french]{babel}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float}
+\usepackage{xcolor}
+\usepackage{array}
+
+\newcommand{\opti}[1]{%
+    \setlength{\fboxrule}{1.5pt}% Epaisseur de la bordure (plus gras pour être visible)
+    \setlength{\fboxsep}{3pt}% Espace entre le chiffre et la bordure
+    \fcolorbox{green!80!black}{white}{#1}% Cadre vert foncé, fond blanc
+}
+
+\title{Rapport EI DEMAILLE COURNIL RABEUX REBOLA CAHITTE}
+\author{Mathéo Cahitte, Clément Cournil-Rabeux, Melkior Demaille, Clément Rebola}
+\date{January 2026}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+Le sujet de cet EI est les algorithmes génétiques, plus particulièrement leur application dans le calcul de la trajectoire spatiale d'une séquence d'ADN. L'indication que nous avons est d'étudier des plasmides : sans connaître leur géométrie exacte on sait cependant qu'ils doivent boucler. De plus, la trajectoire donnée doit correspondre à celle engendrée par une table indiquant le décalage dans l'espace correspondant à chaque couple possible de dinucléotide - c'est à dire trois angles pour chacun des 16 dinucléotides, la translation étant fixée. C'est en partant d'une table de référence donnée par un modèle expérimental que nous devons itérer, afin de trouver une table proche mais plus adaptée.
+
+Une recherche rapide sur les plasmides permet d'apprendre que le fait qu'ils bouclent ne dépend en réalité pas de leur géométrie de moindre contrainte. En effet, soit un plasmide est copié directement depuis un plasmide préexistant (donc cyclique dès le début), soit des enzymes "reconnaissent" les extrémités compatibles du plasmide sous forme linéique pour le recoller. Avec cette information, on peut réinterpréter le sujet comme étant de trouver une table modélisant un replis le meilleur possible étant donné un plasmide en argument, et non pas une "table universelle" comme celle du modèle initial. En effet, au vu de la réalité des plasmides, une telle table est au mieux inadaptée à la condition de bouclement. 
+Une autre raison empêche d’entraîner une table « universelle » valable pour toute séquence ADN :
+une telle table devrait fournir un bon repliement pour chaque séquence.
+Or cela nécessiterait de longues séquences de référence dont on connaisse la position spatiale de chaque nucléotide, comme c’est le cas pour les protéines utilisées par AlphaFold. Ici la seule information donnée sur les entrées est que ce sont des plasmides. La seule chose que nous pouvons mesurer est donc à quel point ils "bouclent", sans autre prérequis envisageable sur la forme précise qu'ils occupent dans l'espace.
+
+Dans ce rapport, nous avons choisi de commencer par présenter et motiver nos choix théoriques et en terme de méthodologie, d'expliquer ensuite notre algorithme avec plus de formalisme, puis finalement — schémas à l’appui — d'expliquer comment nous l'avons mis à l'épreuve, et les conclusions qu'on en a tiré.
+
+\section{Méthodologie}
+
+\subsection{Pourquoi un algorithme génétique ?}
+En jouant sur 32 paramètres (les deux premiers angles pour chaque dinucléotide), on a un espace grand pour les configurations, trop pour envisager une résolution analytique (d'autant que le calcul devrait prendre en compte les positions de milliers de bases). De plus, il y a potentiellement de nombreux minimums locaux qu'une simple descente de gradient risque de ne pas éviter efficacement. Pour finir, on se doute que les trajectoires sont tout de même des fonctions lisses (même si très sensibles) des angles reportés dans les tables, un algorithme génétique est donc bien adapté pour que génération après génération, on se rapproche des extremums les plus prometteurs.
+
+\subsection{Quelle fonction de fitness ?}
+Le sujet repose sur les plasmides. La compréhension que nous en avons est qu'il faut arriver pour chaque plasmide à une table qui donne la trajectoire la plus proche possible d'une chaîne qui boucle, dans la limite des écarts-types donnés par le modèle. D'un point de vue pragmatique, aux échelles des tailles des plasmides, des effets des forces intermoléculaires ou de la température doivent courber d'identiques dinucléotides différemment, un effet qu'on ne pourra ici pas prendre en compte (cf. introduction). 
+
+La première idée qui vient est donc de mesurer la distance entre la première et la dernière base dans l'espace, comme fonction de fitness : plus les extrémités sont proches, plus il est convainquant que la table corresponde à celle modélisant au mieux le chemin du plasmide. En réfléchissant un peu plus, le plasmide devant boucler, ce qui nous intéresse est la différence entre la position de la première base de la séquence (l'origine), et la position où elle se retrouverait en parcourant la boucle jusqu'au bout. On peut même adjoindre les k premières bases à la fin de notre séquence, et minimiser la distance entre la position de chacune d'entre elle en début et en bout de chaîne. Le fait de mesurer la distance sur au moins deux bases permet en outre de tenir compte de la table dans le rapprochement des extrémités : boucler de façon compatible avec la table de rotation est plus souhaitable que de retrouver nos extrémités certes superposées mais avec un angle d'incidence quelconque - ceci peut s'apparenter à une condition de continuité $C^k$.
+
+Nous avons eu une idée pour vérifier plus loin la compatibilité d'une table avec un plasmide, mais qui pointait vers les limites du modèle. La table permet de visualiser la circularisation du plasmide à partir d’une représentation linéique donnée ; en revanche, nous n’avons pour l’instant aucune garantie qu’elle reste valable si le client prend un autre gène comme début du plasmide. Autrement dit, il faudrait tester la qualité du bouclage du chemin obtenu avec un "début/fin" du plasmide différent. 
+%d'autres coupes de sa séquence que celles données par le fichier. 
+Ainsi nous avons ajouté en paramètre de notre fonction le nombre de coupes autres que celle fournie qu'il faudra tester (réparties de façon homogène). Évidemment, ceci multiplie le temps d'exécution de la fonction de fitness, et la rend bien plus exigeante : nous ne sommes même pas certains qu'il puisse exister de solution acceptable en général, avec le modèle fourni. 
+%Après expérimentation, nous avons convenu qu'il vallait mieux laisser ce paramètre de côté et se permettre des populations plus larges pour aboutir à des résultats convenables, même si dépendants du point de départ.
+
+\subsubsection{Formalisation de la fonction de fitness}
+
+La qualité d'un individu (une table de rotation) est définie par sa capacité à refermer convenablement la séquence nucléotidique du plasmide sur elle-même. Pour assurer une continuité d'ordre supérieur à la simple fermeture topologique, nous imposons un recouvrement de $k$ bases.
+
+Soit une trajectoire composée de points $\mathbf{P}_i \in \mathbb{R}^3$. La distance de fermeture pour une configuration donnée est définie par :
+\begin{equation}
+d(\mathcal{P}, k) = \sqrt{\sum_{i=0}^{k-1} \| \mathbf{P}_i - \mathbf{P}_{N+i} \|^2}
+\end{equation}
+
+Pour s'affranchir de la dépendance au point de coupure initial du plasmide, nous évaluons la somme quadratique du score sur $m$ points de départ différents, répartis uniformément le long de la séquence :
+\begin{equation}
+\text{Fitness} = \sqrt{\sum_{j=0}^{m} d_j^2}
+\end{equation}
+
+où $d_j$ est le score obtenu pour la $j$-ème coupure. Cette métrique pénalise non seulement l'écart spatial entre les extrémités, mais aussi les cassures de pente à la jonction, agissant ainsi comme une condition de régularité géométrique.
+
+\subsubsection*{Compromis entre minimisation et invariance}
+
+Le choix du nombre de coupes $m$ (\texttt{nbcuts}) définit la nature de l'optimisation :
+
+\begin{itemize}
+    \item \textbf{Optimisation locale ($m=0$)} : On cherche à minimiser $\mathcal{F} = d_0$. La convergence est rapide car l'espace des solutions admissibles est vaste.
+    \item \textbf{Optimisation structurelle ($m \geq 1$)} : On cherche à minimiser $\mathcal{F} = \sqrt{\sum_{j=0}^{m} d_j^2}$. 
+\end{itemize}
+
+
+\subsection{Quelle sélection ?}
+La première génération est distribuée uniformément sur les intervalles autorisés par le modèle, pour chaque coordonnée. Ceci permet une maximisation de l'entropie de Shannon, évitant d'instaurer des biais de sélection.
+ Pour passer d'une génération à la suivante, nous avons essayé plusieurs méthodes de sélection, pour les comparer et déterminer celle qui convergeait le mieux, le plus vite. Nous avons voulu laisser en argument la proportion des individus gardés d'une génération à l'autre. 
+
+ La sélection élitiste - sélectionnant les k individus au meilleur score parmi les n d'une génération - est un bon départ. Certes on abandonne une partie de l'aléatoire qui fait l'efficacité des algorithmes génétiques, mais tant qu'une bonne façon de gérer l'aléatoire - bien adaptée à la sensibilité des trajectoires, et ne perdant pas son intérêt en considérant des mutations - n'a pas été trouvée, cette sélection reste valide. C'est une bonne référence, un point de repère pour savoir si une autre méthode est intéressante ou non.
+
+ Pour adapter la sélection par tournoi à une proportion quelconque de survivants, nous avons choisi d'autoriser un individu à être tiré plusieurs fois. Ainsi ceux qui ont un bien meilleur score auront une meilleure espérance de représentation. La motivation étant qu'un "outsider" aura toujours une chance d'être pris, et un très bon candidat aura moins de chance de se faire oublier. Cette option étant souvent peu efficace une fois combinée avec le reste de l'algorithme, on l'a progressivement modifiée pour qu'elle garde forcément un pourcentage des meilleurs.
+
+ Nous avons aussi introduit la sélection roulette. Le problème de cette méthode est qu'elle est dépendante non-plus seulement de l'ordre des solutions, mais également de la valeur numérique de leur score. Ainsi, à priori, composer ce score avec toute fonction croissante nous donne une façon valide de faire tourner la roulette. Pour rester simples nous avons dans un premier temps directement utilisé le résultat de la fonction de fitness (distance euclidienne).
+
+Pour raffiner la sélection roulette, nous nous sommes inspirés de la recuite simulée. En effet, on peut voir la pression évolutive comme un "ressort" qui doit pousser les extrémités du plasmide à se rejoindre. En ce sens un potentiel en $x^2$ (où $x$ se trouve être la fonction de fitness) semble adapté. Pour le facteur de Boltzmann il reste à fixer une température pour favoriser les bonnes solutions sans directement écraser celles qui s'en rapprochent : c'est la sélection "roulette exponentielle. Pour avoir des poids qui ne soient pas inteprétés comme nuls par python, nous avons choisi de les diviser par le poids minimal (sorte de normalisation, la fonction random.choose nécessitant simplement des poids positifs, pas nécessairement de somme unitaire). Fonction de poids : 
+\[
+W_i = exp \left( \frac{S^2_{min}- S^2_i}{T_0}\right)
+\]
+
+En s'inspirant plus loin du recuit, on peut vouloir diminuer la température avec les générations pour affiner la convergence. Il faut cependant tâcher de ne pas être trop brusque pour ne pas tomber directement sur un extremum local trop pauvre. À l'inverse, ne pas diminuer la température assez rapidement fait perdre l'intérêt de ce paramètre. L'ensemble des options étant trop larges nous avons réduit à une décroissance affine minorée de la température, choisissant des paramètres convenables expérimentalement. Fonction de poids à la génération $k$:
+
+
+
+Une dernière version de la roulette-recuit est la sélection "Recuit normalisé". Ici, pour adapter la descente de température, on se base sur le meilleur score à une génération donnée : plus ce score est bas, plus la température est froide, donc plus les coupes seront importantes. 
+
+Une autre forme de roulette est la sélection roulette-rang. Ici on oublie même la valeur de la fonction de fitness pour ne retenir que l'ordre qu'elle donne - on a cependant toujours la même problématique (composition avec une fonction croissante). On tire alors avec une probabilité proportionnelle au complémentaire du rang ($rang_0  := poids_n$).
+
+Pour une variante de la sélection roulette-rang, on utilise une distribution géométrique des probabilités. Avec comme raison une pression de sélection $0<q<1$, on ajuste le rapport des probabilités de choix du k-ième sur le k+1-ième. Ceci permet une répartition un peu plus contrôlée des "outsiders". Il semble cependant toujours dommage d'"oublier" une part de l'information donnée par fitness, mais de moins guider l'aléatoire peut le rendre plus puissant.
+
+\subsection{Quelle reproduction ?}
+
+La question qui se pose ici est de savoir si les individus mieux classés doivent "plus" se reproduire que les moins classés, y compris l'étape de sélection passée. En effet, tester plusieurs variations du meilleur candidat d'une génération à l'autre peut être intéressant. Nous pouvions jouer sur plusieurs paramètres : le nombre d'occasions qu'a un survivant de se reproduir, et le poids de son impact sur les gènes de ses descendants. Le premier paramètre étant en réalité déjà pris en compte dans certaines des fonctions de sélection, nous avons préféré nous concentrer sur le second : un descendant portera des gènes plus proches de son parents ayant reçu le meilleur score.
+
+La reproduction entre deux individus $I_1$ et $I_2$, de scores respectifs $f_1$ et $f_2$, génère un descendant dont les gènes sont une combinaison linéaire de ceux des parents. 
+
+Pour chaque gène $x_i$, la nouvelle valeur $x_i'$ est calculée par :
+
+\begin{equation}
+x_i' = \alpha \cdot x_{i,1} + (1 - \alpha) \cdot x_{i,2}
+\end{equation}
+
+Où le coefficient de pondération $\alpha$ est déterminé par l'importance relative des scores :
+
+\begin{equation}
+\alpha = \frac{f_2}{f_1 + f_2}
+\end{equation}
+
+Si $f_1 + f_2 = 0$, on définit par défaut $\alpha = 0.5$ pour obtenir un mélange équitable. Cette méthode permet de créer un nouvel individu situé sur le segment reliant les deux parents dans l'espace des solutions, avec un biais en faveur du parent ayant le score le plus élevé (sous réserve de la définition du score).
+
+Une autre methode pour la création des nouveaux gènes est d'associer à $x_i'$ :$x_{i,1}$ avec la probabilité $\alpha$ ou $x_{i,2}$ avec la probabilité $(1-\alpha)$. Afin de ne pas mélanger des gènes importants et donnant des enfants mauvais. Cependant, on se rend compte que cette methode peut s'avérer instable,on décide donc de combiner les deux methodes précédentes en rajoutant un parametre $\beta$ de sorte que :
+\begin{equation}
+    P(x_i' = x_{i,1}*(1-\beta) + (\alpha \cdot x_{i,1} + (1 - \alpha) \cdot x_{i,2})*\beta ) =  \alpha
+\end{equation}
+\begin{equation}
+    P(x_i' = x_{i,2}*(1-\beta) + (\alpha \cdot x_{i,1} + (1 - \alpha) \cdot x_{i,2})*\beta ) =  1-\alpha
+\end{equation}
+Ce qui nous donne les meilleurs résultats d'après nos expériences
+
+\subsection{Quelle mutation ?}
+
+Choisir la fréquence et l'amplitude des mutations est primordial. Des mutations trop fréquentes et on perd l'intérêt d'avoir un héritage. Trop faibles et on retrouve les écueils de la descente de gradient - surtout si les génomes sont mélangés à chaque nouvel individu, avec une tendance à l'uniformisation. Nous avons choisi de répartir les mutations autour des valeurs initiales avec une loi normale (coupée pour éviter de dépasser les bornes du modèle) pour les amplitudes, et une probabilité égale pour chaque gène de muter. De plus, nous avons joué sur la largeur de la normale et la probabilité des mutations au fil des générations pour affiner les solutions, une fois un bon candidat trouvé.
+
+Pour chaque gène, si un tirage aléatoire $u \sim \mathcal{U}(0,1)$ est inférieur au taux de mutation $m$, la nouvelle valeur $v_{i}'$ est calculée comme suit :
+
+\begin{equation}
+v_{i}' = \max \left( \mu_{i} - \sigma_{i}, \min \left( \mu_{i} + \sigma_{i}, v_i + \delta \right) \right)
+\end{equation}
+
+Où :
+\begin{itemize}
+    \item $\delta \sim \mathcal{N}(0, (\sigma_{mut} \cdot \sigma_{i})^2)$ représente le saut de mutation.
+    \item $\mu_{i}$ et $\sigma_{i}$ sont la moyenne et l'écart-type de référence (issus de \texttt{Rot\_data}).
+    \item $v_i$ est la valeur avant mutation et $v_{i}'$ la valeur après mutation.
+\end{itemize}
+
+Il nous a aussi semblé interessant de permettre au long des générations,l'apparitions de grosses mutations de manière exeptionnelles, afin de limiter les minimums locaux proches entre eux. On rajoute donc un second taux de mutation $m'<< m$ et un ecart type $\sigma' >1 $ et on applique le meme processus que prédédemment.
+
+\section{L'algorithme génétique}
+
+\subsection{Les paramètres de l'algorithme}
+
+Le comportement de l'algorithme génétique est régi par un ensemble d'hyper-paramètres définissant la stratégie d'évolution.
+
+\begin{itemize}
+    \item \textbf{Taille de la population (\texttt{nb\_individus})} : 
+    \item \textbf{Nombre d'itérations (\texttt{nb\_iterations})} : 
+    Le nombre de générations.
+
+    \item \textbf{Fonction de Fitness} (\texttt{fitness()}): 
+    Fonction objectif à minimiser, évaluant la qualité d'un individu (ici, la fermeture du brin d'ADN). On a considéré deux fonctions de fitness différentes :
+    \begin{itemize}
+        \item \textit{Fitness Basique} : Ne prend en compte que la distance euclidienne entre le premier et le dernier nucléotide .
+        \item \textit{Fitness Complète} : Prend en compte la distance de fermeture, mais aussi l'alignement des vecteurs tangents, et leur proximité .
+    \end{itemize}
+    
+    \item \textbf{Taux de sélection} (\texttt{taux\_selec})
+    \item \textbf{Méthode de sélection} (\texttt{select(taux\_selec, fitness)}) :
+Dépend du taux de sélection et de la fonction de fitness. Plusieurs stratégies sont implémentées :
+
+    \begin{itemize}
+        \item \textit{Élitiste} : 
+        On sélectionne de manière déterministe les $N$ meilleurs individus selon la fitness (les scores les plus bas). C'est la méthode qui assure la convergence la plus rapide, au risque de perdre de la diversité.
+    
+        \item \textit{Tournoi} : 
+        On tire aléatoirement une paire (ou un groupe) d'individus, et on sélectionne celui ayant le meilleur score. On répète l'opération jusqu'à obtenir le nombre requis de géniteurs. On peut éventuellement ajouter une probabilité faible que le "perdant" soit sélectionné pour maintenir de la diversité.
+    
+        \item \textit{Roulette (avec variantes)} : 
+            \begin{itemize}
+                \item Roulette Classique (\texttt{selection\_roulette}) : \\
+                Le poids est calculé par inversion linéaire relative à la somme totale des scores $S_{total}$. 
+                \[ W_i = 1 - \frac{S_i}{S_{total}} \]
+            
+                \item Roulette Exponentielle (\texttt{selection\_roulette\_exp}) : \\
+                Les poids suivent une distribution basée sur la différence des carrés par rapport au meilleur score $S_{min}$, contrôlée par une température fixe $T$.
+                \[ W_i = \exp\left( \frac{S_{min}^2 - S_i^2}{T} \right) \]
+            
+                \item Roulette Exp. Normalisée (\texttt{selection\_roulette\_exp\_normal}) : \\
+                Comme Roulette Exp, avec $T:=S_{min}$ 
+                \[ W_i = \exp\left( \frac{S_{min}^2 - S_i^2}{S_{min}} \right) \]
+            \end{itemize}
+            \begin{center}
+            \fbox{
+            \begin{minipage}{0.95\textwidth}
+            \ttfamily
+            \small
+            SelectionRoulette(Population $P$, Taux $\tau$, Mode, Temp $T$) : \\
+            
+                \hspace*{1cm} $N_{sel} \leftarrow \text{taille}(P) \times \tau$ \\
+                \hspace*{1cm} $S_{min} \leftarrow \min_{ind \in P}(ind.score)$ \\
+                \hspace*{1cm} $S_{total} \leftarrow \sum_{ind \in P}(ind.score)$ \\
+                \hspace*{1cm} ListePoids $\leftarrow$ [] \\
+            
+                \hspace*{1cm} \textbf{Pour chaque} individu $ind$ dans $P$ : \\
+                    \hspace*{2cm} $S \leftarrow ind.score$ \\
+                    
+                    \hspace*{2cm} \textbf{Si} Mode == Classique : \\
+                        \hspace*{3cm} $W \leftarrow 1 - (S / S_{total})$ \\
+                    \hspace*{2cm} \textbf{Sinon Si} Mode == Exponentiel : \\
+                        \hspace*{3cm} $W \leftarrow \exp( (S_{min}^2 - S^2) / T )$ \\
+                    \hspace*{2cm} \textbf{Sinon Si} Mode == Exp\_Normalise : \\
+                        \hspace*{3cm} $W \leftarrow \exp( (S_{min}^2 - S^2) / S_{min} )$ \\
+                        
+                    \hspace*{2cm} Ajouter $W$ à ListePoids \\
+                
+                \hspace*{1cm} \textit{// Tirage pondéré avec remise (random.choices)} \\
+                \hspace*{1cm} Geniteurs $\leftarrow$ Tirage(Population, Poids=ListePoids, k=$N_{sel}$) \\
+            
+                \hspace*{1cm} \textbf{Retourner} Geniteurs
+            \end{minipage}
+            }
+            \end{center}
+    
+        \item \textit{Rang (réel)} : 
+        Au lieu d'utiliser le score directement on utilise le \textbf{rang} de l'individu dans la population triée ($1^{er}, 2^{\text{ème}}, \dots$). La probabilité de sélection décroît linéairement du premier au dernier rang.
+        \item \textit{Rang Géométrique} :
+        La probabilité de sélection suit une loi géométrique  selon le rang (dépend donc d'un paramètre $q\in]0,1[$). Les premiers ont ainsi une très forte probabilité de sélection.
+        
+\end{itemize}
+
+    \item \textbf{Méthode de croisement} : 
+    Définit comment deux parents génèrent un enfant. Dans notre implémentation, il s'agit d'un \textbf{croisement barycentrique pondéré} : chaque paramètre de l'enfant est une moyenne pondérée des parents, où le parent ayant le meilleur score a plus d'influence (poids plus fort) sur le résultat final (Voir 2.4)
+
+    \item \textbf{Méthode de génération} :
+    Permet de générer la population initiale .
+\end{itemize}
+
+
+\subsection{Pseudo-code général}
+
+\begin{center}
+\fbox{
+\begin{minipage}{0.95\textwidth}
+\vspace{0.2cm}
+\ttfamily % Police type machine à écrire pour tout le bloc
+$P \leftarrow$ GenererPopulation(nb\_individus) \\
+
+\textbf{Pour} $k$ allant de 1 à nb\_iterations : \\
+
+    \hspace*{1cm} \textit{// 1. Évaluation et Sélection} \\
+    \hspace*{1cm} scores $\leftarrow$ fitness($P$) \\
+    \hspace*{1cm} Geniteurs $\leftarrow$ select($P$, taux\_selec, scores) \\
+    
+    \hspace*{1cm} \textit{// 2. Reproduction} \\
+    \hspace*{1cm} $P_{new} \leftarrow Geniteurs$ \\
+    
+    \hspace*{1cm} \textbf{Tant que} taille($P_{new}$) $< nb\_individus$ : \\
+        \hspace*{2cm} $p_1, p_2 \leftarrow$ choix\_aleatoire(Geniteurs) \\
+        \hspace*{2cm} Enfant $\leftarrow$ croisement($p_1, p_2$) \\
+        \hspace*{2cm} Ajouter Enfant à $P_{new}$ \\
+        
+    \hspace*{1cm} $P \leftarrow P_{new}$ \\
+
+\textbf{Retourner} MeilleurIndividu($P$)
+\vspace{0.2cm}
+\end{minipage}
+}
+\end{center}
+\subsection{Calcul de complexité}
+
+Soit $n$ le nombre d'individus dans la population, $G$ le nombre d'itérations, et $\tau$ le taux de sélection ($0 < \tau < 1$).
+On note $C_{fit}$ le coût temporel de l'évaluation de la fonction de fitness pour un individu (calcul de la trajectoire 3D).
+
+\subsubsection{Complexité de l'étape de Reproduction (Croisement et Mutation)}
+À chaque itération, nous avons une population de $n$ individus.
+On a donc un nombre d'enfants à générer qui est de $n_{enfants}=n(1-\tau)$
+
+La création d'un enfant (croisement de deux vecteurs de taille fixe + mutation) est une opération élémentaire de coût constant $\mathcal{O}(1)$ par rapport à $n$.
+On a donc la complexité pour une génération : 
+\[ C_{repro} = \mathcal{O}(n(1 - \tau)) \]
+$\tau$ étant fixé en tant qu'hyper-paramètre, on a 
+\[ \boxed{C_{repro} = \mathcal{O}(n)} \]
+
+\subsubsection{Complexité de l'étape de Sélection}
+
+\begin{itemize}
+    \item \textbf{Sélection par Tournoi} :
+    On tire $n$ fois aléatoirement une paire d'individus et on les compare en temps  $2  C_{fit} = \mathcal{O}(1)$ . \\
+    Pour chaque génération, on a la complexité : 
+    $$C_{select}=\mathcal{O}(n)$$
+
+    \item \textbf{Sélection Élitiste} :
+
+        On doit d'abord trier les individus , en $C_{fit}\mathcal{O}(n \log n)$, c'est-à-dire en $\mathcal{O}(n \log n)$.
+        Ensuite, on récupère les $ \tau \cdot n $ premiers, en $\mathcal{O}(n)$. \\
+        Pour chaque génération, on a la complexité :
+        $$C_{select}=\mathcal{O}(n \log(n))$$
+
+
+    \item \textbf{Sélection par Rang} (Réel ou Géométrique) :\\
+    On trie d'abord la population pour trouver les rangs : $\mathcal{O}(n \log n)$. \\
+    On assigne ensuite un poids à chaque individu selon le tri ($\mathcal{O}(n)$) .\\ 
+    On doit ensuite tirer les géniteurs selon ces probabilités. Comme le tirage pondéré nécessite une recherche dichotomique ($\mathcal{O}(\log n)$ par individu), cette phase coûte $ n \cdot \tau \times \mathcal{O}(\log n) = \mathcal{O}(n \log n)$.\\
+    
+    Pour chaque génération, la complexité totale est donc 
+    $$C_{select}= \mathcal{O}(n \log n)$$
+
+    \item \textbf{Sélection par Roulette} (Classique ou Exponentielle) :\\
+    On parcourt la population pour calculer les poids (somme linéaire ou exponentielle) et la distribution cumulée en $\mathcal{O}(n)$.
+    On effectue ensuite le tirage pondéré des géniteurs en $n \cdot \tau \times \mathcal{O}(\log n)$. \\
+    Pour chaque génération, on a la complexité :
+    $$C_{select}=\mathcal{O}(n \log n)$$
+\end{itemize}
+
+Seule la méthode par Tournoi est en $\mathcal{O}(n)$ car sa sélection aléatoire est uniforme (pour un tirage : $\mathcal{O}(1)$ si uniforme vs $\mathcal{O}(\log (n))$ si pondéré, ).\\ Toutes les autres méthodes (Élitiste, Rang, Roulette) incluent soit une étape de tri, soit un tirage pondéré, menant à une complexité quasi-linéaire $\mathcal{O}(n \log n)$.
+
+
+\subsubsection{Complexité Globale}
+
+La complexité totale sur $G$ générations somme les coûts d'évaluation, de sélection et de reproduction. On distingue deux cas :
+
+\begin{enumerate}
+    \item \textbf{Avec la Sélection par Tournoi} : \\
+    La sélection est linéaire ($\mathcal{O}(n)$). Le coût total est :
+    \[ C_{total} = G \times ( \underbrace{n \cdot C_{fit}}_{\text{Évaluation}} + \underbrace{\mathcal{O}(n)}_{\text{Sélection}} + \underbrace{\mathcal{O}(n)}_{Croisement + mutation} ) \]
+    Ici, les termes sont du même ordre. Comme le coût unitaire $C_{fit} \ge 1$, le terme d'évaluation domine mathématiquement :
+    \[ \boxed{C_{total} = \mathcal{O}(G \cdot n \cdot C_{fit})} \]
+
+    \item \textbf{Avec les autres sélections} (Élitiste, Rang, Roulette) : \\
+    La sélection se fait en ($\mathcal{O}(n \log n)$) et on a donc
+    \[ \boxed{C_{total} = G \cdot ( n \cdot C_{fit} + \mathcal{O}(n \log n) )} \]
+    
+    \textit{Note : En pratique} \\
+    Dans notre contexte , le coût de calcul physique $C_{fit}$ peut devenir très élevé. Tant que la population $n$ reste raisonnable ($C_{fit} \gg \log n$), le temps de calcul est dominé par la physique plutôt que par le tri. On retrouve alors le même ordre de grandeur pratique :
+    \[ \boxed {C_{total} \approx \mathcal{O}(G \cdot n \cdot C_{fit}) }\]
+    En pratique, $C_{fit} \approx k \cdot n_{cut} \cdot Plasmid_{size}$ où $k \approx \frac{1}{120000}  (secondes)$, ainsi, pour une population de 1000 individus, 25 Générations et un plasmide de taille 8000, le temps de calcul est d'environ 0h30-1h 
+\end{enumerate}
+
+%Ici on compare les diférents paramètres
+\section{Résultats et choix du modèle}
+
+Afin de sélectionner le meilleur modèle, nous avons décidé de 
+
+
+\subsection{Choix de la fitness}
+On a comparé différentes versions de fitness :
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Plot_selection/evolutio_metrique.png}
+    \caption{Comparaison des fonctions de fitness selon le nombre de coupes. Paramètres fixés : \texttt{nb\_individus = 150}, \texttt{nb\_generations = 24}, \texttt{taux\_selec=0.3}, \texttt{selection\_type = "elitiste"}}
+    \label{fig:fitness_comparaison}
+\end{figure}
+
+On observe que fitness basique est le plus performant pour minimiser la distance .
+Pour l'alignement et la continuité, les autres fonctions de fitness (\texttt{nb\_cuts >= 1}) performent mieux .\\ On a que pour \texttt{nb\_cuts=2} et \texttt{append=1}, la performance est meilleure en continuité et en alignement que sur tout les autres .\\
+On peut donc conclure que pour avoir un résultat satisfaisant autre que sur la distance, une fonction de fitness avancée avec plusieurs coupes est une bonne solution .\\
+Cependant, les fonctions de fitness avancées sont coûteuses en temps de calcul, et donc le choix dépendra du but et des contraintes : \\
+Si l'on veut un résultat rapide ou qu'on ne se préoccupe que de la distance pure, on préférera la fitness basique .\\
+Sinon, on pourra alors rajouter des coupes à la fitness (qui devient avancée)
+
+\subsection{Choix de la sélection}
+Nous avons d'abord fait une présélection des 4 méthodes qui nous paraissaient les plus performantes.
+En effet, les méthodes comme rang réel ou roulette classique nous ont donnés des mauvais résultats lors de plusieurs simulations et n'ont donc pas été considérés .
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Plot_selection/selection_comparison_best.png}
+    \caption{Comparaison des performances selon les différentes méthodes de sélection. Paramètres fixés : \texttt{nb\_individus = 150}, \texttt{nb\_generations = 24}, \texttt{taux\_selec=0.3}, et fitness 'classique'}
+    \label{fig:selection_comparison}
+\end{figure}
+On remarque que \texttt{elitiste} est la méthode la plus performante et est donc notre choix favorisé. 
+Les méthodes \texttt{tournament} (Tournoi) et \texttt{rang\_geo} (rang géométrique) donnent aussi des résultats satisfaisants.\\ Comme \texttt{tournament} est un peu moins coûteux en complexité que les autres méthodes, cela peut être un autre choix si l'on veut économiser du temps de calcul tout en ayant un résultat proche de \texttt{elitiste}, surtout si l'on veut faire une simulation avec une très grande quantité d'individus .
+\subsection{Choix des paramètres du modèle}
+\subsubsection{Choix du taux de sélection}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{Plot_selection/taux_selec_comparison.png}
+    \caption{Comparaison des performances selon les différents taux de sélection. Paramètres fixés : \texttt{nb\_individus = 150}, \texttt{nb\_generations = 20}, \\ selection \texttt{elitiste}, et fitness 'classique' (0 cuts et 1 append)}
+    \label{fig:selection_comparison}
+\end{figure}
+\subsubsection{Choix du paramètres $\beta$ pour la mutation}
+
+\begin{table}[h]
+\centering
+% On ajoute un peu de hauteur aux lignes pour que le cadre ne touche pas les lignes du tableau
+\renewcommand{\arraystretch}{1.5} 
+
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{$\beta$} & \textbf{Fitness sans coupure} & \textbf{Fitness pour une coupure} \\
+\hline
+0 (sélection stochastique) & 3.11 & 35.48 \\
+\hline
+0.3 & \opti{0.03} & 31.75 \\
+\hline
+0.7 & 0.15 & \opti{4.32} \\
+\hline
+1 (combinaison linéaire) & 1.85 & 34.5 \\
+\hline
+\end{tabular}
+\caption{Valeurs de fitness en fonction du paramètre $\beta$ (les optima sont encadrés)}
+\end{table}
+\end{document}

@@ -1,100 +1,378 @@
-# Jeux evolutionnaires
+# Algorithmes génétique pour l'Optimisation de Tables de Rotation d'ADN
+https://github.com/Mc-cloud/Algo-genetique
+
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Code Coverage](https://img.shields.io/badge/coverage-check%20tests-brightgreen.svg)](tests/)
 
 
+## Objectif
 
-## Getting started
+Ce projet utilise un algorithme génétique pour optimiser les paramètres de rotation (twist, wedge, direction) des dinucléotides afin de minimiser la distance de fermeture des structures ADN circulaires (plasmides). L'algorithme cherche à trouver une table de rotations qui permette à la séquence ADN de se refermer sur elle-même avec une erreur minimale.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+## Principe 
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+L'ADN est représenté par une trajectoire 3D calculée à partir : 
+- D'une **séquence de nucléotides** (A, T, G, C)
+- D'une **table de rotations** définissant trois angles pour chaque dinucléotide:
+    - Twist (rotation autour de l'axe)
+    - Wedge (inclinaison)
+    - Direction (orientation)
 
-## Add your files
+L'algorithme génétique optimise cette table pour que la structure 3D forme un cercle fermé
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+## Fonctionnalités
+
+- **Encodage génétique** : Table de rotations comme ADN de l'individu
+- **Multiples méthodes de sélection** : 
+    - Elitiste
+    - Tournoi
+    - Roulette
+    - Par rang
+- **Opérateurs génétiques** : 
+    - Croisement pondéré par le fitness
+    - Mutations (petites fréquentes et des plus gross rares)
+    - Elitisme
+- **Fonction de fitness** : Test de fermeture à plusieurs points de coupure
+- **Recuit simulé** : Température décroissante pour affiner la convergence
+- **Visualisations** : Génération de graphiques et GIfs d'évolution
+- **Benchmarks** : Comparaison systématique de configurations
+
+
+## Structure du projet
 
 ```
-cd existing_repo
-git remote add origin https://gitlab-cw2.centralesupelec.fr/clement.cournil-rabeux/jeux-evolutionnaires.git
-git branch -M main
-git push -uf origin main
+Algo-genetique/
+├── algo/                      # Cœur de l'algorithme génétique
+│   ├── algogenetique.py      # Classe Individu et fonction AlgoGenetique
+│   ├── fitness.py            # Calcul du score de fermeture
+│   └── selection.py          # 7 méthodes de sélection différentes
+├── dna/                       # Représentation de l'ADN
+│   ├── RotTable.py           # Table de rotations des dinucléotides
+│   └── Traj3D.py             # Calcul de trajectoire 3D
+├── data/                      # Séquences ADN de test
+│   ├── plasmid_2k_*.fasta    # Plasmides de 2000 paires de bases
+│   ├── plasmid_8k.fasta      # Plasmide de 8000 paires de bases
+│   └── plasmid_180k.fasta    # Grand plasmide
+├── data_algo/                 # Résultats d'expériences sauvegardés
+├── documents/                 # Documentation et rapports
+│   └── Rapport_*.pdf         # Rapport détaillé du projet
+├── gifs/                      # Visualisations animées
+│   ├── benchmark_*.gif       # Résultats de benchmarks
+│   └── etapes.gif            # Évolution d'une simulation
+├── tests/                     # Tests unitaires
+│   ├── test_algogenetique.py
+│   ├── test_fitness.py
+│   └── test_selection.py
+├── main.py                    # Script principal
+├── plot.py                    # Génération de graphiques
+├── resultsmanager.py          # Gestion des résultats
+├── simulsmanager.py           # Gestion des simulations
+├── executeur_comparaison_algos.py  # Exécuteur d'algorithmes, 
+interface dans terminal
+├── benchmark.py               # Recherche de paramètres optimaux
+├── benchmark_cuts.py          # Benchmark sur les points de coupure
+└── tests_param.py             # Tests paramétriques
 ```
 
-## Integrate with your tools
+## 🔧 Installation
+### En utilisant pip :
+```bash
+git clone https://github.com/Mc-cloud/Algo-genetique.git
+cd Algo-genetique
 
-- [ ] [Set up project integrations](https://gitlab-cw2.centralesupelec.fr/clement.cournil-rabeux/jeux-evolutionnaires/-/settings/integrations)
+pip install -r requirements.txt
+```
+### Avec Conda
 
-## Collaborate with your team
+```bash
+# Cloner le dépôt
+git clone https://github.com/Mc-cloud/Algo-genetique.git
+cd Algo-genetique
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+# Créer et activer l'environnement conda
+conda env create -f environment.yaml
+conda activate algo-genetique
+```
 
-## Test and Deploy
 
-Use the built-in continuous integration in GitLab.
+## Benchmarks 
+```bash
+# Benchmark avec recherche de grille automatique
+python benchmark.py
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+# Tester l'impact du nombre de coupures
+python benchmark_cuts.py
 
-***
+# Tests paramétriques personnalisés
+python tests_param.py
+```
 
-# Editing this README
+## Utilisation
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Le **fichier executeur** (`executeur_comparaison_algos.py`) est un programme interactif qui guide l'utilisateur pas à pas pour configurer et exécuter l'algorithme génétique.
 
-## Suggestions for a good README
+```bash
+python executeur_comparaison_algos.py
+```
+→ Lors qu'une option `Par défaut` est proposée, il suffit de renvoyer un champ vide pour la sélectionner.
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+### Étape 1 : Sélection des fichiers d'entrée
 
-## Name
-Choose a self-explaining name for your project.
+Le programme vous demandera d'abord les fichiers nécessaires :
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+```
+Indiquez le fichier '.fasta' contenant la séquence du plasmide d'étude.
+> data/plasmid_8k.fasta
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Fichiers FASTA disponibles dans `data/` :
+- `plasmid_2k_*.fasta` : Petits plasmides (tests rapides)
+- `plasmid_8k.fasta` : Plasmide de taille moyenne (recommandé)
+- `plasmid_180k.fasta` : Grand plasmide (calculs longs)
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+(Vous pouvez en utiliser d'autres, tant que vous précisez bien le `PATH`.)
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Ensuite :
+```
+Indiquez le fichier '.json' correspondant à la table de Rotation initiale.
+S'il s'agit de la table du modèle, faites simplement 'Enter'
+> [Enter pour utiliser dna/table.json par défaut]
+```
+Laissé en option même si à priori la table de départ sera forcément celle du modèle.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Étape 2 : Configuration des populations
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Vous pouvez configurer **plusieurs populations** avec des paramètres différents pour les comparer :
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```
+Voulez-vous ajouter une population ?
+Actuellement 0 populations prévues.
+    oui/o
+    non/n
+> oui
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+Pour chaque population, vous devrez configurer :
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+#### a. Paramètres de fitness
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+```
+Sur combien de bases voulez-vous tester la qualité du recollement ?
+    • 1 ≤ n ≤ longueur(séquence ADN)
+    • Par défaut n = 2
+> 2
+```
+→ Nombre de bases aux extrémités dont on teste la bonne superposition (`nbappend`).
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```
+Combien d'autres points de départ voulez-vous tester ?
+    • 0 ≤ n
+    • Par défaut n = 0
+> 0
+```
+→ Nombre de coupures supplémentaires du plasmide testées (`nbcuts`), réparties de manière homogène. ⚠️ Attention : augmente le temps de calcul !
 
-## License
-For open source projects, say how it is licensed.
+#### b. Méthode de sélection
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```
+Quelle façon de sélectionner les survivants ?
+    1 élitiste
+    2 tournoi
+    3 roulette fitness
+    4 roulette rang
+    5 roulette rang géométrique
+    6 roulette exponentielle
+> 2
+```
 
-## testing the cover 
-#coverage run -m unittest discover 
-ou 
+Indiquez le numéro ou tapez le nom complet : `tournoi`, `élitiste`, etc.
+
+#### c. Taux de sélection
+
+```
+Quelle proportion de la population doit subsister ?
+    • 0 < q < 1
+    • Par défaut q = 0.3
+> 0.4
+```
+→ Exemple : 0.4 signifie que 40% des individus sont conservés d'une génération à l'autre (parmis eux seront les géniteurs).
+
+#### d. Dimensionnement
+
+```
+Combien d'individus par génération ?
+    • Par défaut n = 100
+> 150
+```
+Des résultats sensiblement meilleurs sont souvent obtenus avec une plus large population, par exemple `1000` individus.
+```
+Combien de générations ?
+    • Par défaut n = 20
+> 50
+```
+Évidemment le temps d'exécution est croissant avec ces deux paramètres.
+
+### Étape 3 : Exécution, visualisation et téléchargement
+
+#### a. Exécution
+
+Une fois toutes les populations configurées, l'exécuteur :
+
+1. **Lance les simulations** séquentiellement
+
+2. **Affiche la progression** en temps réel :
+   ```
+   Lancement de la 1-e population :
+   itération : 1 / 50
+   fit : 12.456
+   Meilleur pour iter 1 : 3.234
+   Pire pour iter 1 : 45.678
+   ```
+Attention, les seed d'aléatoire seront différentes pour chaque population, il peut être intéressant de comparer plusieurs instances aux paramètres identiques !
+
+#### b. Visualisation de la fitness
+
+Une fois les calculs terminés, l'exécuteur propose de **Générer des graphiques comparatifs** montrant l'évolution du fitness du meilleur de chaque populations, avec différents paramètres :
+
+```
+Voulez-vous afficher afficher l'évolution de la fitness du meilleur candidat de chaque population 
+        • non/n 
+        • selon un couple (n_bases_recollement,n_coupures) 
+        • selon la fonction de fitness de chacune des population d'indice i_1,i_2,…,i_n ; i_k ≥ 1 
+        • selon la fonction de fitness de chacune des populations choisies : t/tout 
+>(2,1)
+```
+Ici il s'agit de choisir la (ou les) fonctions de fitness à employer pour comparer les meilleurs candidats des différentes populations.
+- Indiquez directement un couple `(nbappend,nbcoup)` pour un seul graphique selon la fitness ayant ces paramètres.
+- Indiquez une liste (par exemple `1, 3, 4`) des indices des populations dont on veut utiliser la fonction de fitness pour la comparaison. L'exemple donnera ici trois graphiques, où les meilleurs de *toutes* les populations seront comparées selon les *paramètres de fitness* de la première, la troisième et la quatrième population respectivement.
+- Indiquez `t` ou `tout` pour afficher un graphique pour les paramètres de fitness de chaque population (cette option est donc équivalente au fait d'énumérer `1,2,3,4` s'il y a quatre populations au total, par exemple).
+
+```
+Appuyez sur Entrée pour fermer les graphiques et passer à l'étape suivante
+```
+Plusieurs figures peuvent apparaître, vous avez l'option de les télécharger directement avec l'interface de la fenêtre. Répondre à cet input les fermera.
+
+#### c. Slider d'évolution des meilleures trajectoires
+
+Le programme va demander si vous voulez afficher un widget de type "slider" pour visualiser dynamiquement l'évolution de la trajectoire du meilleur individu le long des génération. 
+
+```
+Voulez-vous afficher l'évolution du meilleur chemin en fonction de la génération, pour chaque population ? 
+        • o/oui 
+        • n/non 
+>o
+```
+→ Si vous acceptez, le programme affichera un widget slider *pour chaque population*.
+ 
+⚠️ Attention : Nous avons remarqué que Slider (issu de la bibliothèque matplotlib.widget) est parfois peu interactif, il est possible que sur certains ordinateurs il soit compliqué de faire glisser le curseur.
+
+```
+Appuyez sur Entrée pour fermer les graphiques et passer à l'étape suivante
+```
+
+De même, plusieurs figures vont apparaître. Malheureusement les télécharger ici ne sauvgardera qu'un arrêt sur image. Pour télécharger sous forme de `.gif` voir la fonction `save_trajectory_gif` de `plot.py`.
+
+#### d. Téléchargement des tables de rotation des meilleurs individus.
+
+Une fois toutes ces étapes passées, le programme va proposer de garder en mémoire les tables des meilleurs candidats des différentes populations, avec ces options :
+
+```
+Voulez-vous enregistrer les tables json du meilleur candidat : 
+        • non/n 
+        • seulement des populations d'indice i_1,i_2,…,i_n ; i_k ≥ 1 
+        • de toutes les populations : t/tout 
+>t
+```
+→ Comme pour la visualisation comparée des fitness de chaque population, on peut ici choisir une liste d'indices ( par exemple `1,3`) ou directement l'option `t`/`tout`.
+
+Si au moins un indice est sélectionné :
+
+```
+Dans quel dossier enregistrer les json ? 
+        (défaut: 'rot_tables_results') 
+>
+```
+→ Le fichier par défaut est dédié à ces résultats. Vous pouvez en proposer un autre, tant qu'il existe et que son `PATH` est correcte.
+
+Si tout est en ordre, le(s) fichier(s) sera/ont téléchargé(s) sous le format :
+`[nom_dossier_résultat]/optimal_rot_table_[chemin_source_de_la_séquence]_[nom_du_fichier_de_la_séquence]_[méthode_de_sélection]_[nb_append]_[nb_cuts]_[nb_individus]_[nb_générations]`
+
+Le programme affichant le chemin dans le terminal ; exemple :
+
+```
+rot_tables_results/optimal_rot_table_data_plasmid_8k.fasta_elitiste_4_3_150_25
+```
+
+### Fin
+Le programme affiche
+```
+Programme terminé.
+```
+
+## Tests :
+
+Exécutez la suite de tests pour vérifier l'implémentation :
+
+```bash
+# Exécuter avec couverture
 coverage run -m unittest discover -s tests -p "test_*.py"
-
 coverage report
+```
+## Méthodes de sélection : 
+
+Le projet implémente 7 méthodes de sélection :
+
+| Méthode | Description | Usage |
+|---------|-------------|-------|
+| **elitiste** | Garde les N meilleurs individus | Convergence rapide, risque de convergence prématurée |
+| **tournament** | Tournoi entre paires + 10% d'élite | Bon équilibre exploration/exploitation |
+| **roulette** | Probabilité inversement proportionnelle au score | Maintient la diversité |
+| **roulette_exp** | Roulette avec distribution exponentielle | Pression de sélection ajustable |
+| **roulette_exp_norm** | Roulette exponentielle normalisée | Bon pour la convergence finale |
+| **rang_reel** | Probabilité proportionnelle au rang | Évite la domination excessive |
+| **rang_geo** | Distribution géométrique des probabilités | Bon compromis pression/diversité |
+
+## Fonction de fitness
+
+1. **Calcul de la trajectoire 3D**: Chaque dinucléotide applique une rotation
+2. **Test de fermeture** : Calcule la distance euclidienne entre le début et la fin
+3. **Multi-points** : teste à plusieurs points de coupure pour robustesse
+4. **Score final** : Norme euclidienne des distances
+
+## Visualisations : 
+Le projet génère diverses visualisations pour analyser les dynamiques évolutives :
+- **Evolution du Fitness** : Suivi du fitness de la population au fil du temps
+![png](evolutio_metrique.png)
+- **Evolution d'un plasmide au fils des générations:**
+![gif](gifs/ultimate.gif)
+## Tests
+
+```bash
+# Exécuter tous les tests
+python -m unittest discover -s tests
+
+# Avec couverture de code
+coverage run -m unittest discover -s tests -p "test_*.py"
+coverage report
+
+# Tests spécifiques
+python -m unittest tests.test_fitness
+python -m unittest tests.test_selection
+python -m unittest tests.test_algogenetique
+```
+
+## Auteurs
+- **Matheo Cahitte** [Mc-cloud](https://github.com/Mc-cloud)
+- **Clément Cournil-Rabeux** 
+- **Melkior Demaille**
+- **Clément Rebola**
+
+## Documentation
+
+Pour plus de détails, consultez :
+- Le rapport complet dans `documents/Rapport_EI_*.pdf`
+- Les présentations dans `documents/AG-Pres.pdf` et `documents/AG-Poly.pdf`
+- Le sujet initial dans `documents/EI_AlgoGen_project.pdf
+
+**Statut** : Projet terminé (2024-2025)
