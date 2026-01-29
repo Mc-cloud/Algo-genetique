@@ -311,15 +311,6 @@ Le programme affiche
 Programme terminé.
 ```
 
-## Tests :
-
-Exécutez la suite de tests pour vérifier l'implémentation :
-
-```bash
-# Exécuter avec couverture
-coverage run -m unittest discover -s tests -p "test_*.py"
-coverage report
-```
 ## Méthodes de sélection : 
 
 Le projet implémente 7 méthodes de sélection :
