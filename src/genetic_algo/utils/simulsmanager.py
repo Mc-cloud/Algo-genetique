@@ -1,12 +1,17 @@
 from .resultsmanager import save_simulation_data,load_simulation_data
 from genetic_algo.core.algogenetique import *
 from .plot import plot_with_slider,get_trajectories,save_trajectory_gif
+import os
+
 def simul_and_save_results(save_filename,dna_seq,params):
     """
     Permet de simuler selon les paramètres, et l'entrée (la séquence adn),
     l'algorithme génétique, et de stocker ses résultats dans le fichier correspondant (=save_filename)
     """
-    res = AlgoGenetique("dna/table.json",dna_seq,**params)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_src = os.path.dirname(os.path.dirname(current_dir)) # goes up to 'src'
+    table_path = os.path.join(project_src, "genetic_algo", "dna", "table.json")
+    res = AlgoGenetique(table_path,dna_seq,**params)
     print("Simulation Terminée ... Sauvegarde en cours")
     best,bscore,wscore = res
     save_simulation_data(save_filename,best,bscore,wscore,params,dna_seq)
