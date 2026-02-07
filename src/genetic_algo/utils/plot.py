@@ -1,4 +1,4 @@
-from algo.algogenetique import Individu
+from src.genetic_algo.core.algogenetique import Individu
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import os

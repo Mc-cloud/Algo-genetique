@@ -2,9 +2,9 @@
 Compare la fitness à travers les générations
 """
 
-from dna.RotTable import *
-from algo.algogenetique import AlgoGenetique
-from algo.selection import selections_dic
+from src.genetic_algo.dna.RotTable import *
+from src.genetic_algo.core.algogenetique import AlgoGenetique
+from src.genetic_algo.core.selection import selections_dic
 import matplotlib.pyplot as plt
 import numpy as np
 

@@ -2,9 +2,9 @@ import unittest
 import numpy as np
 import os
 # Importing real classes from your package structure
-import dna.RotTable as RotTable
-import dna.Traj3D as Traj3D
-from algo.fitness import dist_df, dist_euclid, fitness, fitness_basic
+import src.genetic_algo.dna.RotTable as RotTable
+import src.genetic_algo.dna.Traj3D as Traj3D
+from src.genetic_algo.core.fitness import dist_df, dist_euclid, fitness, fitness_basic
 
 class TestFitnessReal(unittest.TestCase):
 

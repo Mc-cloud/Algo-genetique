@@ -13,14 +13,14 @@ il doit pouvoir choisir s'il veut
 """
 from json import load as json_load
 from json import dump as json_dump
-from dna.RotTable import *
-from dna.Traj3D import *
-from algo.algogenetique import AlgoGenetique
-from algo.selection import selections_dic
-from algo.fitness import fitness
-from plot import *
+from src.genetic_algo.dna.RotTable import *
+from src.genetic_algo.dna.Traj3D import *
+from src.genetic_algo.core.algogenetique import AlgoGenetique
+from src.genetic_algo.core.selection import selections_dic
+from src.genetic_algo.core.fitness import fitness
+from src.genetic_algo.utils.plot import *
 import numpy as np
-from simulsmanager import *
+from src.genetic_algo.utils.simulsmanager import *
 import time
 import os
 

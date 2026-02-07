@@ -1,8 +1,8 @@
-from dna.RotTable import *
-from dna.Traj3D import *
-from algo.algogenetique import AlgoGenetique
-from algo.selection import selections_dic
-from algo.fitness import fitness
+from src.genetic_algo.dna.RotTable import *
+from src.genetic_algo.dna.Traj3D import *
+from src.genetic_algo.core.algogenetique import AlgoGenetique
+from src.genetic_algo.core.selection import selections_dic
+from src.genetic_algo.core.fitness import fitness
 import numpy as np
 
 base_table = RotTable("dna/table.json")

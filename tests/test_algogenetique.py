@@ -1,11 +1,11 @@
 # tests/test_algogenetique.py
 
 import unittest
-import algo.algogenetique  as alg
+import src.genetic_algo.core.algogenetique  as alg
 
 
 str_data = 'AACTGTCAGCTACCGATCATCTAGCTCTATATCGCGCATTAGCAGCCAGCATCGACATCGTAGCTCACGCGATATCCGATCGTAGCGCTGCGAGCGCTGCTAGCTAGCTAGTCGATGCATGCTAGCTACGATGCAT'
-Rot_data_place = "dna/table.json"
+Rot_data_place = "src/genetic_algo/dna/table.json"
 
 class TestAlgoGenetique(unittest.TestCase):
     def setUp(self):

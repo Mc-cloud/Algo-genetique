@@ -1,12 +1,12 @@
-from dna.RotTable import *
-from dna.Traj3D import *
-from algo.algogenetique import AlgoGenetique
-from algo.selection import selections_dic
-from algo.fitness import fitness
+from src.genetic_algo.dna.RotTable import *
+from src.genetic_algo.dna.Traj3D import *
+from src.genetic_algo.core.algogenetique import AlgoGenetique
+from src.genetic_algo.core.selection import selections_dic
+from src.genetic_algo.core.fitness import fitness
 import numpy as np
-from simulsmanager import simul_and_save_results
-from resultsmanager import load_simulation_data
-from plot import plot_with_slider,get_trajectories,plot_best_worst,plot_three_indicators,save_trajectory_gif
+from src.genetic_algo.utils.simulsmanager import simul_and_save_results
+from src.genetic_algo.utils.resultsmanager import load_simulation_data
+from src.genetic_algo.utils.plot import plot_with_slider,get_trajectories,plot_best_worst,plot_three_indicators,save_trajectory_gif
 
 def get_indicators(coords):
     dist = np.linalg.norm(coords[0]-coords[-2])

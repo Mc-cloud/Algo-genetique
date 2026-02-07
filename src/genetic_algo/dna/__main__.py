@@ -1,5 +1,5 @@
-from dna.RotTable import RotTable
-from dna.Traj3D import Traj3D
+from src.genetic_algo.dna.RotTable import RotTable
+from src.genetic_algo.dna.Traj3D import Traj3D
 
 from os import (
     path as os_path,

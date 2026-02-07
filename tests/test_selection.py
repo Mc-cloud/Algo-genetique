@@ -1,7 +1,7 @@
 import unittest
 import random
 import numpy as np
-from algo.selection import * 
+from src.genetic_algo.core.selection import * 
 from unittest.mock import MagicMock
 
 # --- The Test Class ---
