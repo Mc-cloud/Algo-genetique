@@ -1,10 +1,18 @@
 """
 Compare la fitness à travers les générations
 """
+import os
+import sys
 
-from src.genetic_algo.dna.RotTable import *
-from src.genetic_algo.core.algogenetique import AlgoGenetique
-from src.genetic_algo.core.selection import selections_dic
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+src_path = os.path.join(project_root, 'src')
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+
+from genetic_algo.dna.RotTable import *
+from genetic_algo.core.algogenetique import AlgoGenetique
+from genetic_algo.core.selection import selections_dic
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -13,7 +21,7 @@ import os
 output_dir = "data_algo"
 os.makedirs(output_dir, exist_ok=True)
 
-base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:])
+base_seq = ''.join([line.rstrip('\n') for line in open("data/raw/plasmid_8k.fasta")][1:])
 
 nb_indiv = 150
 nb_generations = 20
@@ -32,7 +40,7 @@ for selection_type in selection_types:
     print(f"{'='*70}")
     
     bests, best_scores, worst_scores = AlgoGenetique(
-        "dna/table.json",
+        "src/genetic_algo/dna/table.json",
         base_seq,
         nb_indiv,
         nb_generations,

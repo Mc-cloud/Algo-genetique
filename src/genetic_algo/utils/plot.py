@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import os
 from matplotlib.widgets import Slider
-from dna.Traj3D import Traj3D
+from genetic_algo.dna.Traj3D import Traj3D
 import numpy as np
-from resultsmanager import load_simulation_data
+from .resultsmanager import load_simulation_data
 
 def get_indicators(coords):
     dist = np.linalg.norm(coords[0]-coords[-2])
