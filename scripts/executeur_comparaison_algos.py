@@ -76,7 +76,7 @@ if __name__ == "__main__" :
     while True : # Demande le fichier lié à la table de rotation
             table_rot_file = input("Indiquez le fichier '.json' correspondant à la table de Rotation initiale sur laquelle itérer. \n S'il s'agit de la table du modèle, faites simplement 'Enter' \n>")
             if table_rot_file == "":
-                table_rot_file = "dna/table.json"
+                table_rot_file = "src/genetic_algo/dna/table.json"
                 break
             if not checkpath(table_rot_file):
                 continue
