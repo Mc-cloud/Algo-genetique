@@ -64,6 +64,20 @@ class Traj3D:
         dtype = float
     )
 
+    __UNIQUE_PAIRS = [
+        ("AA", "TT"), 
+        ("AC", "GT"), 
+        ("AG", "CT"), 
+        ("CA", "TG"), 
+        ("CC", "GG"), 
+        ("GA", "TC"), 
+        # Palindromes (Self-complementary)
+        ("AT", "AT"), 
+        ("CG", "CG"), 
+        ("GC", "GC"), 
+        ("TA", "TA")
+    ]
+
     def __init__(self,want_to_plot=False):
         self.__Traj3D = []
         self.fig = plt.figure() if want_to_plot else None
@@ -76,30 +90,24 @@ class Traj3D:
         """
         Computes the trajectory. Uses Numba if available for high performance.
         """
-        # 1. Convert DNA string to integer array (A=0, C=1, G=2, T=3)
-        # This is much faster for the computer to process than strings
-        # We use a simple list comprehension or numpy map
         try:
             encoded_seq = np.array([self.__NUCL_MAP[s] for s in dna_seq], dtype=np.int32)
         except KeyError:
-            # Fallback for unexpected characters like 'N' (treat as 'A' or handle error)
             encoded_seq = np.zeros(len(dna_seq), dtype=np.int32) 
 
-        # 2. Pre-compute the 16 possible step matrices
-        # We do this in Python because trigonometry is fast enough for just 16 items
         matrices_db = np.zeros((16, 4, 4))
         
-        for i, dinuc in enumerate(self.__DINUC_KEYS):
-            Rz, Q = self.__compute_matrices(rot_table, dinuc)
-            matrices_db[i] = (
-                self.__MATRIX_T 
-                @ Rz 
-                @ Q 
-                @ Rz 
-                @ self.__MATRIX_T
-            )
+        for seq, rev_comp in self.__UNIQUE_PAIRS:
+            Rz, Q = self.__compute_matrices(rot_table, seq)
+            M = (self.__MATRIX_T @ Rz @ Q @ Rz @ self.__MATRIX_T)
+            idx_1 = self.__NUCL_MAP[seq[0]] * 4 + self.__NUCL_MAP[seq[1]]
 
-        # 3. Run the high-performance loop
+            matrices_db[idx_1] = M
+
+            if seq != rev_comp:
+                idx_2 = self.__NUCL_MAP[rev_comp[0]] * 4 + self.__NUCL_MAP[rev_comp[1]]
+                matrices_db[idx_2] = M
+
         self.__Traj3D = fast_compute_loop(encoded_seq, matrices_db)
 
     def __compute_matrices(self, rot_table: RotTable, dinucleotide: str):
@@ -130,7 +138,6 @@ class Traj3D:
             [0, 0, 0, 1]
         ], dtype=float)
 
-        # Constructing Q manually (or via multiplication)
         Q_rot_z1 = np.array([
             [cos_nbeta, sin_nbeta, 0, 0],
             [-sin_nbeta, cos_nbeta, 0, 0],
