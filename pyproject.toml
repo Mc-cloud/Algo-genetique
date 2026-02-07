@@ -10,7 +10,9 @@ authors = [{name = "Matheo Cahitte", email = "matheocahitte@email.com"}]
 dependencies = [
     "numpy",
     "matplotlib",
-    "coverage"
+    "coverage",
+    "streamlit",
+    "scipy"
 ]
 
 [tool.setuptools.packages.find]

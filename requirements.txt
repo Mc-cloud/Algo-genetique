@@ -1,3 +1,5 @@
 numpy
 matplotlib
 coverage
+streamlit
+scipy
