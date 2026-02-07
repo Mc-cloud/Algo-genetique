@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "genetic_algo"
+version = "0.1.0"
+description = "Genetic algorithm for plasmid folding"
+authors = [{name = "Matheo Cahitte", email = "matheocahitte@email.com"}]
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "coverage"
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

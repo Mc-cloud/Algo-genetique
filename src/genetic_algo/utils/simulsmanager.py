@@ -1,6 +1,6 @@
-from resultsmanager import save_simulation_data,load_simulation_data
-from src.genetic_algo.core.algogenetique import *
-from plot import plot_with_slider,get_trajectories,save_trajectory_gif
+from .resultsmanager import save_simulation_data,load_simulation_data
+from genetic_algo.core.algogenetique import *
+from .plot import plot_with_slider,get_trajectories,save_trajectory_gif
 def simul_and_save_results(save_filename,dna_seq,params):
     """
     Permet de simuler selon les paramètres, et l'entrée (la séquence adn),

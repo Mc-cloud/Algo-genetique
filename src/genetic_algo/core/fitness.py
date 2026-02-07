@@ -1,6 +1,6 @@
 import numpy as np
-from src.genetic_algo.dna.RotTable import RotTable
-from src.genetic_algo.dna.Traj3D import Traj3D
+from genetic_algo.dna.RotTable import RotTable
+from genetic_algo.dna.Traj3D import Traj3D
 
 
 def dist_df(coords: list, nbappend = 1):

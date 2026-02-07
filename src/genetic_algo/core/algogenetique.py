@@ -1,9 +1,9 @@
-import src.genetic_algo.dna.RotTable as RotTable
-import src.genetic_algo.dna.Traj3D as Traj3D
+import genetic_algo.dna.RotTable as RotTable
+import genetic_algo.dna.Traj3D as Traj3D
 import numpy as np
 import random
-from src.genetic_algo.core.fitness import fitness,fitness_basic
-from src.genetic_algo.core.selection import selection
+from genetic_algo.core.fitness import fitness,fitness_basic
+from genetic_algo.core.selection import selection
 import copy
 from json import load as json_load
 

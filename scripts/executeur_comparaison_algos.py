@@ -11,16 +11,26 @@ il doit pouvoir choisir s'il veut
     - p5 permettre CTRL+Z pour revenir à la question précédente
 
 """
+import sys
+import os
+
 from json import load as json_load
 from json import dump as json_dump
-from src.genetic_algo.dna.RotTable import *
-from src.genetic_algo.dna.Traj3D import *
-from src.genetic_algo.core.algogenetique import AlgoGenetique
-from src.genetic_algo.core.selection import selections_dic
-from src.genetic_algo.core.fitness import fitness
-from src.genetic_algo.utils.plot import *
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+src_path = os.path.join(project_root, 'src')
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+
+from genetic_algo.dna.RotTable import *
+from genetic_algo.dna.Traj3D import *
+from genetic_algo.core.algogenetique import AlgoGenetique
+from genetic_algo.core.selection import selections_dic
+from genetic_algo.core.fitness import fitness
+from genetic_algo.utils.plot import *
 import numpy as np
-from src.genetic_algo.utils.simulsmanager import *
+from genetic_algo.utils.simulsmanager import *
 import time
 import os
 
