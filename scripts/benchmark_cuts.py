@@ -1,12 +1,22 @@
-from src.genetic_algo.dna.RotTable import *
-from src.genetic_algo.dna.Traj3D import *
-from src.genetic_algo.core.algogenetique import AlgoGenetique
-from src.genetic_algo.core.selection import selections_dic
-from src.genetic_algo.core.fitness import fitness
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+src_path = os.path.join(project_root, 'src')
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+
+
+from genetic_algo.dna.RotTable import *
+from genetic_algo.dna.Traj3D import *
+from genetic_algo.core.algogenetique import AlgoGenetique
+from genetic_algo.core.selection import selections_dic
+from genetic_algo.core.fitness import fitness
 import numpy as np
 
-base_table = RotTable("dna/table.json")
-base_seq = ''.join([line.rstrip('\n') for line in open("data/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
+base_table = RotTable("src/genetic_algo/dna/table.json")
+base_seq = ''.join([line.rstrip('\n') for line in open("data/raw/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
 
 nb_indiv = 1000
 nb_generations = 30
@@ -28,7 +38,7 @@ L = []
 histories = {}
 
 for a,b in T :
-    res = AlgoGenetique("dna/table.json",base_seq,nb_indiv,nb_generations,taux_selec,"elitiste",nb_cuts = a,nb_append = b)
+    res = AlgoGenetique("src/genetic_algo/dna/table.json",base_seq,nb_indiv,nb_generations,taux_selec,"elitiste",nb_cuts = a,nb_append = b)
     bests, _, _ = res
 
     config_key = f"cuts = {a}, append = {b}"
