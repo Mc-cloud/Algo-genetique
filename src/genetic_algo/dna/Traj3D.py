@@ -27,9 +27,14 @@ class Traj3D:
         return self.__Traj3D
 
     def compute(self, dna_seq: str, rot_table: RotTable):
+        N = len(dna_seq)
+        self.__Traj3D = np.zeros((N,4))
+        self.__Traj3D[0] = [0.0, 0.0, 0.0, 1.0]
 
         # Matrice cumulant l'ensemble des transformations géométriques engendrées par la séquence d'ADN
         total_matrix = np.eye(4)  # Identity matrix
+
+        step_matrices = {}
 
         # On enregistre la position du premier nucléotide
         self.__Traj3D = [np.array([0.0, 0.0, 0.0, 1.0])]
@@ -44,22 +49,22 @@ class Traj3D:
             if dinucleotide not in matrices_Rz:
                 matrices_Rz[dinucleotide], matrices_Q[dinucleotide] = \
                     self.__compute_matrices(rot_table, dinucleotide)
+                step_matrices[dinucleotide] = (
+                    self.__MATRIX_T 
+                    @ matrices_Rz 
+                    @ matrices_Q 
+                    @ matrices_Rz 
+                    @ self.__MATRIX_T
+                )
 
             # On calcule les transformations géométriques
             # selon le dinucleotide courant,
             # et on les ajoute à la matrice totale
-            total_matrix = \
-                total_matrix \
-                @ self.__MATRIX_T \
-                @ matrices_Rz[dinucleotide] \
-                @ matrices_Q[dinucleotide] \
-                @ matrices_Rz[dinucleotide] \
-                @ self.__MATRIX_T
-
+            total_matrix = total_matrix @ step_matrices[dinucleotide]
             # On calcule la position du nucléotide courant
             # en appliquant toutes les transformations géométriques
             # à la position du premier nucléotide
-            self.__Traj3D.append(total_matrix @ self.__Traj3D[0])
+            self.__Traj3D[i] = total_matrix[:,3]
 
     def __compute_matrices(self, rot_table: RotTable, dinucleotide: str):
 
