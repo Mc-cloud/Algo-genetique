@@ -12,7 +12,8 @@ dependencies = [
     "matplotlib",
     "coverage",
     "streamlit",
-    "scipy"
+    "scipy",
+    "numba"
 ]
 
 [tool.setuptools.packages.find]
