@@ -196,12 +196,14 @@ def run_grid_search(dna_seq, table_path, base_save_filename):
         axs[1].set_ylabel('$|\\vec{v}_{start} - \\vec{v}_{end}|$')
         axs[1].set_title('Continuité : Norme de la différence des directions')
         axs[1].grid(True, linestyle='--')
+        axs[1].legend()
 
         axs[2].plot(generations, data['ps'], label=label)
         axs[2].set_ylabel('$\\vec{v}_{start} \\cdot \\vec{v}_{end}$')
         axs[2].set_xlabel('Génération')
         axs[2].set_title('Alignement : Produit scalaire des directions')
         axs[2].grid(True, linestyle='--')
+        axs[2].legend()
 
         plt.tight_layout()
         plt.savefig('Evolution_metrique_genetique.png')

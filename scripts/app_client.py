@@ -19,6 +19,7 @@ if src_path not in sys.path:
 from genetic_algo.dna.RotTable import RotTable
 from genetic_algo.core.algogenetique import AlgoGenetique
 from genetic_algo.dna.Traj3D import Traj3D
+from genetic_algo.utils.plot import get_indicators
 
 # --- Page Config ---
 st.set_page_config(page_title="Plasmid Optimizer", layout="wide")
@@ -156,7 +157,7 @@ if st.session_state.results is not None:
         st.code(st.session_state.logs, language="text")
 
     # --- TABS ---
-    tab1, tab2, tab3 = st.tabs(["📈 Fitness Evolution", "🧬 3D Trajectory", "💾 Data"])
+    tab1, tab2, tab3, tab4 = st.tabs(["📈 Fitness Evolution","🧬 3D Trajectory", "Alignment and continuity", "💾 Data"])
 
     with tab1:
         fig, ax = plt.subplots()
@@ -214,8 +215,57 @@ if st.session_state.results is not None:
         
         ax3d.legend()
         st.pyplot(fig3d)
-
+    
     with tab3:
+        st.write(f"**Alignement and continuity of the plasmid")
+        bests = res['best_list']
+        best_scores = res['best_scores']
+        worst_scores = res['worst_scores']
+
+        eval_seq = res['seq'] + res['seq'][0] + res['seq'][1]
+
+        l_dist = []
+        l_norm_diff = []
+        l_dot_prod = []
+                                
+        for best in bests : 
+            traj = Traj3D()
+            traj.compute(eval_seq, best.Rot_table)
+            coords = traj.getTraj()
+
+            dist, norm_diff, dot_prod = get_indicators(coords)
+            l_dist.append(dist)
+            l_norm_diff.append(norm_diff)
+            l_dot_prod.append(dot_prod)
+        
+        fig, axs = plt.subplots(3,1, figsize = (10,12), sharex = True)
+
+        generations = range(len(l_dist))
+
+        axs[0].plot(generations, l_dist, label="Distance for the best individual")
+        axs[0].set_ylabel('Distance')
+        axs[0].set_title('Evolution of closure distance')
+        axs[0].grid(True, linestyle='--')
+        axs[0].legend()
+
+        axs[1].plot(generations, l_norm_diff, label="Norm")
+        axs[1].set_ylabel('$|\\vec{v}_{start} - \\vec{v}_{end}|$')
+        axs[1].set_title('Continuity : Difference between the norms')
+        axs[1].grid(True, linestyle='--')
+        axs[1].legend()
+
+        axs[2].plot(generations, l_dot_prod, label="Scalar Product")
+        axs[2].set_ylabel('$\\vec{v}_{start} \\cdot \\vec{v}_{end}$')
+        axs[2].set_xlabel('Generation')
+        axs[2].set_title('Alignment : Scalar product of the direction vectors')
+        axs[2].grid(True, linestyle='--')
+        axs[2].legend()
+
+        st.pyplot(fig)
+
+
+
+    with tab4:
         st.write(f"**Final Best Score:** {res['best_scores'][-1]}")
         
         best_candidate = res["best_list"][-1]
