@@ -105,8 +105,11 @@ python -m unittest tests.test_algogenetique
 
 ## Autors
 - **Matheo Cahitte** [Mc-cloud](https://github.com/Mc-cloud)
-- **Clément Cournil-Rabeux** 
+- **Clément Cournil-Rabeux** [Klem404](https://github.com/Klem404)
 - **Melkior Demaille**
 - **Clément Rebola**
+
+## Special thanks
+Thank you to Paolo Balarini and Joan Herisson for the original traj3D and RotTable files
 
 **Status** : Project over (2026)
