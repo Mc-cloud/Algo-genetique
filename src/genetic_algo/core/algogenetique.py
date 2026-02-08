@@ -83,8 +83,27 @@ class Individu:
         """
         return self.score<other.score
     
+def generate_pop(nb_individus, rot_table_path, dna_seq, nb_cuts = 0, nb_append = 1):
+    rot_table = json_load(open(rot_table_path))
+    global str_data, Rot_data, nb_cut, nbappend
+    str_data = dna_seq
+    Rot_data = rot_table
+    nb_cut = nb_cuts
+    nbappend = nb_append
 
-def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str,poisson=False,nb_cuts = 0,nb_append = 1,recuit=False,beta_reproduction = 0.7,mutrate = 0.02, big_mutation = 20) :
+    def New_individu():
+        Table_rot = copy.deepcopy(rot_table)
+
+        for XY in Table_rot:
+            L = Table_rot[XY]
+            for i in range(3) : 
+                L[i] += random.uniform(-Rot_data[XY][i+3], Rot_data[XY][i+3])
+            Table_rot[XY] = L
+        return Individu(Table_rot)
+    return [New_individu() for _ in range(nb_individus)]
+    
+
+def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str,poisson=False,nb_cuts = 0,nb_append = 1,recuit=False,beta_reproduction = 0.7,mutrate = 0.02, big_mutation = 20, initial_population = None) :
     """
     Algorithme génétique pour optimiser les paramètres de rotation de l'ADN.
     
@@ -120,19 +139,14 @@ def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_
     nbappend = nb_append 
     beta = beta_reproduction
     big_mut = big_mutation
-    def New_pop():
-        def New_individu():
-            Table_rot =  copy.deepcopy(rot_table)
-            for XY in Table_rot:
-                L = Table_rot[XY]
-                for i in range(3):
-                        L[i] += random.uniform(-Rot_data[XY][i+3],Rot_data[XY][i+3])
-                Table_rot[XY] = L
-            return Individu(Table_rot)
-        L = [New_individu() for _ in range (nb_individus)]
-        return L
-    
-    Population = New_pop()
+
+    if initial_population is not None : 
+        Population = copy.deepcopy(initial_population)
+        for ind in Population:
+            ind.score = ind.fit()
+    else:
+        Population = generate_pop(nb_individus, filename, dna_seq, nb_cuts, nb_append)
+
     Best_indiv_list = [min(Population)]
     Best_indiv_score_list = [Best_indiv_list[0].score]
     worst_indiv_score_list = [max(Population).score]

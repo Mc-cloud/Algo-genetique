@@ -4,7 +4,7 @@ import time
 import argparse
 import numpy as np
 from pathlib import Path
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
 # Add project root to path to ensure imports work
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -14,11 +14,13 @@ if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
 # Imports
-from genetic_algo.core.algogenetique import AlgoGenetique
+from genetic_algo.core.algogenetique import AlgoGenetique, generate_pop
 from genetic_algo.utils.simulsmanager import simul_and_save_results
 from genetic_algo.utils.resultsmanager import load_simulation_data
 from genetic_algo.dna.Traj3D import Traj3D
 from genetic_algo.utils.plot import plot_with_slider, get_trajectories, plot_three_indicators, save_trajectory_gif
+
+
 
 def load_fasta(file_path):
     """Helper to read FASTA file ignoring the header."""
@@ -47,8 +49,16 @@ def run_comparison_benchmark(dna_seq, table_path):
         "taux_selec": 0.15,
         "poisson": False,
         "nb_cuts": 0,
-        "nb_append": 1
+        "nb_append": 1,
     }
+
+    master_pop = generate_pop(
+        params["nb_individus"], 
+        rot_table_path = table_path, 
+        dna_seq = dna_seq, 
+        nb_cuts = 0, 
+        nb_append = 1
+    )
 
     print(f"{'Strategy':<15} | {'Best Score':<30} | {'Time (s)':<10} | {'Status'}")
     print("-" * 55)
@@ -57,20 +67,27 @@ def run_comparison_benchmark(dna_seq, table_path):
         start_time = time.time()
         
         best_list, best_scores, worst_scores = AlgoGenetique(
-            **params, 
-            selection_type=strat
+            filename = table_path,
+            dna_seq = dna_seq,
+            initial_population = master_pop,
+            nb_individus = params['nb_individus'],
+            taux_selec = params['taux_selec'],
+            nb_cuts = params['nb_cuts'],
+            nb_append = params['nb_append'],
+            selection_type = strat,
+            nb_generations = params['nb_generations']
         )
         
         duration = time.time() - start_time
         best_score = best_scores[-1]
         
-        print(f"{strat:<15} | {best_score:<12.4f} | {duration:<10.2f} | ✅ Done")
+        print(f"{strat:<15} | {best_score:<25.10e} | {duration:<10.2f} | ✅ Done")
         results.append((strat, best_score, duration, best_list))
 
     # Summary
     print("-" * 55)
     best_run = min(results, key=lambda x: x[1])
-    print(f"\n🏆 WINNER: {best_run[0]} (Score: {best_run[1]:.4f})")
+    print(f"\n🏆 WINNER: {best_run[0]} (Score: {best_run[1]:.10e})")
 
     return results
 
@@ -84,16 +101,22 @@ def run_grid_search(dna_seq, table_path, base_save_filename):
 
     # Define the search space
     params_listed = {
-        "nb_individus": [50, 100, 200, 500, 1000],
-        "nb_generations": [100],
-        "taux_selec": [0.1, 0.15, 0.4, 0.5],
-        "selection_type": ["elitiste", "tournament", "roulette_exp", "rang_geo", "tournoi_elitiste"],
+        "nb_individus": [100, 200, 500],
+        "nb_generations": [150],
+        "taux_selec": [0.15, 0.4, 0.5],
+        "selection_type": ["elitiste", "roulette_exp", "rang_geo", "tournoi_elitiste"],
         "poisson": [False],
         "nb_cuts": [0, 1, 2],
         "nb_append": [1, 2],
         "recuit": [False]
     }
 
+    master_pop = generate_pop(max(params_listed["nb_individus"]), 
+        rot_table_path = table_path, 
+        dna_seq = dna_seq, 
+        nb_cuts = 0, 
+        nb_append = 1
+        )
     # Recursive grid search logic
     total_sims = np.prod([len(v) for v in params_listed.values()])
     print(f"Estimated number of simulations: {total_sims}")
@@ -108,6 +131,7 @@ def run_grid_search(dna_seq, table_path, base_save_filename):
     eval_seq = dna_seq + dna_seq[0] + dna_seq[1]
 
     for nb_ind in params_listed["nb_individus"]:
+        pop_init = master_pop[:nb_ind]
         for nb_gen in params_listed["nb_generations"]:
             for rate in params_listed["taux_selec"]:
                 for sel_type in params_listed["selection_type"]:
@@ -129,7 +153,7 @@ def run_grid_search(dna_seq, table_path, base_save_filename):
                                     "recuit": is_recuit
                                 }
 
-                                res = AlgoGenetique("src/genetic_algo/dna/table.json", dna_seq, **curr_params)
+                                res = AlgoGenetique("src/genetic_algo/dna/table.json", dna_seq,initial_population = pop_init, **curr_params)
                                 bests, best_scores, worst_scores = res
 
                                 histories[config_key] = {'dist' : [], 'norm' : [], 'ps' : []}

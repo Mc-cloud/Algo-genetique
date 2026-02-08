@@ -14,6 +14,7 @@ from genetic_algo.core.algogenetique import AlgoGenetique
 from genetic_algo.core.selection import selections_dic
 from genetic_algo.core.fitness import fitness
 import numpy as np
+import matplotlib.pyplot as plt
 
 base_table = RotTable("src/genetic_algo/dna/table.json")
 base_seq = ''.join([line.rstrip('\n') for line in open("data/raw/plasmid_8k.fasta")][1:]) #exemple utilisé de dinucléotide
