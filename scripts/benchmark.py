@@ -74,33 +74,6 @@ def run_comparison_benchmark(dna_seq, table_path):
 
     return results
 
-
-def save_extended_results(filename, best_list, best_scores, worst_scores, metrics, params, dna_seq):
-    """
-    Custom saver that includes the Distance, Norm, and Dot Product histories.
-    """
-    full_params = params.copy()
-    full_params['dna_seq'] = dna_seq
-    
-    # Structure compatible with your project but with added metrics
-    payload = {
-        "parameters": full_params,
-        "data": {
-            "best_indiv_list": best_list,
-            "best_score_list": best_scores,
-            "worst_score_list": worst_scores,
-            "metrics": metrics # New field containing dist, norm, ps
-        }
-    }
-
-    folder = os.path.dirname(filename)
-    if folder and not os.path.exists(folder):
-        os.makedirs(folder)
-
-    with open(filename, 'wb') as f:
-        pickle.dump(payload, f)
-    print(f"✅ Saved extended results to '{filename}'")
-
 def run_grid_search(dna_seq, table_path, base_save_filename):
     """
     Executes the full grid search defined in the original script.
