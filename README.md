@@ -27,8 +27,7 @@ The project simulates DNA as a 3D trajectory based on :
 
 For a deep dive into the mathematical models, fitness function definitions, and the convergence analysis of different selection strategies, please refer to the full technical report included in this repository:
 
-* 📄 **[Technical Report (PDF)](documents/Rapport_EI_ST2_V2-1.pdf)**: Detailed explanation of the genetic algorithm implementation, parameter tuning, and performance benchmarks.
-* 📄 **[Project Presentation](documents/AG-Pres.pdf)**: High-level summary of the approach and results.
+* 📄 **[Technical Report (PDF)](documents/Rapport_EI_ST2_V2_ENG.pdf)**: Detailed explanation of the genetic algorithm implementation, parameter tuning, and performance benchmarks.
 
 ## Installation
 
@@ -106,8 +105,11 @@ python -m unittest tests.test_algogenetique
 
 ## Autors
 - **Matheo Cahitte** [Mc-cloud](https://github.com/Mc-cloud)
-- **Clément Cournil-Rabeux** 
+- **Clément Cournil-Rabeux** [Klem404](https://github.com/Klem404)
 - **Melkior Demaille**
 - **Clément Rebola**
+
+## Special thanks
+Thank you to Paolo Balarini and Joan Herisson for the original traj3D and RotTable files
 
 **Status** : Project over (2026)
