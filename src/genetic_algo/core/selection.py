@@ -41,9 +41,9 @@ def selection_tournament_elitiste(list_ind, taux_selec, p = 0.001):
     for _ in range(k):
         q = random.random()
         x = random.sample(n_list, k=2)
-        if (x[0].score > x[1].score and q > p) or (x[0].score < x[1].score and q <= p) :
+        if (x[0].score >= x[1].score and q > p) or (x[0].score < x[1].score and q <= p) :
             selection.append(x[1])
-        elif  (x[0].score > x[1].score and q <= p) or (x[0].score < x[1].score and q > p): 
+        elif  (x[0].score >= x[1].score and q <= p) or (x[0].score < x[1].score and q > p): 
             selection.append(x[0])
 
     list_ind_sort = list(list_ind)
@@ -75,9 +75,9 @@ def selection_tournament(list_ind, taux_selec, p = 0.001):
     for _ in range(k):
         q = random.random()
         x = random.sample(n_list, k=2)
-        if (x[0].score > x[1].score and q > p) or (x[0].score < x[1].score and q <= p) :
+        if (x[0].score >= x[1].score and q > p) or (x[0].score <= x[1].score and q <= p) :
             selection.append(x[1])
-        elif  (x[0].score > x[1].score and q <= p) or (x[0].score < x[1].score and q > p): 
+        elif  (x[0].score >= x[1].score and q <= p) or (x[0].score <= x[1].score and q > p): 
             selection.append(x[0])
 
     return selection
