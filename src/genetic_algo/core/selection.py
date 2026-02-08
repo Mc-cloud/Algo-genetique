@@ -3,14 +3,14 @@ import numpy as np
 
 def selection_elitiste(list_ind, taux_selec):
     """
-    Sélection élitiste : conserve les meilleurs individus.
+    Elitist selection: keeps the best individuals.
     
     Args:
-        list_ind: Liste des individus à sélectionner
-        taux_selec: Taux de sélection (proportion d'individus à garder)
+        list_ind: List of individuals to select
+        selection_rate: Selection rate (proportion of individuals to keep)
     
     Returns:
-        Liste des meilleurs individus selon le taux de sélection
+        List of the best individuals according to the selection rate
     """
     list_ind_sort = list(list_ind)
     list_ind_sort.sort()
@@ -23,15 +23,15 @@ def selection_elitiste(list_ind, taux_selec):
 
 def selection_tournament_elitiste(list_ind, taux_selec, p = 0.001):
     """
-    Sélection par tournoi : compare deux individus aléatoires et sélectionne le meilleur.
+    Elitist Tournament selection: compares two random individuals and selects the best one.
     
     Args:
-        list_ind: Liste des individus
-        taux_selec: Taux de sélection
-        p: Probabilité de sélectionner le moins bon individu (diversité)
+        list_ind: List of individuals
+        selection_rate: Selection rate
+        p: Probability of selecting the worst individual (diversity)
     
     Returns:
-        Liste d'individus sélectionnés par tournoi + 10% des meilleurs
+        List of individuals selected by tournament + 10% of the best ones
     """
     selection = []
     n_list = list(list_ind)
@@ -57,15 +57,15 @@ def selection_tournament_elitiste(list_ind, taux_selec, p = 0.001):
 
 def selection_tournament(list_ind, taux_selec, p = 0.001):
     """
-    Sélection par tournoi : compare deux individus aléatoires et sélectionne le meilleur.
+    Tournament selection: compares two random individuals and selects the best one.
     
     Args:
-        list_ind: Liste des individus
-        taux_selec: Taux de sélection
-        p: Probabilité de sélectionner le moins bon individu (diversité)
+        list_ind: List of individuals
+        selection_rate: Selection rate
+        p: Probability of selecting the worst individual (diversity)
     
     Returns:
-        Liste d'individus sélectionnés par tournoi + 10% des meilleurs
+        List of individuals selected by tournament
     """
     selection = []
     n_list = list(list_ind)
@@ -84,14 +84,14 @@ def selection_tournament(list_ind, taux_selec, p = 0.001):
 
 def selection_roulette(list_ind, taux_selec):
     """
-    Sélection par roulette : probabilité inversement proportionnelle au score.
+    Selection by roulette wheel: probability inversely proportional to score.
     
     Args:
-        list_ind: Liste des individus
-        taux_selec: Taux de sélection
+        list_ind: List of individuals
+        selection_rate: Selection rate
     
     Returns:
-        Liste d'individus sélectionnés selon leurs probabilités
+        List of individuals selected according to their probabilities
     """
     total = sum([ind.score for ind in list_ind])
     proba = [1-ind.score/total for ind in list_ind]
@@ -102,15 +102,15 @@ def selection_roulette(list_ind, taux_selec):
 
 def selection_roulette_exp(list_ind, taux_selec, temp=1000):
     """
-    Sélection par roulette avec fonction exponentielle (contrôle de la pression de sélection).
+    Selection by roulette wheel with exponential function (selection pressure control).
     
     Args:
-        list_ind: Liste des individus
-        taux_selec: Taux de sélection
-        temp: Température (contrôle la pression de sélection, plus elle est élevée, moins la sélection est sévère)
+        list_ind: List of individuals
+        selection_rate: Selection rate
+        temp: Temperature (controls selection pressure; the higher it is, the less severe the selection)
     
     Returns:
-        Liste d'individus sélectionnés avec distribution exponentielle
+        List of selected individuals with exponential distribution
     """
     min_score = min([ind.score for ind in list_ind])
     proba = [np.exp((min_score**2-ind.score**2)/temp) for ind in list_ind]
@@ -119,14 +119,14 @@ def selection_roulette_exp(list_ind, taux_selec, temp=1000):
 
 def selection_roulette_exp_normal(list_ind, taux_selec):
     """
-    Sélection par roulette exponentielle normalisée (température = min_score).
+    Selection by normalized exponential roulette wheel (temperature = min_score).
     
     Args:
-        list_ind: Liste des individus
-        taux_selec: Taux de sélection
+        list_ind: List of individuals
+        selection_rate: Selection rate
     
     Returns:
-        Liste d'individus sélectionnés avec distribution exponentielle normalisée
+        List of selected individuals with normalized exponential distribution
     """
     min_score = min([ind.score for ind in list_ind])
     proba = [np.exp((min_score**2-ind.score**2)/(2*min_score)) for ind in list_ind]
@@ -135,14 +135,14 @@ def selection_roulette_exp_normal(list_ind, taux_selec):
 
 def selection_rang_reel(list_ind, taux_selec):
     """
-    Sélection par rang linéaire : probabilité proportionnelle au rang.
+    Linear rank selection: probability proportional to rank.
     
     Args:
-        list_ind: Liste des individus
-        taux_selec: Taux de sélection
+        list_ind: List of individuals
+        selection_rate: Selection rate
     
     Returns:
-        Liste d'individus sélectionnés selon leur rang
+        List of individuals selected according to their rank
     """
     list_ind.sort(reverse = True)
     
@@ -155,16 +155,16 @@ def selection_rang_reel(list_ind, taux_selec):
 
 def selection_rang_geometrique(list_ind, taux_selec, q=0.3):
     """
-    Sélection par rang géométrique : probabilité décroissante géométriquement.
+    Selection by geometric rank: geometrically decreasing probability.
     
     Args:
-        list_ind: Liste des individus
-        taux_selec: Taux de sélection
-        q: Paramètre de pression de sélection (0 < q < 1)
-           Plus q est élevé, plus la sélection favorise les meilleurs
+        list_ind: List of individuals
+        selection_rate: Selection rate
+        q: Selection pressure parameter (0 < q < 1)
+           The higher q is, the more selection favors the best individuals.
     
     Returns:
-        Liste d'individus sélectionnés selon une distribution géométrique
+        List of individuals selected according to a geometric distribution
     """
     list_ind.sort()
 
@@ -181,16 +181,16 @@ def selection_rang_geometrique(list_ind, taux_selec, q=0.3):
 selections_dic = {"tournament_elitiste" : selection_tournament_elitiste, "elitiste":selection_elitiste,"tournament":selection_tournament,"roulette":selection_roulette,"rang_reel":selection_rang_reel,"rang_geo":selection_rang_geometrique, "roulette_exp" : selection_roulette_exp, "roulette_exp_norm": selection_roulette_exp_normal}
 def selection(list_ind,taux_selec,select_type, n=None):
     """
-    Fonction générique de sélection : appelle la méthode appropriée.
+    Generic selection function: calls the appropriate method.
     
     Args:
-        list_ind: Liste des individus
-        taux_selec: Taux de sélection
-        select_type: Type de sélection (clé du dictionnaire selections_dic)
-        n: Numéro de génération (optionnel, utilisé pour ajuster la température)
+        list_ind: List of individuals
+        selection_rate: Selection rate
+        select_type: Selection type (key from the selections_dic dictionary)
+        n: Generation number (optional, used to adjust the temperature)
     
     Returns:
-        Liste d'individus sélectionnés selon la méthode choisie
+        List of individuals selected according to the chosen method
     """
     if n:
         if select_type == "roulette_exp":

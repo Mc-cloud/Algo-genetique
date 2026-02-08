@@ -8,6 +8,16 @@ import numpy as np
 from .resultsmanager import load_simulation_data
 
 def get_indicators(coords):
+    """
+    Compute three trajectory quality metrics.
+    
+    Returns:
+        tuple: (distance, norm_difference, dot_product)
+        - distance: Euclidean distance between start and end points
+        - norm_difference: ||v_start - v_end|| (continuity measure)
+        - dot_product: v_start · v_end (alignment measure)
+    """
+
     dist = np.linalg.norm(coords[0]-coords[-2])
     v1 = coords[-1]-coords[-2]
     v2 = coords[1] -coords[0]
@@ -15,6 +25,17 @@ def get_indicators(coords):
     return dist,np.linalg.norm(v1-v2),np.dot(v2,v1)
 
 def get_trajectories(indiv_list:list,dna_seq:str):
+    """
+    Convert list of individuals to 3D trajectory coordinates.
+    
+    Args:
+        indiv_list: List of Individu objects
+        dna_seq: DNA sequence string
+    
+    Returns:
+        ndarray: Array of shape (n_individuals, n_points, 3) containing xyz coordinates
+    """
+
     trajectories=[]
     traj = Traj3D()
     for indiv in indiv_list:
@@ -24,9 +45,20 @@ def get_trajectories(indiv_list:list,dna_seq:str):
     return np.array(trajectories)
 
 def plot_with_slider(trajectories, block=True):
-    """Mets de la documentation dans tes fonctions, Clément, je t'en supplie…
-    Au moins les plus importantes ! 
-    Là j'ai aucune idée de ce qu'est censé être une trajectoire à priori, une instance de Traj3D ?"""
+    """
+    Interactive 3D visualization of trajectory evolution with slider control.
+    
+    Args:
+        trajectories: ndarray of shape (n_steps, n_points, 3) containing trajectory coordinates
+        block: Whether to block execution until plot is closed (default: True)
+    
+    Displays:
+        - Blue line: DNA trajectory
+        - Green marker: Start point
+        - Red marker: End point
+        - Slider: Navigate through evolution steps
+    """
+
     num_steps = len(trajectories)
     
     # Nombre de points dans une trajectoire (pour aller chercher le dernier)
@@ -97,6 +129,15 @@ def plot_with_slider(trajectories, block=True):
     plt.show(block=block)
 
 def save_trajectory_gif(trajectories, filename="gifs/etapes.gif", fps=10):
+    """
+    Save trajectory evolution as animated GIF.
+    
+    Args:
+        trajectories: ndarray of shape (n_steps, n_points, 3)
+        filename: Output GIF path (default: "gifs/etapes.gif")
+        fps: Frames per second (default: 10)
+    """
+
     folder = os.path.dirname(filename)
     if folder and not os.path.exists(folder):
         os.makedirs(folder)
@@ -126,6 +167,7 @@ def save_trajectory_gif(trajectories, filename="gifs/etapes.gif", fps=10):
 
 
     def update(frame):
+        """Update function for animation."""
         line.set_data(trajectories[frame, :, 0], trajectories[frame, :, 1])
         line.set_3d_properties(trajectories[frame, :, 2])
         
@@ -153,6 +195,14 @@ def save_trajectory_gif(trajectories, filename="gifs/etapes.gif", fps=10):
     print(f"GIF sauvegardé avec succès : {filename}")
 
 def plot_best_worst(filename,dna_seq,title=""):
+    """
+    Plot best and worst fitness scores over generations from a single simulation.
+    
+    Args:
+        filename: Path to simulation pickle file
+        dna_seq: DNA sequence string
+        title: Plot title (default: "")
+    """
     _,best_list,worst_list,_ = load_simulation_data(filename,dna_seq)
     N= [i for i in range(len(best_list))]
     plt.plot(N,best_list, label = "best table")
@@ -165,6 +215,15 @@ def plot_best_worst(filename,dna_seq,title=""):
     plt.show()
 
 def plot_best_multiple(filenames,dna_seq,labels,title=""):
+    """
+    Compare best fitness scores across multiple simulations.
+    
+    Args:
+        filenames: List of simulation pickle file paths
+        dna_seq: DNA sequence string
+        labels: List of labels for each simulation
+        title: Plot title (default: "")
+    """
     if len(labels) != len(filenames):
         labels = [os.path.basename(f) for f in filenames]
     for i in range(len(filenames)):
@@ -181,6 +240,20 @@ def plot_best_multiple(filenames,dna_seq,labels,title=""):
     plt.show()
     
 def plot_three_indicators(dist,norm,ps,title=""):
+    """
+    Plot three trajectory quality indicators over generations.
+    
+    Args:
+        dist: List of distance values per generation
+        norm: List of norm difference values per generation
+        ps: List of dot product values per generation
+        title: Plot title (default: "")
+    
+    Displays three subplots:
+        - Distance: Closure quality
+        - Norm difference: Continuity measure
+        - Dot product: Alignment measure
+    """
     fig, axs = plt.subplots(3,1, figsize = (12,14), sharex = True)
     generations = range(len(dist))
 
@@ -207,6 +280,15 @@ def plot_three_indicators(dist,norm,ps,title=""):
     #plt.savefig('Evolution_metrique_genetique.png')
 
 def plot_multiple_three_indicators(filenames,dna_seq,labels,title=""):
+    """
+    Compare three trajectory indicators across multiple simulations.
+    
+    Args:
+        filenames: List of simulation pickle file paths
+        dna_seq: DNA sequence string
+        labels: List of labels for each simulation
+        title: Plot title (default: "")
+    """
     if len(labels) != len(filenames):
         labels = [os.path.basename(f) for f in filenames]
     fig, axs = plt.subplots(3,1, figsize = (12,14), sharex = True)
@@ -247,9 +329,18 @@ def plot_multiple_three_indicators(filenames,dna_seq,labels,title=""):
         
 def plot_average_multiple(filename_groups, dna_seq, labels, title=""):
     """
-    filename_groups : Liste de listes de noms de fichiers. 
-                      Ex: [['simulA_1.pkl', 'simulA_2.pkl'], ['simulB_1.pkl', ...]]
-    labels          : Liste des noms pour la légende (un par groupe)
+    Plot averaged fitness scores across multiple simulation groups.
+    
+    Useful for comparing different configurations with multiple runs each.
+    
+    Args:
+        filename_groups: List of lists of file paths. Each sublist represents
+                        multiple runs of the same configuration.
+                        Example: [['configA_run1.pkl', 'configA_run2.pkl'],
+                                 ['configB_run1.pkl', 'configB_run2.pkl']]
+        dna_seq: DNA sequence string
+        labels: List of labels (one per group)
+        title: Plot title (default: "")
     """
     
     if len(labels) != len(filename_groups):

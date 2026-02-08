@@ -7,36 +7,36 @@ from genetic_algo.core.selection import selection
 import copy
 from json import load as json_load
 
+
+# =============================================================================
+# GLOBAL VARIABLES
+# =============================================================================
+
 str_data = None
 Rot_data = None
 nb_cut = None
 nbappend = None
 beta = 1
 big_mut = 2
+
+
+
 class Individu:
-    def __init__(self, Table_rot):
-        """
-        Initialise un individu avec une table de rotations.
-        Args:
-            Table_rot: Dictionnaire contenant les paramètres de rotation pour chaque dinucléotide
-        """
+    """
+    Individual solution candidate in the genetic algorithm.
+    Contains rotation parameters for all 16 dinucleotides (AA, AC, ..., TT).
+    """
+    def __init__(self, Table_rot): 
+        """Initialize individual with rotation table and compute fitness score."""
         self.Rot_table = RotTable.RotTable(Table_rot)
         self.score = self.fit()
 
 
     def __add__(self, other): #fonction permettant d'acoupler deux individus
         """
-        Opérateur de croisement (crossover) : combine deux individus parents.
-        Effectue un croisement pondéré par les scores des parents. Le parent avec le
-        meilleur score (plus bas) a plus d'influence sur la descendance.
-        Args:
-            other: Autre individu parent
-        Returns:
-            Nouvel individu enfant issu du croisement
-        Note:
-            - alpha représente la contribution du parent 'other'
-            - beta contrôle l'intensité du mélange génétique
-            - Chaque paramètre a 50% de chance de provenir majoritairement de chaque parent
+        Crossover operator: combine two parents to create offspring.
+        Uses weighted mixing based on parent fitness scores.
+        Better parents (lower score) contribute more to offspring.
         """
         s_score,o_score = self.score,other.score
         alpha = 0.5
@@ -55,7 +55,12 @@ class Individu:
         return Individu(Table)
     
     def mutation(self,mutrate,sigma):
-        #global Rot_data
+        """
+        Apply mutations to rotation parameters.
+        Two types: frequent small mutations and rare large mutations.
+        Parameters are bounded within valid ranges from reference table.
+        """
+
         if 0<=mutrate <=1:
             Table =copy.deepcopy(self.Rot_table.rot_table)
             for XY in Table:
@@ -72,18 +77,19 @@ class Individu:
             self.score = self.fit()
 
     def fit(self) -> float:
-        """
-        Calcule le score de fitness de l'individu.
-        """
+        """Calculate fitness score (lower is better)."""
         return fitness(self.Rot_table,str_data,nbcuts=nb_cut,nbappend=nbappend)
 
     def __lt__(self,other):
-        """
-        Opérateur de comparaison : permet de trier les individus par score.
-        """
+        """Enable sorting by fitness score."""
         return self.score<other.score
     
 def generate_pop(nb_individus, rot_table_path, dna_seq, nb_cuts = 0, nb_append = 1):
+    """
+    Generate initial population with randomized rotation parameters.
+    Each parameter is randomly perturbed within ±std_dev of reference value.
+    """
+
     rot_table = json_load(open(rot_table_path))
     global str_data, Rot_data, nb_cut, nbappend
     str_data = dna_seq
@@ -103,33 +109,34 @@ def generate_pop(nb_individus, rot_table_path, dna_seq, nb_cuts = 0, nb_append =
     return [New_individu() for _ in range(nb_individus)]
     
 
-def AlgoGenetique(filename : str,dna_seq: str, nb_individus,nb_generations,taux_selec,selection_type : str,poisson=False,nb_cuts = 0,nb_append = 1,recuit=False,beta_reproduction = 0.7,mutrate = 0.02, big_mutation = 20, initial_population = None) :
+def AlgoGenetique(filename : str,dna_seq: str, 
+                nb_individus,nb_generations,taux_selec,selection_type : str,
+                poisson=False,nb_cuts = 0,nb_append = 1,recuit=False,beta_reproduction = 0.7,
+                mutrate = 0.02, big_mutation = 20, initial_population = None) :
     """
-    Algorithme génétique pour optimiser les paramètres de rotation de l'ADN.
+    Genetic algorithm for optimizing DNA rotation parameters.
     
-    Cherche à trouver une table de rotations qui minimise le score de fermeture
-    de la structure ADN (pour former des plasmides circulaires stables).
+    Evolves population to minimize closure error of circular DNA structures.
+    Process: selection → crossover → mutation → replacement.
     
     Args:
-        filename: Chemin vers le fichier JSON contenant la table de rotations initiale
-        dna_seq: Séquence ADN à optimiser
-        nb_individus: Taille de la population
-        nb_generations: Nombre de générations à simuler
-        taux_selec: Taux de sélection (proportion d'individus gardés comme géniteurs)
-        selection_type: Type de sélection ("elitiste", "tournament", "roulette", etc.)
-        poisson: Si True, le nombre de géniteurs suit une loi de Poisson (défaut: False)
-        nb_cuts: Nombre de points de coupure pour le calcul de fitness (défaut: 0)
-        nb_append: Nombre de nœuds à ajouter pour tester la fermeture (défaut: 1)
-        recuit: Si True, active le recuit simulé (température décroissante) (défaut: False)
-        beta_reproduction: Coefficient de mélange lors du croisement (défaut: 0.7)
-        mutrate: Taux de mutation initial (défaut: 0.02)
-        big_mutation: Facteur pour les grosses mutations (défaut: 20)
+        filename: Path to reference rotation table JSON
+        dna_seq: DNA sequence to optimize
+        nb_individus: Population size
+        nb_generations: Number of evolution iterations
+        taux_selec: Selection rate (fraction kept as parents, 0-1)
+        selection_type: "elitiste", "tournament", "roulette_lin", "roulette_exp", etc.
+        poisson: Use Poisson distribution for parent count (default: False)
+        nb_cuts: Cut points for trajectory calculation (default: 0)
+        nb_append: Bases to append for closure test (default: 1)
+        recuit: Enable simulated annealing - adaptive mutation (default: False)
+        beta_reproduction: Crossover mixing coefficient (default: 0.7)
+        mutrate: Initial mutation rate (default: 0.02)
+        big_mutation: Large mutation factor (default: 20)
+        initial_population: Pre-generated population (default: None, generates random)
     
     Returns:
-        Tuple contenant :
-        - Liste des meilleurs individus à chaque génération
-        - Liste des scores du meilleur individu à chaque génération
-        - Liste des scores du pire individu à chaque génération
+        tuple: (best_individuals_per_gen, best_scores, worst_scores)
     """
     rot_table = json_load(open(filename))
     global str_data,Rot_data, nb_cut, nbappend, big_mut, beta

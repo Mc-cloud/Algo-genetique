@@ -18,20 +18,22 @@ from genetic_algo.core.algogenetique import AlgoGenetique, generate_pop
 from genetic_algo.utils.simulsmanager import simul_and_save_results
 from genetic_algo.utils.resultsmanager import load_simulation_data
 from genetic_algo.dna.Traj3D import Traj3D
-from genetic_algo.utils.plot import plot_with_slider, get_trajectories, plot_three_indicators, save_trajectory_gif
+from genetic_algo.utils.plot import get_indicators, plot_with_slider, get_trajectories, plot_three_indicators, save_trajectory_gif
 
 
 
 def load_fasta(file_path):
-    """Helper to read FASTA file ignoring the header."""
+    """Read FASTA file and return DNA sequence (headers excluded)."""
     with open(file_path, 'r') as f:
         lines = f.readlines()
     return "".join([line.strip() for line in lines if not line.startswith(">")])
 
 def run_comparison_benchmark(dna_seq, table_path):
     """
-    Runs a quick comparison between different selection strategies.
-    Useful to see which algorithm performs best on the current machine.
+    Compare performance of different selection strategies.
+    
+    Tests: elitist, tournament, linear roulette, and exponential roulette selection.
+    Returns list of tuples: (strategy_name, best_score, duration, best_individual_list)
     """
     print(f"\n{'='*60}")
     print(f"🚀 RUNNING COMPARISON BENCHMARK")
@@ -93,7 +95,15 @@ def run_comparison_benchmark(dna_seq, table_path):
 
 def run_grid_search(dna_seq, table_path, base_save_filename):
     """
-    Executes the full grid search defined in the original script.
+    Exhaustive hyperparameter grid search.
+    
+    Tests all combinations of population sizes, selection rates, strategies,
+    cuts, and appends. Evaluates three trajectory metrics:
+    - Distance: Euclidean distance between start and end (closure quality)
+    - Norm difference: ||v_start - v_end|| (continuity)
+    - Dot product: v_start · v_end (alignment)
+    
+    Outputs: 'Evolution_metrique_genetique.png' with three metric plots.
     """
     print(f"\n{'='*60}")
     print(f"🧪 RUNNING GRID SEARCH (This may take a while...)")
@@ -117,11 +127,10 @@ def run_grid_search(dna_seq, table_path, base_save_filename):
         nb_cuts = 0, 
         nb_append = 1
         )
-    # Recursive grid search logic
+
     total_sims = np.prod([len(v) for v in params_listed.values()])
     print(f"Estimated number of simulations: {total_sims}")
 
-    # Helper to iterate (simplified from original to ensure execution)
     histories = {}
 
     count = 0
@@ -162,18 +171,7 @@ def run_grid_search(dna_seq, table_path, base_save_filename):
                                     traj_tool.compute(eval_seq, best.Rot_table)
                                     coords = traj_tool.getTraj()
 
-                                    dist = np.linalg.norm(coords[0] - coords[-2])
-                                    v_start = coords[1] - coords[0]
-                                    v_end = coords[-1] - coords[-2]
-
-                                    if np.linalg.norm(v_start)!= 0:
-                                        v_start = v_start/np.linalg.norm(v_start)
-                                    if np.linalg.norm(v_end) != 0:
-                                        v_end = v_end/np.linalg.norm(v_end)
-
-                                    norm_diff = np.linalg.norm(v_start - v_end)
-
-                                    dot_prod = np.dot(v_start, v_end)
+                                    dist, norm_diff, dot_prod = get_indicators(coords)
 
                                     histories[config_key]['dist'].append(dist)
                                     histories[config_key]['norm'].append(norm_diff)
@@ -210,6 +208,18 @@ def run_grid_search(dna_seq, table_path, base_save_filename):
                                 
 
 def main():
+    """
+    Genetic algorithm benchmark tool with three modes:
+    
+    compare: Quick strategy comparison (default)
+    grid: Exhaustive hyperparameter search
+    plot: Visualize existing results
+    
+    Usage:
+        python benchmark.py --mode compare
+        python benchmark.py --mode grid --file data/raw/my_sequence.fasta
+    """
+
     parser = argparse.ArgumentParser(description="Genetic Algorithm Benchmark Tool")
     parser.add_argument('--mode', type=str, choices=['compare', 'grid', 'plot'], default='compare', 
                         help='Mode: "compare" (speed test), "grid" (exhaustive search), "plot" (visualize existing results)')

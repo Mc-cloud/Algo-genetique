@@ -4,22 +4,23 @@ from genetic_algo.dna.Traj3D import Traj3D
 
 
 def dist_df(coords: list, nbappend = 1):
-    """Prend en entrée une trajectoire sous la forme d'une liste d'array 
-    correspondant aux coordonnées des nœuds, en joiniant les nbappend premiers
-    nœuds à la fin. On compare ensuite la distance euclidienne entre les
-    nœuds initiaux et ceux rajoutés."""
-
     """
-    Calcule la distance de fermeture d'une trajectoire ADN.
-    Mesure la distance euclidienne entre les premiers et derniers nœuds
-    d'une trajectoire pour évaluer si la structure ADN se referme correctement.
+    Takes as input a trajectory in the form of an array list 
+    corresponding to the coordinates of the nodes, joining the first nbappend nodes
+    at the end. The Euclidean distance between the
+    initial nodes and the added nodes is then compared.“”"
+
+    “”"
+    Calculates the closure distance of a DNA trajectory.
+    Measures the Euclidean distance between the first and last nodes
+    of a trajectory to assess whether the DNA structure closes correctly.
     Args:
-        coords: Liste d'arrays numpy représentant les coordonnées 3D des nœuds de la trajectoire
-        nbappend: Nombre de nœuds à comparer entre le début et la fin (défaut: 1)
+        coords: List of numpy arrays representing the 3D coordinates of the nodes of the trajectory
+        nbappend: Number of nodes to compare between the start and end (default: 1)
     Returns:
-        Distance euclidienne totale entre les nbappend premiers et derniers nœuds
+        Total Euclidean distance between the nbappend first and last nodes
     Note:
-        Utilisé pour vérifier la circularité de l'ADN (plasmides circulaires)
+        Used to check the circularity of DNA (circular plasmids)
     """
     start = coords[:nbappend]
     end = coords[-nbappend:]
@@ -32,38 +33,38 @@ def dist_df(coords: list, nbappend = 1):
 
 def dist_euclid(scores: list) -> float:
     """
-    Calcule la norme euclidienne d'un vecteur de scores.
+    Calculates the Euclidean norm of a vector of scores.
     Args:
-        scores: Liste de valeurs numériques
+        scores: List of numerical values
     Returns:
-        Norme L2 (euclidienne) du vecteur de scores
+        L2 (Euclidean) norm of the vector of scores
     Note:
-        Utilisé comme fonction de combinaison pour agréger plusieurs scores
+        Used as a combination function to aggregate multiple scores
     """
     return np.linalg.norm(scores)
 
 
 def fitness(rot_table: RotTable, seq: str, fct_poids = dist_df, nbappend = 2, nbcuts = 2, coup_combin = dist_euclid) -> float :
     """
-    Fonction de fitness pour évaluer la qualité d'une séquence ADN.
+    Fitness function to evaluate the quality of a DNA sequence.
     
-    Calcule un score de fermeture en testant la séquence à différents points de coupure
-    pour évaluer sa capacité à former une structure circulaire stable.
+    Calculates a closure score by testing the sequence at different cut-off points
+    to evaluate its ability to form a stable circular structure.
     
     Args:
-        rot_table: Table des rotations pour calculer la trajectoire 3D de l'ADN
-        seq: Séquence ADN à évaluer (chaîne de caractères)
-        fct_poids: Fonction de calcul du poids/score pour une trajectoire (défaut: dist_df)
-        nbappend: Nombre de nœuds à ajouter à la fin pour tester la fermeture (défaut: 2)
-        nbcuts: Nombre de points de coupure à tester (défaut: 2)
-        coup_combin: Fonction pour combiner les scores des différentes coupures (défaut: dist_euclid)
+        rot_table: Rotation table for calculating the 3D trajectory of the DNA.
+        seq: DNA sequence to be evaluated (character string).
+        fct_weight: Function for calculating the weight/score for a trajectory (default: dist_df).
+        nbappend: Number of nodes to add at the end to test closure (default: 2)
+        nbcuts: Number of cut points to test (default: 2)
+        coup_combin: Function to combine the scores of the different cuts (default: dist_euclid)
     
     Returns:
-        Score de fitness (plus le score est bas, meilleure est la fermeture)
+        Fitness score (the lower the score, the better the closure)
     
     Note:
-        La méthode teste plusieurs rotations circulaires de la séquence pour évaluer
-        la stabilité globale de la structure ADN circulaire.
+        The method tests several circular rotations of the sequence to evaluate
+        the overall stability of the circular DNA structure.
     """
     nbases = len(seq)
     assert nbases >= nbappend
@@ -71,14 +72,14 @@ def fitness(rot_table: RotTable, seq: str, fct_poids = dist_df, nbappend = 2, nb
 
     def eval_une_coupure(seq: str, nbappend: int, indcut: int):
         """
-        Évalue le score de fermeture pour un point de coupure donné.
+        Evaluates the closure score for a given cut site.
         Args:
-            seq: Séquence ADN
-            nbappend: Nombre de nœuds à rajouter
-            indcut: Index du point de coupure
+            seq: DNA sequence
+            nbappend: Number of nodes to add
+            indcut: Cut site index
         
         Returns:
-            Score de fermeture pour cette coupure
+            Closure score for this cut
         """
         traj.compute(seq[indcut:]+seq[:indcut+nbappend], rot_table)
         coords = traj.getTraj()

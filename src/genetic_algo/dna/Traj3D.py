@@ -14,17 +14,13 @@ def fast_compute_loop(encoded_seq, matrices_db):
     Compiled machine code version of the trajectory loop.
     """
     N = len(encoded_seq)
-    # Initialize trajectory array (N, 4)
-    # We use flattened index for the last dimension to keep it simple in Numba
     traj = np.zeros((N, 4))
     
-    # Starting point: [0, 0, 0, 1]
     traj[0, 0] = 0.0
     traj[0, 1] = 0.0
     traj[0, 2] = 0.0
     traj[0, 3] = 1.0
 
-    # Initialize cumulative matrix as Identity (4x4)
     total_matrix = np.eye(4)
 
     # Loop over the sequence
@@ -33,14 +29,10 @@ def fast_compute_loop(encoded_seq, matrices_db):
         # (A=0, C=1, G=2, T=3) -> 'AC' = 0*4 + 1 = 1
         idx = encoded_seq[i-1] * 4 + encoded_seq[i]
         
-        # Retrieve the pre-computed matrix for this dinucleotide
         step_matrix = matrices_db[idx]
         
-        # Matrix multiplication: Total = Total @ Step
-        # Numba optimizes this dot product heavily
         total_matrix = total_matrix @ step_matrix
         
-        # Store the position (last column of the transformation matrix)
         traj[i, 0] = total_matrix[0, 3]
         traj[i, 1] = total_matrix[1, 3]
         traj[i, 2] = total_matrix[2, 3]
@@ -114,7 +106,6 @@ class Traj3D:
 
 
         Omega = math.radians(rot_table.getTwist(dinucleotide))
-        # Create rotation matrix of theta on Z axis
         
 
         sigma = rot_table.getWedge(dinucleotide)

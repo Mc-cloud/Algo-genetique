@@ -3,13 +3,17 @@ import os
 
 def save_simulation_data(filename, best_indiv_list, best_score_list, worst_score_list, params, dna_seq):
     """
-    Sauvegarde 3 listes passées séparément.
+    Save genetic algorithm simulation results to pickle file.
     
     Args:
-        filename (str): Chemin du fichier.
-        best_indiv_list, best_score_list, worst_score_list : Tes trois listes de données.
-        params (dict): Tes paramètres (nb_indiv, etc.).
-        dna_seq (str): La séquence d'ADN.
+        filename: Output file path (.pkl)
+        best_indiv_list: List of best individuals per generation
+        best_score_list: List of best fitness scores per generation
+        worst_score_list: List of worst fitness scores per generation
+        params: Dictionary of simulation parameters
+        dna_seq: DNA sequence string used in simulation
+    
+    Creates output directory if it doesn't exist.
     """
 
     full_params = params.copy()
@@ -37,7 +41,18 @@ def save_simulation_data(filename, best_indiv_list, best_score_list, worst_score
 
 def load_simulation_data(filename, check_dna_seq):
     """
-    Charge les données , uniquement si l'adn est bien correspondant.
+    Load simulation results with DNA sequence validation.
+    
+    Args:
+        filename: Path to pickle file
+        check_dna_seq: Expected DNA sequence (for validation)
+    
+    Returns:
+        tuple: (best_indiv_list, best_score_list, worst_score_list, parameters)
+    
+    Raises:
+        FileNotFoundError: If file doesn't exist
+        ValueError: If stored DNA sequence doesn't match check_dna_seq
     """
     if not os.path.exists(filename):
         raise FileNotFoundError(f"Fichier '{filename}' introuvable.")
