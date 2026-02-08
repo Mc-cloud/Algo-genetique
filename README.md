@@ -71,9 +71,11 @@ Algo-genetique/
 │   ├── core/              # GA Logic (Individual, Selection, Fitness)
 │   ├── dna/               # DNA 3D Modeling (RotTable, Traj3D)
 │   └── utils/             # Visualization & I/O
-├── data/                  # FASTA sequences
+├── data/
+│    ├── processed/        # Test results and benchmarks
+│    └── raw/              # FASTA sequences
 ├── tests/                 # Unit tests
-├── documents/             # Academic reports and presentations
+├── documents/             # Academic reports
 └── scripts/               # Executable benchmarks and runners
 ```
 
